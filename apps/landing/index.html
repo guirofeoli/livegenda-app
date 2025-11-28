@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Livegenda - Agendamento Inteligente via WhatsApp Business</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#a855f7",
+              "background-light": "#faf5ff",
+              "background-dark": "#1a0a2e",
+              "secondary": "#2563eb","text-light": "#111714",
+              "text-dark": "#e8f5e9",
+              "text-muted-light": "#9333ea",
+              "text-muted-dark": "#c084fc",
+              "border-light": "#e9d5ff",
+              "border-dark": "#581c87",
+              "card-light": "#ffffff",
+              "card-dark": "#2e1065"
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;}
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-border-light dark:border-border-dark">
+<div class="container mx-auto flex items-center p-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">task_alt</span>
+<h2 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Livegenda</h2>
+</div>
+<!-- Menu Desktop -->
+<nav class="hidden md:flex flex-1 items-center justify-center gap-8">
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#recursos">Recursos</a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#executivos">Executivos</a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#equipes">Equipes</a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#planos">Planos</a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#depoimentos">Depoimentos</a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-text-light dark:hover:text-text-dark text-sm font-bold leading-normal tracking-[0.015em]" href="#contato">Contato</a>
+</nav>
+<div class="flex items-center justify-end gap-4 ml-auto">
+<!-- Botão Menu Mobile -->
+<button id="mobile-menu-button" class="md:hidden text-text-light dark:text-text-dark p-2" aria-label="Menu">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<a class="text-secondary text-sm font-bold leading-normal tracking-[0.015em]" href="https://app.livegenda.com/login" target="_blank">Login</a>
+<a href="https://app.livegenda.com/register" class="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Experimente Grátis</span>
+</a>
+</div>
+</div>
+</header>
+
+<!-- Menu Mobile Dropdown -->
+<div id="mobile-menu" class="hidden md:hidden bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+<nav class="container mx-auto flex flex-col p-4 gap-4">
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#recursos">Recursos</a>
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#executivos">Executivos</a>
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#equipes">Equipes</a>
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#planos">Planos</a>
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#depoimentos">Depoimentos</a>
+<a class="text-text-light dark:text-text-dark hover:text-primary text-base font-bold py-2" href="#contato">Contato</a>
+<div class="border-t border-border-light dark:border-border-dark pt-4 mt-2">
+<a href="https://app.livegenda.com/register" class="block w-full py-3 text-center bg-primary text-white rounded-lg font-bold">
+Experimente Grátis
+</a>
+</div>
+</nav>
+</div>
+
+<main>
+<section class="container mx-auto @container py-16 md:py-24">
+<div class="flex flex-col gap-10 px-4 @[864px]:flex-row @[864px]:items-center">
+<div class="flex flex-col gap-6 text-center @[864px]:text-left @[864px]:flex-1 @[864px]:gap-8">
+<div class="flex flex-col gap-4">
+<h1 class="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl @[480px]:leading-tight">
+                                Livegenda: Agendamento Inteligente via WhatsApp Business
+                            </h1>
+<h2 class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal @[480px]:text-lg">
+                                Integre com o Google Calendar, envie lembretes automáticos e gerencie sua equipe com facilidade.
+                            </h2>
+</div>
+<a href="https://app.livegenda.com/register" class="flex self-center @[864px]:self-start min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Experimente Grátis</span>
+</a>
+</div>
+<div class="w-full @[864px]:flex-1">
+<div class="w-full bg-center bg-no-repeat aspect-square sm:aspect-video bg-cover rounded-xl" data-alt="Smartphone showing the Livegenda app interface with a calendar and chat bubbles." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCk3SlRixbqJKrzIHfkYaaO9FZaLRLzbJIqQaqo9LDzD-v7pPYOHx2a88-qeikExPgryM209Ok5SFSVHtX1rdDj36TrYYOFrtXm7OIlJBLCCbKSkjaL9jmeYNurxYhCox_D_tWTcYazd930CPB9kafHiBhClz1m_9585qENLPmT6uSdB2Q4xxYy5xhxZOlf9RIlfvJYVyE8G3D9zMTu4rS_ANGHv8dXVqZ-XaSgr1jqpDhtdsBIRxkRtq1DmnkUqiTRRrVK1RyOPRZ-");'></div>
+</div>
+</div>
+</section>
+<section id="recursos" class="container mx-auto flex flex-col gap-10 px-4 py-16 @container">
+<div class="flex flex-col gap-4 text-center">
+<h2 class="text-text-light dark:text-text-dark tracking-tight text-3xl font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-3xl mx-auto">
+                        Tudo que você precisa para otimizar seus agendamentos
+                    </h2>
+<p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal max-w-2xl mx-auto">Descubra como nossas funcionalidades podem transformar a gestão do seu negócio.</p>
+</div>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 p-0">
+<div class="flex flex-1 gap-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 flex-col">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">chat</span>
+<div class="flex flex-col gap-1">
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">Agendamento por WhatsApp</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Permita que seus clientes agendem horários diretamente pelo WhatsApp, de forma simples e rápida.</p>
+</div>
+</div>
+<div class="flex flex-1 gap-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 flex-col">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">calendar_month</span>
+<div class="flex flex-col gap-1">
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">Sincronização com Google Calendar</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Mantenha sua agenda sempre atualizada com a sincronização automática e em tempo real.</p>
+</div>
+</div>
+<div class="flex flex-1 gap-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 flex-col">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">notifications_active</span>
+<div class="flex flex-col gap-1">
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">Lembretes Personalizados</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Reduza o não comparecimento com lembretes automáticos e personalizados para seus clientes.</p>
+</div>
+</div>
+<div class="flex flex-1 gap-4 rounded-xl border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark p-6 flex-col">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px;">groups</span>
+<div class="flex flex-col gap-1">
+<h3 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight">Controle de Equipe</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Gerencie a escala de funcionários, canais de atendimento e horários disponíveis com facilidade.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-card-light dark:bg-card-dark py-16 md:py-24" id="executivos">
+<div class="container mx-auto px-4 flex flex-col gap-10 @container">
+<div class="flex flex-col gap-4 text-center max-w-3xl mx-auto">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl">Livegenda para Executivos: Simplificando Sua Agenda</h2>
+<p class="text-text-muted-light dark:text-text-muted-dark text-base md:text-lg">Sabemos que seu tempo é precioso. O Livegenda oferece ferramentas de alta performance para executivos que precisam de agilidade, discrição e controle total sobre seus compromissos.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0"><span class="material-symbols-outlined text-primary text-3xl">lock_clock</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark text-lg">Agendamento Flexível e Discreto via WhatsApp</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Coordene reuniões importantes através de uma interface familiar e segura, sem ruídos.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0"><span class="material-symbols-outlined text-primary text-3xl">sync</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark text-lg">Sincronização Avançada com Google Calendar</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Integração perfeita com suas agendas pessoais e profissionais, evitando conflitos e duplicidade.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0"><span class="material-symbols-outlined text-primary text-3xl">admin_panel_settings</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark text-lg">Gerenciamento Delegado para Secretárias</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Permita que sua equipe gerencie sua agenda com permissões de acesso personalizadas e seguras.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0"><span class="material-symbols-outlined text-primary text-3xl">view_timeline</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark text-lg">Visão Consolidada de Compromissos</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Tenha uma visão clara de todos os seus compromissos em um único dashboard inteligente.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0"><span class="material-symbols-outlined text-primary text-3xl">priority_high</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark text-lg">Alertas Personalizados para Prioridades</h3>
+<p class="text-text-muted-light dark:text-text-muted-dark text-sm">Configure notificações inteligentes para não perder prazos e reuniões estratégicas.</p>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center">
+<a class="inline-flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]" href="#planos">
+<span class="truncate">Descubra o Plano Executivo</span>
+</a>
+</div>
+</div>
+</section>
+<section id="equipes" class="container mx-auto py-16 md:py-24 px-4 @container">
+<div class="flex flex-col gap-10">
+<div class="flex flex-col gap-4 text-center max-w-3xl mx-auto">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] md:text-4xl">Gestão de Equipes Otimizada: Controle de Escala e Agendamento</h2>
+<p class="text-text-muted-light dark:text-text-muted-dark text-base md:text-lg">Coordene sua equipe com ferramentas poderosas que simplificam a distribuição de tarefas e maximizam a produtividade.</p>
+</div>
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+<div class="flex items-start gap-4 rounded-xl p-4">
+<div class="flex-shrink-0 rounded-full bg-primary/10 p-2"><span class="material-symbols-outlined text-primary">calendar_view_week</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Visão Centralizada da Disponibilidade</h3>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Acesse a agenda de toda a equipe em um só lugar, facilitando o planejamento.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl p-4">
+<div class="flex-shrink-0 rounded-full bg-primary/10 p-2"><span class="material-symbols-outlined text-primary">assignment_ind</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Atribuição Inteligente de Agendamentos</h3>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">O sistema distribui novos agendamentos com base na disponibilidade e carga de trabalho.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl p-4">
+<div class="flex-shrink-0 rounded-full bg-primary/10 p-2"><span class="material-symbols-outlined text-primary">filter_alt</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Filtros Avançados</h3>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Filtre por funcionário, serviço ou data para encontrar informações rapidamente.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl p-4">
+<div class="flex-shrink-0 rounded-full bg-primary/10 p-2"><span class="material-symbols-outlined text-primary">leaderboard</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Relatórios de Produtividade</h3>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Acompanhe o desempenho da equipe com relatórios detalhados e insights valiosos.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 rounded-xl p-4">
+<div class="flex-shrink-0 rounded-full bg-primary/10 p-2"><span class="material-symbols-outlined text-primary">forum</span></div>
+<div>
+<h3 class="font-bold text-text-light dark:text-text-dark">Comunicação Simplificada</h3>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Mantenha todos na mesma página com canais de comunicação integrados.</p>
+</div>
+</div>
+</div>
+<div class="mt-6 text-center">
+<a class="inline-flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]" href="#planos">
+<span class="truncate">Conheça o Plano Enterprise</span>
+</a>
+</div>
+</div>
+</section>
+
+<section id="planos" class="py-16 px-4 bg-card-light dark:bg-card-dark">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Escolha seu Plano</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300">Planos flexíveis para todos os tamanhos de negócio</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Plano Simples -->
+                <div class="p-8 bg-background-light dark:bg-background-dark rounded-2xl border-2 border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold mb-2">Simples</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">Para profissionais autônomos</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-extrabold">R$ 29</span>
+                        <span class="text-gray-600 dark:text-gray-300">/mês</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Até 100 agendamentos/mês</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Lembretes automáticos</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Integração WhatsApp</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Google Calendar</span>
+                        </li>
+                    </ul>
+                    <a href="https://app.livegenda.com/register" class="block w-full py-3 text-center bg-border-light dark:bg-border-dark text-text-light dark:text-text-dark rounded-lg font-bold hover:bg-primary hover:text-background-dark transition-all">
+                        Começar Grátis
+                    </a>
+                </div>
+
+                <!-- Plano Intermediário -->
+                <div class="p-8 bg-white rounded-2xl border-2 border-primary transform scale-105 shadow-2xl">
+                    <div class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">
+                        MAIS POPULAR
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-gray-900">Intermediário</h3>
+                    <p class="text-gray-600 mb-6">Para pequenas equipes</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-extrabold text-gray-900">R$ 79</span>
+                        <span class="text-gray-600">/mês</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-gray-900">
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Agendamentos ilimitados</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Até 3 usuários</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Relatórios avançados</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Suporte prioritário</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Personalização avançada</span>
+                        </li>
+                    </ul>
+                    <a href="https://app.livegenda.com/register" class="block w-full py-3 text-center bg-primary text-white rounded-lg font-bold hover:bg-purple-600 transition-all">
+                        Começar Grátis
+                    </a>
+                </div>
+
+                <!-- Plano Enterprise -->
+                <div class="p-8 bg-background-light dark:bg-background-dark rounded-2xl border-2 border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">Para grandes empresas</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-extrabold">R$ 199</span>
+                        <span class="text-gray-600 dark:text-gray-300">/mês</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Usuários ilimitados</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Gestão de equipes</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>API dedicada</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Suporte 24/7</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span>Treinamento personalizado</span>
+                        </li>
+                    </ul>
+                    <a href="https://app.livegenda.com/register" class="block w-full py-3 text-center bg-border-light dark:bg-border-dark text-text-light dark:text-text-dark rounded-lg font-bold hover:bg-primary hover:text-background-dark transition-all">
+                        Começar Grátis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section id="depoimentos" class="container mx-auto flex flex-col gap-10 px-4 py-16 @container">
+<div class="flex flex-col gap-4 text-center">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em]">O que nossos clientes dizem</h2>
+<p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal max-w-2xl mx-auto">Veja como o Livegenda está ajudando negócios como o seu a crescer.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="flex flex-col gap-4 rounded-xl bg-card-light dark:bg-card-dark p-6 border border-border-light dark:border-border-dark">
+<div class="flex items-center gap-4">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Foto de Ana Souza" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUyQgcA7_AFYp7iGwUwMcLbHNBZZni9hy9m0s4iAudTEnRY-W_Gt9jpI2gSuiCbywumZC1UNLFxbVqsug1naH4utVdZk7X2AjcGHT_nkFRk-KEmDC4hJG45YR8xRn4ERkHBOReIamIcqWV_M36NZFCrgjjlGesk0R86wqonlDeNLMnqdwKd30oe93-JXpbOqh5UtmBisHdJ0J66I98GLqx6eFyLMmYjJTZSrfz8pHxXq5d8qoiqNjiSGTJqS8fx7ywuoYBaOQMGr8j"/>
+<div>
+<h4 class="font-bold text-text-light dark:text-text-dark">Ana Souza</h4>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Clínica de Estética</p>
+</div>
+</div>
+<p class="text-text-muted-light dark:text-text-muted-dark">"O Livegenda revolucionou nosso agendamento. A taxa de não comparecimento caiu 40% graças aos lembretes automáticos!"</p>
+</div>
+<div class="flex flex-col gap-4 rounded-xl bg-card-light dark:bg-card-dark p-6 border border-border-light dark:border-border-dark">
+<div class="flex items-center gap-4">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Foto de Carlos Lima" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA848Apg44FtXuITCuJIEFZ-wB0AaukvbfP_VUg610Hp7M0pGHfXhyA-pRq2_4_SAhfqSmhA8zLc8nQoRtXUF8OaWCihDT1Q9yZeNulJ6i67qO0QafiHlFDfNqgKhlWrF0FE99DJa6ec-xaXzOjrviZ7xAzBdWlHw5LSdE2QDbfpXmw3Qt_ypnOh8MjwbWzcGSriK47xegBNBkgC3zG5-tjdAu4onbmPQddnrM-dlfPmEVj_u4lOpKbSsrOiw6FZvRtcFn1GRZAweKq"/>
+<div>
+<h4 class="font-bold text-text-light dark:text-text-dark">Carlos Lima</h4>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Barbearia Premium</p>
+</div>
+</div>
+<p class="text-text-muted-light dark:text-text-muted-dark">"Gerenciar a agenda dos meus três barbeiros ficou muito mais fácil. A integração com o Google Calendar é perfeita."</p>
+</div>
+<div class="flex flex-col gap-4 rounded-xl bg-card-light dark:bg-card-dark p-6 border border-border-light dark:border-border-dark">
+<div class="flex items-center gap-4">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Foto de Juliana Costa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwTGqqORDCWlo17MPmUXlt3AhEqOQ1EYKCDH7PcJb4RSSVVuiSZyaVPuYOtm4TEhhLaFBFtGaDWIVCKxT4THeWPk8K3-geIoXdh-ySe9yCe18xLbMcXCaFaHful3xAvf4FJm_MM_oOnDC6yIOwhwq6R8Gk6IjEa23J-txK-Xo3Hv4lTF9YaF62SlPIMQudiDUwt8Rwm8f2o8FE2x-RvW1K6RAKXC424LGQeSt5nuZ9y0WKiaT1XRX_BQspOVkY1EMst2EXx9HeP2rs"/>
+<div>
+<h4 class="font-bold text-text-light dark:text-text-dark">Juliana Costa</h4>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Consultoria de Imagem</p>
+</div>
+</div>
+<p class="text-text-muted-light dark:text-text-muted-dark">"Meus clientes adoram a facilidade de agendar pelo WhatsApp. Otimizou meu tempo e profissionalizou meu atendimento."</p>
+</div>
+</div>
+</section>
+
+<!-- CTA Final / Contato -->
+<section id="contato" class="py-16 px-4 bg-primary">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+      Pronto para transformar sua agenda?
+    </h2>
+    <p class="text-xl text-white/90 mb-8">
+      Comece hoje mesmo e experimente grátis por 14 dias
+    </p>
+    <a href="https://app.livegenda.com/register" class="inline-block px-8 py-4 bg-white text-primary rounded-lg font-bold text-lg hover:bg-white/90 transition-all shadow-lg">
+      Criar Conta Grátis
+      <span class="material-symbols-outlined align-middle ml-2">arrow_forward</span>
+    </a>
+  </div>
+</section>
+
+</main>
+<footer class="bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark mt-auto">
+<div class="container mx-auto px-4 py-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">task_alt</span>
+<h2 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Livegenda</h2>
+</div>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Agendamento inteligente para o seu negócio crescer.</p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-text-light dark:text-text-dark">Links Úteis</h4>
+<a class="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-secondary" href="#">Termos de Serviço</a>
+<a class="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-secondary" href="#">Política de Privacidade</a>
+<a class="text-sm text-text-muted-light dark:text-text-muted-dark hover:text-secondary" href="#">Contato</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-text-light dark:text-text-dark">Contato</h4>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">suporte@livegenda.com</p>
+<div class="flex gap-4">
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-secondary" href="#"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.323-1.325z"></path></svg></a>
+<a class="text-text-muted-light dark:text-text-muted-dark hover:text-secondary" href="#"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44c0-.795-.645-1.44-1.441-1.44z"></path></svg></a>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-border-light dark:border-border-dark text-center text-sm text-text-muted-light dark:text-text-muted-dark">
+<p>© 2024 Livegenda. Todos os direitos reservados.</p>
+</div>
+</div>
+</footer>
+</div>
+</body></html>
+<script>
+// Toggle menu mobile
+const mobileMenuButton = document.getElementById('mobile-menu-button');
+const mobileMenu = document.getElementById('mobile-menu');
+
+if (mobileMenuButton && mobileMenu) {
+  mobileMenuButton.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    const icon = mobileMenuButton.querySelector('.material-symbols-outlined');
+    if (icon) {
+      icon.textContent = mobileMenu.classList.contains('hidden') ? 'menu' : 'close';
+    }
+  });
+
+  // Fechar menu ao clicar em um link
+  const mobileLinks = mobileMenu.querySelectorAll('a');
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      const icon = mobileMenuButton.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'menu';
+      }
+    });
+  });
+}
+</script>
