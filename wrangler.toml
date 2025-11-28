@@ -1,0 +1,6 @@
+# Configuração para Cloudflare Pages - Landing Page
+name = "livegenda-landing"
+compatibility_date = "2025-11-28"
+
+[site]
+bucket = "./landing"
