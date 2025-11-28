@@ -7,6 +7,7 @@
  * Converte string de hora "HH:MM" para minutos desde meia-noite
  */
 const horaParaMinutos = (hora) => {
+  if (!hora) return 0;
   const [h, m] = hora.split(':').map(Number);
   return h * 60 + m;
 };
@@ -35,39 +36,46 @@ const getDiaSemana = (data) => {
  * @param {string} funcionarioId - ID do funcionário
  * @param {string} data - Data no formato 'YYYY-MM-DD'
  * @param {number} duracaoServico - Duração do serviço em minutos
- * @param {object} configuracao - Configuração do negócio com horarioFuncionamento
- * @param {array} agendamentos - Lista de todos os agendamentos
- * @returns {array} - Array de horários disponíveis no formato "HH:MM"
+ * @param {object} configuracao - Configuração do negócio
+ * @param {array} agendamentos - Lista de agendamentos existentes
+ * @returns {array} Array de strings com horários disponíveis "HH:MM"
  */
-export const getHorariosDisponiveis = (
-  funcionarioId,
-  data,
-  duracaoServico,
-  configuracao,
-  agendamentos
-) => {
-  // 1. Verificar se a empresa funciona neste dia
+export const getHorariosDisponiveis = (funcionarioId, data, duracaoServico, configuracao, agendamentos) => {
+  if (!configuracao || !funcionarioId || !data || !duracaoServico) {
+    return [];
+  }
+
+  // 1. Obter horário de funcionamento do dia
   const diaSemana = getDiaSemana(data);
-  const horarioEmpresa = configuracao.horarioFuncionamento[diaSemana];
+  const horarioEmpresa = configuracao.horario_funcionamento?.[diaSemana] || 
+                         configuracao.horarioFuncionamento?.[diaSemana];
   
   if (!horarioEmpresa || !horarioEmpresa.ativo) {
     return []; // Empresa fechada neste dia
   }
 
-  const inicioEmpresa = horaParaMinutos(horarioEmpresa.inicio);
-  const fimEmpresa = horaParaMinutos(horarioEmpresa.fim);
-  const intervalo = configuracao.intervaloAgendamento || 30; // Padrão 30 minutos
+  // Suportar ambos formatos de campos (abertura/fechamento ou inicio/fim)
+  const abertura = horarioEmpresa.abertura || horarioEmpresa.inicio;
+  const fechamento = horarioEmpresa.fechamento || horarioEmpresa.fim;
 
-  // 2. Buscar agendamentos do funcionário nesta data
-  const agendamentosDia = agendamentos.filter(
-    ag => ag.funcionario_id === funcionarioId && ag.data === data
+  const inicioEmpresa = horaParaMinutos(abertura);
+  const fimEmpresa = horaParaMinutos(fechamento);
+  
+  // Intervalo entre slots (padrão 30 minutos)
+  const intervalo = configuracao.intervaloAgendamento || 30;
+
+  // 2. Filtrar agendamentos do funcionário neste dia
+  const agendamentosDia = (agendamentos || []).filter(ag => 
+    ag.funcionario_id === funcionarioId && 
+    ag.data === data &&
+    ag.status !== 'Cancelado'
   );
 
   // 3. Criar array de horários ocupados (em minutos)
   const horariosOcupados = [];
   agendamentosDia.forEach(ag => {
     const inicio = horaParaMinutos(ag.hora_inicio);
-    const fim = inicio + ag.duracao_minutos;
+    const fim = inicio + (ag.duracao_minutos || 30);
     
     // Marcar todos os minutos ocupados
     for (let m = inicio; m < fim; m++) {
@@ -101,8 +109,12 @@ export const getHorariosDisponiveis = (
  * Verifica se um dia está ativo no horário de funcionamento
  */
 export const isDiaAtivo = (data, configuracao) => {
+  if (!configuracao) return false;
+  
   const diaSemana = getDiaSemana(data);
-  const horarioEmpresa = configuracao.horarioFuncionamento[diaSemana];
+  const horarioEmpresa = configuracao.horario_funcionamento?.[diaSemana] || 
+                         configuracao.horarioFuncionamento?.[diaSemana];
+  
   return horarioEmpresa && horarioEmpresa.ativo;
 };
 
@@ -110,6 +122,9 @@ export const isDiaAtivo = (data, configuracao) => {
  * Retorna o horário de funcionamento de um dia específico
  */
 export const getHorarioEmpresa = (data, configuracao) => {
+  if (!configuracao) return null;
+  
   const diaSemana = getDiaSemana(data);
-  return configuracao.horarioFuncionamento[diaSemana];
+  return configuracao.horario_funcionamento?.[diaSemana] || 
+         configuracao.horarioFuncionamento?.[diaSemana];
 };

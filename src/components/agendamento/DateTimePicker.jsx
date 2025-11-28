@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,16 +29,28 @@ export default function DateTimePicker({
   const { data: configuracao } = useQuery({
     queryKey: ['configuracao'],
     queryFn: async () => {
-      const { data } = await base44.entities.ConfiguracaoNegocio.get();
-      return data;
+      try {
+        const result = await base44.entities.ConfiguracaoNegocio.get();
+        return result;
+      } catch (error) {
+        console.error('Erro ao buscar configuração:', error);
+        return null;
+      }
     }
   });
 
   // Buscar todos os agendamentos
   const { data: agendamentos = [] } = useQuery({
     queryKey: ['agendamentos'],
-    queryFn: () => base44.entities.Agendamento.list(),
-    initialData: []
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.Agendamento.list();
+        return result || [];
+      } catch (error) {
+        console.error('Erro ao buscar agendamentos:', error);
+        return [];
+      }
+    }
   });
 
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
@@ -64,6 +76,10 @@ export default function DateTimePicker({
     
     onSelectDate(date);
     onSelectTime(null); // Reset time quando mudar data
+  };
+
+  const handleTimeClick = (horario) => {
+    onSelectTime(horario);
   };
 
   const isSelected = (day) => {
@@ -118,6 +134,7 @@ export default function DateTimePicker({
       days.push(
         <button
           key={day}
+          type="button"
           onClick={() => disponivel && handleDateClick(day)}
           disabled={!disponivel}
           className={cn(
@@ -135,24 +152,36 @@ export default function DateTimePicker({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="bg-white rounded-2xl border border-purple-100 p-6 space-y-6">
       {/* Calendário */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="w-5 h-5" />
+          <Button 
+            type="button"
+            variant="ghost" 
+            size="icon" 
+            onClick={prevMonth}
+            className="hover:bg-purple-50"
+          >
+            <ChevronLeft className="w-4 h-4" />
           </Button>
-          <h3 className="font-semibold">
+          <h3 className="font-semibold text-gray-900">
             {MESES[currentMonth]} {currentYear}
           </h3>
-          <Button variant="ghost" size="icon" onClick={nextMonth}>
-            <ChevronRight className="w-5 h-5" />
+          <Button 
+            type="button"
+            variant="ghost" 
+            size="icon" 
+            onClick={nextMonth}
+            className="hover:bg-purple-50"
+          >
+            <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        
-        <div className="grid grid-cols-7 gap-2">
-          {DIAS_SEMANA.map((dia, i) => (
-            <div key={i} className="text-center text-sm font-medium text-gray-500">
+
+        <div className="grid grid-cols-7 gap-1">
+          {DIAS_SEMANA.map((dia, index) => (
+            <div key={index} className="text-center py-2 text-sm font-medium text-gray-500">
               {dia}
             </div>
           ))}
@@ -161,45 +190,48 @@ export default function DateTimePicker({
       </div>
 
       {/* Horários Disponíveis */}
-      {selectedDate && (
-        <div>
-          <h3 className="font-semibold mb-3">Horários disponíveis</h3>
-          
-          {!funcionarioId && (
-            <p className="text-sm text-gray-500">Selecione um profissional primeiro</p>
-          )}
-          
-          {!duracaoServico && funcionarioId && (
-            <p className="text-sm text-gray-500">Selecione um serviço primeiro</p>
-          )}
-          
-          {funcionarioId && duracaoServico && horarios.length === 0 && (
-            <p className="text-sm text-gray-500">
-              {configuracao && !isDiaAtivo(selectedDate.toISOString().split('T')[0], configuracao)
-                ? "Empresa fechada neste dia"
-                : "Nenhum horário disponível para este dia"}
-            </p>
-          )}
-          
-          {funcionarioId && duracaoServico && horarios.length > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              {horarios.map((horario) => (
-                <Button
-                  key={horario}
-                  variant={selectedTime === horario ? "default" : "outline"}
-                  className={cn(
-                    "text-sm",
-                    selectedTime === horario && "bg-purple-500 hover:bg-purple-600"
-                  )}
-                  onClick={() => onSelectTime(horario)}
-                >
-                  {horario}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <div>
+        <h3 className="font-semibold mb-3">Horários disponíveis</h3>
+        
+        {!funcionarioId && (
+          <p className="text-sm text-gray-500">Selecione um profissional primeiro</p>
+        )}
+        
+        {!duracaoServico && funcionarioId && (
+          <p className="text-sm text-gray-500">Selecione um serviço primeiro</p>
+        )}
+        
+        {funcionarioId && duracaoServico && !selectedDate && (
+          <p className="text-sm text-gray-500">Selecione uma data primeiro</p>
+        )}
+        
+        {funcionarioId && duracaoServico && selectedDate && horarios.length === 0 && (
+          <p className="text-sm text-gray-500">
+            {configuracao && !isDiaAtivo(selectedDate.toISOString().split('T')[0], configuracao)
+              ? "Empresa fechada neste dia"
+              : "Nenhum horário disponível para este dia"}
+          </p>
+        )}
+        
+        {funcionarioId && duracaoServico && selectedDate && horarios.length > 0 && (
+          <div className="grid grid-cols-4 gap-2">
+            {horarios.map((horario) => (
+              <Button
+                key={horario}
+                type="button"
+                variant={selectedTime === horario ? "default" : "outline"}
+                className={cn(
+                  "text-sm",
+                  selectedTime === horario && "bg-purple-500 hover:bg-purple-600"
+                )}
+                onClick={() => handleTimeClick(horario)}
+              >
+                {horario}
+              </Button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

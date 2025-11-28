@@ -42,6 +42,14 @@ const initializeStorage = () => {
 
 initializeStorage();
 
+// Helper to get current user's empresa_id
+const getCurrentEmpresaId = () => {
+  const user = localStorage.getItem('livegenda_user');
+  if (!user) return null;
+  const parsed = JSON.parse(user);
+  return parsed.empresa_id;
+};
+
 // Helper to populate agendamentos with full objects
 const populateAgendamentos = (agendamentos) => {
   const clientes = getFromStorage('clientes', []);
@@ -63,31 +71,39 @@ class MockEntity {
   }
 
   async list() {
-    const data = getFromStorage(this.entityName);
+    const empresaId = getCurrentEmpresaId();
+    let data = getFromStorage(this.entityName);
+    
+    // Filter by empresa_id for multi-tenant entities
+    if (empresaId && ['funcionarios', 'clientes', 'servicos', 'agendamentos'].includes(this.entityName)) {
+      data = data.filter(item => item.empresa_id === empresaId);
+    }
+    
     // Populate agendamentos with related objects
     if (this.entityName === 'agendamentos') {
       return populateAgendamentos(data);
     }
-    // Return data directly for compatibility with useQuery
+    
     return data;
   }
 
   async get(id) {
     const data = getFromStorage(this.entityName);
     const item = data.find(d => d.id === id);
-    return { data: item, error: item ? null : { message: 'Not found' } };
+    return item || null;
   }
 
   async create(item) {
+    const empresaId = getCurrentEmpresaId();
     const data = getFromStorage(this.entityName);
     const newItem = {
       ...item,
       id: Date.now().toString(),
+      empresa_id: item.empresa_id || empresaId,
       createdAt: new Date().toISOString()
     };
     data.push(newItem);
     saveToStorage(this.entityName, data);
-    // Return newItem directly for compatibility
     return newItem;
   }
 
@@ -99,7 +115,6 @@ class MockEntity {
     }
     data[index] = { ...data[index], ...updates };
     saveToStorage(this.entityName, data);
-    // Return updated item directly
     return data[index];
   }
 
@@ -107,7 +122,6 @@ class MockEntity {
     const data = getFromStorage(this.entityName);
     const filtered = data.filter(d => d.id !== id);
     saveToStorage(this.entityName, filtered);
-    // Return success directly
     return { success: true };
   }
 }
@@ -120,18 +134,40 @@ const mockAuth = {
   },
   
   async signIn(email, password) {
-    // Simple mock authentication
-    if (password.length >= 6) {
-      const user = { ...mockUser, email };
+    const usuarios = getFromStorage('usuarios', []);
+    const user = usuarios.find(u => u.email === email && u.senha === password);
+    
+    if (user) {
       localStorage.setItem('livegenda_user', JSON.stringify(user));
       return { data: user, error: null };
     }
-    return { data: null, error: { message: 'Invalid credentials' } };
+    
+    // Para teste: criar usuário se não existir
+    if (password.length >= 6) {
+      const newUser = {
+        id: Date.now().toString(),
+        email,
+        senha: password,
+        tipo: 'gestor',
+        empresa_id: null,
+        primeiro_acesso: true
+      };
+      usuarios.push(newUser);
+      saveToStorage('usuarios', usuarios);
+      localStorage.setItem('livegenda_user', JSON.stringify(newUser));
+      return { data: newUser, error: null };
+    }
+    
+    return { data: null, error: { message: 'Credenciais inválidas' } };
+  },
+  
+  async logout() {
+    localStorage.removeItem('livegenda_user');
+    return { data: { success: true }, error: null };
   },
   
   async signOut() {
-    localStorage.removeItem('livegenda_user');
-    return { data: { success: true }, error: null };
+    return this.logout();
   }
 };
 
@@ -146,18 +182,94 @@ export const mockClient = {
     Usuario: new MockEntity('usuarios'),
     ConfiguracaoNegocio: {
       async get() {
-        // Retorna a empresa do usuário logado
         const user = await mockAuth.getUser();
-        if (!user || !user.empresa_id) return { data: null, error: null };
+        if (!user || !user.empresa_id) return null;
+        
         const empresas = getFromStorage('empresas', []);
         const empresa = empresas.find(e => e.id === user.empresa_id);
-        return { data: empresa, error: null };
+        
+        if (!empresa) return null;
+        
+        // Mapear campos da empresa para formato esperado pelo componente
+        return {
+          id: empresa.id,
+          nome_negocio: empresa.nome,
+          categoria: empresa.categoria || 'salao',
+          whatsapp: empresa.telefone,
+          email: empresa.email,
+          endereco: empresa.endereco,
+          cep: empresa.cep || '',
+          logo_url: empresa.logo_url || '',
+          horario_funcionamento: convertHorarioToForm(empresa.horarioFuncionamento),
+          intervaloAgendamento: empresa.intervaloAgendamento || 30,
+          lembreteAutomatico: empresa.lembreteAutomatico !== false,
+          tempoAntecedenciaLembrete: empresa.tempoAntecedenciaLembrete || 24
+        };
       },
-      async update(updates) {
-        const data = getFromStorage('configuracao', mockConfiguracaoNegocio);
-        const updated = { ...data, ...updates };
-        saveToStorage('configuracao', updated);
-        return { data: updated, error: null };
+      
+      async create(data) {
+        const user = await mockAuth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+        
+        const empresas = getFromStorage('empresas', []);
+        const newEmpresa = {
+          id: Date.now().toString(),
+          nome: data.nome_negocio,
+          categoria: data.categoria,
+          telefone: data.whatsapp,
+          email: data.email,
+          endereco: data.endereco,
+          cep: data.cep,
+          logo_url: data.logo_url,
+          horarioFuncionamento: convertHorarioFromForm(data.horario_funcionamento),
+          intervaloAgendamento: 30,
+          lembreteAutomatico: true,
+          tempoAntecedenciaLembrete: 24,
+          createdAt: new Date().toISOString()
+        };
+        
+        empresas.push(newEmpresa);
+        saveToStorage('empresas', empresas);
+        
+        // Atualizar empresa_id do usuário
+        user.empresa_id = newEmpresa.id;
+        user.primeiro_acesso = false;
+        localStorage.setItem('livegenda_user', JSON.stringify(user));
+        
+        // Atualizar na lista de usuários também
+        const usuarios = getFromStorage('usuarios', []);
+        const userIndex = usuarios.findIndex(u => u.id === user.id);
+        if (userIndex !== -1) {
+          usuarios[userIndex] = user;
+          saveToStorage('usuarios', usuarios);
+        }
+        
+        return newEmpresa;
+      },
+      
+      async update(data) {
+        const user = await mockAuth.getUser();
+        if (!user || !user.empresa_id) throw new Error('Empresa não encontrada');
+        
+        const empresas = getFromStorage('empresas', []);
+        const index = empresas.findIndex(e => e.id === user.empresa_id);
+        
+        if (index === -1) throw new Error('Empresa não encontrada');
+        
+        empresas[index] = {
+          ...empresas[index],
+          nome: data.nome_negocio,
+          categoria: data.categoria,
+          telefone: data.whatsapp,
+          email: data.email,
+          endereco: data.endereco,
+          cep: data.cep,
+          logo_url: data.logo_url,
+          horarioFuncionamento: convertHorarioFromForm(data.horario_funcionamento)
+        };
+        
+        saveToStorage('empresas', empresas);
+        return empresas[index];
       }
     }
   },
@@ -166,7 +278,7 @@ export const mockClient = {
     Core: {
       InvokeLLM: async () => ({ data: null, error: null }),
       SendEmail: async () => ({ data: { success: true }, error: null }),
-      UploadFile: async () => ({ data: { url: '#' }, error: null }),
+      UploadFile: async ({ file }) => ({ file_url: URL.createObjectURL(file) }),
       GenerateImage: async () => ({ data: { url: '#' }, error: null }),
       ExtractDataFromUploadedFile: async () => ({ data: {}, error: null }),
       CreateFileSignedUrl: async () => ({ data: { url: '#' }, error: null }),
@@ -174,5 +286,58 @@ export const mockClient = {
     }
   }
 };
+
+// Helper functions para converter formato de horário
+function convertHorarioToForm(horarioFuncionamento) {
+  if (!horarioFuncionamento) {
+    return {
+      segunda: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      terca: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      quarta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      quinta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      sexta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      sabado: { ativo: true, abertura: "09:00", fechamento: "14:00" },
+      domingo: { ativo: false, abertura: "09:00", fechamento: "18:00" }
+    };
+  }
+  
+  const result = {};
+  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+  
+  dias.forEach(dia => {
+    const horario = horarioFuncionamento[dia];
+    if (horario) {
+      result[dia] = {
+        ativo: horario.ativo !== false,
+        abertura: horario.inicio || horario.abertura || "09:00",
+        fechamento: horario.fim || horario.fechamento || "18:00"
+      };
+    } else {
+      result[dia] = { ativo: false, abertura: "09:00", fechamento: "18:00" };
+    }
+  });
+  
+  return result;
+}
+
+function convertHorarioFromForm(horario_funcionamento) {
+  if (!horario_funcionamento) return null;
+  
+  const result = {};
+  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+  
+  dias.forEach(dia => {
+    const h = horario_funcionamento[dia];
+    if (h) {
+      result[dia] = {
+        inicio: h.abertura,
+        fim: h.fechamento,
+        ativo: h.ativo
+      };
+    }
+  });
+  
+  return result;
+}
 
 export default mockClient;
