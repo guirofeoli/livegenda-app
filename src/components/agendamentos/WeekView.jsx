@@ -20,14 +20,19 @@ export default function WeekView({
 }) {
   const getWeekDays = () => {
     const days = [];
-    const curr = new Date(currentDate);
-    const dayOfWeek = curr.getDay();
+    // Normalizar a data para evitar problemas de timezone
+    let curr;
+    if (typeof currentDate === 'string') {
+      const [year, month, day] = currentDate.split('-').map(Number);
+      curr = new Date(year, month - 1, day);
+    } else {
+      curr = new Date(currentDate);
+    }
     
-    // Calcular o primeiro dia da semana (domingo)
+    const dayOfWeek = curr.getDay();
     const firstDayOfWeek = new Date(curr);
     firstDayOfWeek.setDate(curr.getDate() - dayOfWeek);
     
-    // Gerar os 7 dias da semana
     for (let i = 0; i < 7; i++) {
       const day = new Date(firstDayOfWeek);
       day.setDate(firstDayOfWeek.getDate() + i);
