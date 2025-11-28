@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import {
@@ -78,6 +78,7 @@ const navigationItems = [
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [empresa, setEmpresa] = useState(null);
@@ -93,6 +94,9 @@ export default function Layout({ children }) {
       if (funcionario) {
         user.nome = funcionario.nome_completo?.split(' ')[0]; // Primeiro nome
       }
+    } else if (user.tipo === 'gestor') {
+      // Para gestor, usar email antes do @
+      user.nome = user.email?.split('@')[0] || 'Gestor';
     }
     
     setCurrentUser(user);
@@ -102,8 +106,16 @@ export default function Layout({ children }) {
       const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
       const empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
       setEmpresa(empresaEncontrada);
+      
+      // Se for gestor e não encontrou a empresa, redirecionar para onboarding
+      if (user.tipo === 'gestor' && !empresaEncontrada && location.pathname !== '/onboarding') {
+        navigate('/onboarding');
+      }
+    } else if (user.tipo === 'gestor' && location.pathname !== '/onboarding') {
+      // Gestor sem empresa_id, redirecionar para onboarding
+      navigate('/onboarding');
     }
-  }, []);
+  }, [location.pathname, navigate]);
 
   // Filtrar itens do menu baseado no tipo de usuário
   const getMenuItems = () => {
@@ -121,7 +133,7 @@ export default function Layout({ children }) {
   };
 
   const menuItems = getMenuItems();
-  const showConfiguracoes = currentUser?.tipo === 'admin';
+  const showConfiguracoes = currentUser?.tipo === 'gestor';
 
   const handleLogout = async () => {
     try {

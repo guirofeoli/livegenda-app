@@ -8,7 +8,6 @@ import { Switch } from '@/components/ui/switch';
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -37,11 +36,6 @@ export default function Onboarding() {
     try {
       // Validar campos obrigatórios
       if (!formData.nomeNegocio || !formData.telefone || !formData.email) {
-        toast({
-          title: 'Campos obrigatórios',
-          description: 'Por favor, preencha todos os campos obrigatórios',
-          variant: 'destructive'
-        });
         setLoading(false);
         return;
       }
@@ -78,18 +72,9 @@ export default function Onboarding() {
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
       }
 
-      toast({
-        title: 'Empresa cadastrada!',
-        description: 'Bem-vindo ao Livegenda'
-      });
 
       navigate('/agendamentos');
     } catch (err) {
-      toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro ao cadastrar a empresa',
-        variant: 'destructive'
-      });
     }
     
     setLoading(false);

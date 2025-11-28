@@ -353,7 +353,7 @@ export const mockAgendamentos = [
     cliente_id: '1', // Ana Paula
     funcionario_id: '1', // João Silva
     servico_id: '1', // Corte de Cabelo
-    data: '2024-11-27',
+    data: '2025-11-28',
     hora_inicio: '10:00',
     duracao_minutos: 30,
     preco: 50.00,
@@ -361,7 +361,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-20').toISOString()
+    createdAt: new Date('2025-11-20').toISOString()
   },
   {
     id: '2',
@@ -369,7 +369,7 @@ export const mockAgendamentos = [
     cliente_id: '2', // Carlos Mendes
     funcionario_id: '2', // Maria Santos
     servico_id: '2', // Manicure
-    data: '2024-11-27',
+    data: '2025-11-28',
     hora_inicio: '14:00',
     duracao_minutos: 45,
     preco: 40.00,
@@ -377,7 +377,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-21').toISOString()
+    createdAt: new Date('2025-11-21').toISOString()
   },
   {
     id: '3',
@@ -385,7 +385,7 @@ export const mockAgendamentos = [
     cliente_id: '3', // Juliana Oliveira
     funcionario_id: '1', // João Silva
     servico_id: '1', // Corte
-    data: '2024-11-28',
+    data: '2025-11-28',
     hora_inicio: '09:00',
     duracao_minutos: 30,
     preco: 50.00,
@@ -393,7 +393,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: false,
-    createdAt: new Date('2024-11-22').toISOString()
+    createdAt: new Date('2025-11-22').toISOString()
   },
   {
     id: '4',
@@ -401,7 +401,7 @@ export const mockAgendamentos = [
     cliente_id: '1', // Ana Paula
     funcionario_id: '2', // Maria Santos
     servico_id: '3', // Hidratação
-    data: '2024-11-28',
+    data: '2025-11-28',
     hora_inicio: '15:00',
     duracao_minutos: 60,
     preco: 80.00,
@@ -409,7 +409,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-23').toISOString()
+    createdAt: new Date('2025-11-23').toISOString()
   },
   {
     id: '5',
@@ -417,7 +417,7 @@ export const mockAgendamentos = [
     cliente_id: '5', // Fernanda Costa
     funcionario_id: '1', // João Silva
     servico_id: '1', // Corte
-    data: '2024-11-29',
+    data: '2025-11-29',
     hora_inicio: '11:00',
     duracao_minutos: 30,
     preco: 50.00,
@@ -425,7 +425,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: false,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-24').toISOString()
+    createdAt: new Date('2025-11-24').toISOString()
   },
   {
     id: '6',
@@ -433,7 +433,7 @@ export const mockAgendamentos = [
     cliente_id: '3', // Juliana Oliveira
     funcionario_id: '2', // Maria Santos
     servico_id: '4', // Escova
-    data: '2024-11-29',
+    data: '2025-11-29',
     hora_inicio: '16:00',
     duracao_minutos: 40,
     preco: 45.00,
@@ -441,7 +441,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-25').toISOString()
+    createdAt: new Date('2025-11-25').toISOString()
   },
   {
     id: '7',
@@ -449,7 +449,7 @@ export const mockAgendamentos = [
     cliente_id: '2', // Carlos Mendes
     funcionario_id: '1', // João Silva
     servico_id: '1', // Corte
-    data: '2024-11-30',
+    data: '2025-11-30',
     hora_inicio: '10:30',
     duracao_minutos: 30,
     preco: 50.00,
@@ -457,7 +457,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-26').toISOString()
+    createdAt: new Date('2025-11-26').toISOString()
   },
   {
     id: '8',
@@ -465,7 +465,7 @@ export const mockAgendamentos = [
     cliente_id: '5', // Fernanda Costa
     funcionario_id: '2', // Maria Santos
     servico_id: '2', // Manicure
-    data: '2024-11-30',
+    data: '2025-11-30',
     hora_inicio: '14:30',
     duracao_minutos: 45,
     preco: 40.00,
@@ -473,7 +473,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-26').toISOString()
+    createdAt: new Date('2025-11-26').toISOString()
   },
   
   // Empresa 2: Barbearia Estilo Masculino (Pedro)
@@ -483,7 +483,7 @@ export const mockAgendamentos = [
     cliente_id: '2', // Carlos Mendes (compartilhado)
     funcionario_id: '3', // Pedro Costa
     servico_id: '5', // Corte Masculino
-    data: '2024-11-27',
+    data: '2025-11-28',
     hora_inicio: '11:00',
     duracao_minutos: 30,
     preco: 45.00,
@@ -491,7 +491,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-21').toISOString()
+    createdAt: new Date('2025-11-21').toISOString()
   },
   {
     id: '10',
@@ -499,7 +499,7 @@ export const mockAgendamentos = [
     cliente_id: '4', // Roberto Silva (compartilhado)
     funcionario_id: '3', // Pedro Costa
     servico_id: '6', // Barba
-    data: '2024-11-28',
+    data: '2025-11-28',
     hora_inicio: '14:00',
     duracao_minutos: 20,
     preco: 30.00,
@@ -507,7 +507,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: false,
-    createdAt: new Date('2024-11-22').toISOString()
+    createdAt: new Date('2025-11-22').toISOString()
   },
   {
     id: '11',
@@ -515,7 +515,7 @@ export const mockAgendamentos = [
     cliente_id: '6', // Marcos Almeida
     funcionario_id: '3', // Pedro Costa
     servico_id: '7', // Corte + Barba
-    data: '2024-11-29',
+    data: '2025-11-29',
     hora_inicio: '16:00',
     duracao_minutos: 45,
     preco: 70.00,
@@ -523,7 +523,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-23').toISOString()
+    createdAt: new Date('2025-11-23').toISOString()
   },
   {
     id: '12',
@@ -531,7 +531,7 @@ export const mockAgendamentos = [
     cliente_id: '2', // Carlos Mendes
     funcionario_id: '3', // Pedro Costa
     servico_id: '5', // Corte Masculino
-    data: '2024-11-30',
+    data: '2025-11-30',
     hora_inicio: '12:00',
     duracao_minutos: 30,
     preco: 45.00,
@@ -539,7 +539,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-24').toISOString()
+    createdAt: new Date('2025-11-24').toISOString()
   },
   {
     id: '13',
@@ -547,7 +547,7 @@ export const mockAgendamentos = [
     cliente_id: '4', // Roberto Silva
     funcionario_id: '3', // Pedro Costa
     servico_id: '7', // Corte + Barba
-    data: '2024-12-01',
+    data: '2025-12-01',
     hora_inicio: '15:00',
     duracao_minutos: 45,
     preco: 70.00,
@@ -555,7 +555,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: false,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-25').toISOString()
+    createdAt: new Date('2025-11-25').toISOString()
   },
   
   // Empresa 3: Espaço Estética & Bem-Estar (Carla)
@@ -565,7 +565,7 @@ export const mockAgendamentos = [
     cliente_id: '1', // Ana Paula (compartilhado)
     funcionario_id: '4', // Carla Rodrigues
     servico_id: '8', // Limpeza de Pele
-    data: '2024-11-27',
+    data: '2025-11-28',
     hora_inicio: '10:00',
     duracao_minutos: 60,
     preco: 120.00,
@@ -573,7 +573,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-20').toISOString()
+    createdAt: new Date('2025-11-20').toISOString()
   },
   {
     id: '15',
@@ -581,7 +581,7 @@ export const mockAgendamentos = [
     cliente_id: '3', // Juliana Oliveira (compartilhado)
     funcionario_id: '4', // Carla Rodrigues
     servico_id: '9', // Massagem Relaxante
-    data: '2024-11-28',
+    data: '2025-11-28',
     hora_inicio: '14:00',
     duracao_minutos: 50,
     preco: 100.00,
@@ -589,7 +589,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-21').toISOString()
+    createdAt: new Date('2025-11-21').toISOString()
   },
   {
     id: '16',
@@ -597,7 +597,7 @@ export const mockAgendamentos = [
     cliente_id: '7', // Beatriz Lima
     funcionario_id: '4', // Carla Rodrigues
     servico_id: '10', // Drenagem Linfática
-    data: '2024-11-29',
+    data: '2025-11-29',
     hora_inicio: '09:00',
     duracao_minutos: 60,
     preco: 110.00,
@@ -605,7 +605,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: false,
-    createdAt: new Date('2024-11-22').toISOString()
+    createdAt: new Date('2025-11-22').toISOString()
   },
   {
     id: '17',
@@ -613,7 +613,7 @@ export const mockAgendamentos = [
     cliente_id: '5', // Fernanda Costa (compartilhado)
     funcionario_id: '4', // Carla Rodrigues
     servico_id: '8', // Limpeza de Pele
-    data: '2024-11-30',
+    data: '2025-11-30',
     hora_inicio: '11:00',
     duracao_minutos: 60,
     preco: 120.00,
@@ -621,7 +621,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-23').toISOString()
+    createdAt: new Date('2025-11-23').toISOString()
   },
   {
     id: '18',
@@ -629,7 +629,7 @@ export const mockAgendamentos = [
     cliente_id: '1', // Ana Paula
     funcionario_id: '4', // Carla Rodrigues
     servico_id: '9', // Massagem Relaxante
-    data: '2024-12-01',
+    data: '2025-12-01',
     hora_inicio: '15:00',
     duracao_minutos: 50,
     preco: 100.00,
@@ -637,7 +637,7 @@ export const mockAgendamentos = [
     observacoes: '',
     enviar_whatsapp: true,
     sincronizar_google: true,
-    createdAt: new Date('2024-11-24').toISOString()
+    createdAt: new Date('2025-11-24').toISOString()
   }
 ];
 
@@ -681,6 +681,36 @@ export const mockUsuarios = [
     senha: '123456',
     tipo: 'funcionario',
     funcionario_id: '4',
+    empresa_id: '3',
+    primeiro_acesso: false
+  },
+  // Gestor da Empresa 1
+  {
+    id: '5',
+    email: 'gestor1@livegenda.com',
+    senha: '123456',
+    tipo: 'gestor',
+    funcionario_id: null,
+    empresa_id: '1',
+    primeiro_acesso: false
+  },
+  // Gestor da Empresa 2
+  {
+    id: '6',
+    email: 'gestor2@livegenda.com',
+    senha: '123456',
+    tipo: 'gestor',
+    funcionario_id: null,
+    empresa_id: '2',
+    primeiro_acesso: false
+  },
+  // Gestor da Empresa 3
+  {
+    id: '7',
+    email: 'gestor3@livegenda.com',
+    senha: '123456',
+    tipo: 'gestor',
+    funcionario_id: null,
     empresa_id: '3',
     primeiro_acesso: false
   }

@@ -8,7 +8,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Pages />
-      <Toaster />
     </QueryClientProvider>
   )
 }

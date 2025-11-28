@@ -12,7 +12,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -54,11 +53,6 @@ export default function Login() {
         }
       }
     } catch (err) {
-      toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro ao verificar o email',
-        variant: 'destructive'
-      });
     }
     
     setLoading(false);
@@ -71,11 +65,6 @@ export default function Login() {
     try {
       // Validar senha
       if (usuario.senha !== password) {
-        toast({
-          title: 'Senha incorreta',
-          description: 'Por favor, verifique sua senha e tente novamente',
-          variant: 'destructive'
-        });
         setLoading(false);
         return;
       }
@@ -89,18 +78,9 @@ export default function Login() {
         empresa_id: usuario.empresa_id
       }));
 
-      toast({
-        title: 'Login realizado!',
-        description: 'Bem-vindo ao Livegenda'
-      });
 
       navigate('/agendamentos');
     } catch (err) {
-      toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro ao fazer login',
-        variant: 'destructive'
-      });
     }
     
     setLoading(false);
@@ -113,21 +93,11 @@ export default function Login() {
     try {
       // Validar senha
       if (password.length < 6) {
-        toast({
-          title: 'Senha muito curta',
-          description: 'A senha deve ter no mínimo 6 caracteres',
-          variant: 'destructive'
-        });
         setLoading(false);
         return;
       }
 
       if (password !== confirmPassword) {
-        toast({
-          title: 'Senhas não conferem',
-          description: 'Por favor, verifique as senhas digitadas',
-          variant: 'destructive'
-        });
         setLoading(false);
         return;
       }
@@ -156,10 +126,6 @@ export default function Login() {
         empresa_id: novoUsuario.empresa_id
       }));
 
-      toast({
-        title: 'Senha cadastrada!',
-        description: 'Bem-vindo ao Livegenda'
-      });
 
       // Se é dono (novo), redireciona para onboarding
       // Se é funcionário, vai direto para agendamentos
@@ -169,11 +135,6 @@ export default function Login() {
         navigate('/agendamentos');
       }
     } catch (err) {
-      toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro ao cadastrar senha',
-        variant: 'destructive'
-      });
     }
     
     setLoading(false);
