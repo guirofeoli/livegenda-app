@@ -40,37 +40,28 @@ export default function Clientes() {
   const currentUser = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
   const empresaId = currentUser.empresa_id;
 
+  // Clientes já são filtrados por empresa_id no mockClient
   const { data: clientesData = [], isLoading } = useQuery({
     queryKey: ['clientes'],
-    queryFn: () => base44.entities.Cliente.list("-created_date"),
+    queryFn: () => base44.entities.Cliente.list(),
     initialData: [],
   });
   
-  // Filtrar clientes que têm agendamentos na empresa
-  const { data: agendamentosData = [] } = useQuery({
-    queryKey: ['agendamentos'],
-    queryFn: () => base44.entities.Agendamento.list(),
-    initialData: [],
-  });
-  
-  const clientesIdsNaEmpresa = new Set(
-    agendamentosData
-      .filter(a => a.empresa_id === empresaId)
-      .map(a => a.cliente_id)
-  );
-  
-  const clientes = Array.isArray(clientesData) 
-    ? clientesData.filter(c => clientesIdsNaEmpresa.has(c.id))
-    : [];
+  // Usar diretamente os dados filtrados
+  const clientes = Array.isArray(clientesData) ? clientesData : [];
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Cliente.create(data),
+    mutationFn: (data) => base44.entities.Cliente.create({
+      ...data,
+      empresa_id: empresaId
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setShowModal(false);
       setEditingCliente(null);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Erro ao criar cliente:', error);
     },
   });
 
@@ -81,7 +72,8 @@ export default function Clientes() {
       setShowModal(false);
       setEditingCliente(null);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Erro ao atualizar cliente:', error);
     },
   });
 
@@ -91,7 +83,8 @@ export default function Clientes() {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setDeletingCliente(null);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Erro ao excluir cliente:', error);
     },
   });
 
@@ -128,158 +121,120 @@ export default function Clientes() {
 
   const filteredClientes = clientes.filter((cliente) => {
     const matchesSearch = 
-      cliente.nome_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.telefone?.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === "todos" || cliente.status === statusFilter;
-    const matchesFrequencia = frequenciaFilter === "todos" || cliente.frequencia === frequenciaFilter;
-    
+      cliente.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cliente.telefone?.includes(searchTerm) ||
+      cliente.email?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "todos" || cliente.status === statusFilter;
+
+    const matchesFrequencia =
+      frequenciaFilter === "todos" || cliente.frequencia === frequenciaFilter;
+
     return matchesSearch && matchesStatus && matchesFrequencia;
   });
 
-  const activeFiltersCount = (statusFilter !== "todos" ? 1 : 0) + (frequenciaFilter !== "todos" ? 1 : 0);
-
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6 md:mb-8"
-      >
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-          Clientes
-        </h1>
-        <p className="text-sm md:text-base text-gray-600">
-          Gerencie todas as clientes cadastradas no Livegenda.
-        </p>
-      </motion.div>
-
+    <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto overflow-x-hidden">
       {clientes.length === 0 && !isLoading ? (
         <EmptyState onAddClick={() => setShowModal(true)} />
       ) : (
         <>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-sm border border-purple-100/50 p-4 md:p-6 mb-4 md:mb-6"
+            className="mb-4 md:mb-6"
           >
-            {/* Mobile Layout */}
-            <div className="md:hidden space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Buscar por nome ou telefone"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-                />
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                  Clientes
+                </h1>
+                <p className="text-sm md:text-base text-gray-600">
+                  Gerencie sua base de clientes ({clientes.length} cadastrados)
+                </p>
               </div>
-              
-              <div className="flex gap-2">
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Buscar cliente..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full sm:w-64 border-purple-200 focus:border-purple-500"
+                  />
+                </div>
+
                 <Sheet open={showFilters} onOpenChange={setShowFilters}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" className="flex-1 border-purple-200 relative">
+                    <Button
+                      variant="outline"
+                      className="border-purple-200 hover:bg-purple-50 md:hidden"
+                    >
                       <Filter className="w-4 h-4 mr-2" />
                       Filtros
-                      {activeFiltersCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center">
-                          {activeFiltersCount}
-                        </span>
-                      )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="bottom" className="h-auto">
+                  <SheetContent>
                     <SheetHeader>
                       <SheetTitle>Filtros</SheetTitle>
                     </SheetHeader>
                     <div className="space-y-4 mt-4">
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Status</label>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <label className="text-sm font-medium mb-2 block">
+                          Status
+                        </label>
+                        <Select
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                        >
                           <SelectTrigger className="border-purple-200">
                             <SelectValue placeholder="Status" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="todos">Todos</SelectItem>
-                            <SelectItem value="Ativa">Ativa</SelectItem>
-                            <SelectItem value="Inativa">Inativa</SelectItem>
+                            <SelectItem value="Ativa">Ativas</SelectItem>
+                            <SelectItem value="Inativa">Inativas</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Frequência</label>
-                        <Select value={frequenciaFilter} onValueChange={setFrequenciaFilter}>
+                        <label className="text-sm font-medium mb-2 block">
+                          Frequência
+                        </label>
+                        <Select
+                          value={frequenciaFilter}
+                          onValueChange={setFrequenciaFilter}
+                        >
                           <SelectTrigger className="border-purple-200">
                             <SelectValue placeholder="Frequência" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="todos">Todas</SelectItem>
-                            <SelectItem value="Alta">Alta</SelectItem>
-                            <SelectItem value="Média">Média</SelectItem>
-                            <SelectItem value="Baixa">Baixa</SelectItem>
+                            <SelectItem value="Semanal">Semanal</SelectItem>
+                            <SelectItem value="Quinzenal">Quinzenal</SelectItem>
+                            <SelectItem value="Mensal">Mensal</SelectItem>
+                            <SelectItem value="Esporádica">Esporádica</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-
-                      <Button 
-                        onClick={() => setShowFilters(false)}
-                        className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                      >
-                        Aplicar Filtros
-                      </Button>
                     </div>
                   </SheetContent>
                 </Sheet>
 
-                <Button
-                  onClick={() => {
-                    setEditingCliente(null);
-                    setShowModal(true);
-                  }}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30"
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Adicionar
-                </Button>
-              </div>
-            </div>
-
-            {/* Desktop Layout */}
-            <div className="hidden md:flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              <div className="flex-1 w-full lg:max-w-md relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Buscar cliente por nome ou telefone"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-                />
-              </div>
-              
-              <div className="flex gap-3 w-full lg:w-auto">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-32 border-purple-200">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="Ativa">Ativa</SelectItem>
-                    <SelectItem value="Inativa">Inativa</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={frequenciaFilter} onValueChange={setFrequenciaFilter}>
-                  <SelectTrigger className="w-36 border-purple-200">
-                    <SelectValue placeholder="Frequência" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todas</SelectItem>
-                    <SelectItem value="Alta">Alta</SelectItem>
-                    <SelectItem value="Média">Média</SelectItem>
-                    <SelectItem value="Baixa">Baixa</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="hidden md:flex gap-2">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-32 border-purple-200">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Ativa">Ativas</SelectItem>
+                      <SelectItem value="Inativa">Inativas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <Button
                   onClick={() => {
