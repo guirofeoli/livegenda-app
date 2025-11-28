@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,6 +14,7 @@ import {
   ChevronRight,
   Wrench,
   LayoutDashboard,
+  Building2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -83,52 +83,43 @@ export default function Layout({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [empresa, setEmpresa] = useState(null);
 
-  // Carregar usuário e empresa da sessão
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
     
-    // Se for funcionário, buscar nome do funcionário
     if (user.tipo === 'funcionario' && user.funcionario_id) {
       const funcionarios = JSON.parse(localStorage.getItem('funcionarios') || '[]');
       const funcionario = funcionarios.find(f => f.id === user.funcionario_id);
       if (funcionario) {
-        user.nome = funcionario.nome_completo?.split(' ')[0]; // Primeiro nome
+        user.nome = funcionario.nome_completo?.split(' ')[0];
       }
     } else if (user.tipo === 'gestor') {
-      // Para gestor, usar email antes do @
       user.nome = user.email?.split('@')[0] || 'Gestor';
     }
     
     setCurrentUser(user);
     
-    // Carregar empresa do usuário
     if (user.empresa_id) {
       const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
       const empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
       setEmpresa(empresaEncontrada);
       
-      // Se for gestor e não encontrou a empresa, redirecionar para onboarding
       if (user.tipo === 'gestor' && !empresaEncontrada && location.pathname !== '/onboarding') {
         navigate('/onboarding');
       }
     } else if (user.tipo === 'gestor' && location.pathname !== '/onboarding') {
-      // Gestor sem empresa_id, redirecionar para onboarding
       navigate('/onboarding');
     }
   }, [location.pathname, navigate]);
 
-  // Filtrar itens do menu baseado no tipo de usuário
   const getMenuItems = () => {
     if (!currentUser || !currentUser.tipo) return navigationItems;
     
     if (currentUser.tipo === 'funcionario') {
-      // Funcionário vê: Dashboard, Agendamentos, Novo Agendamento, Clientes
       return navigationItems.filter(item => 
         ['Dashboard', 'Agendamentos', 'Novo Agendamento', 'Clientes'].includes(item.title)
       );
     }
     
-    // Gestor vê tudo exceto Dashboard
     return navigationItems.filter(item => !item.funcionarioOnly);
   };
 
@@ -148,7 +139,6 @@ export default function Layout({ children }) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-purple-50/30 via-white to-purple-50/20">
 
-        {/* SIDEBAR COM LARGURA DINÂMICA */}
         <div 
           className="border-r border-purple-100/50 transition-all duration-300 flex-shrink-0"
             style={{
@@ -168,11 +158,11 @@ export default function Layout({ children }) {
                 }`}
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                  <span className="text-white font-bold text-xl">{empresa?.nome?.charAt(0) || 'L'}</span>
+                  <span className="text-white font-bold text-xl">L</span>
                 </div>
                 <div className={`${isCollapsed ? "md:hidden" : ""}`}>
-                  <h2 className="font-bold text-gray-900 text-lg truncate">{empresa?.nome || 'Livegenda'}</h2>
-                  <p className="text-xs text-purple-600 truncate">{currentUser?.tipo === 'funcionario' ? 'Funcionário' : 'Gestor'}</p>
+                  <h2 className="font-bold text-gray-900 text-lg">Livegenda</h2>
+                  <p className="text-xs text-purple-600">Agendamento Inteligente</p>
                 </div>
               </div>
             </SidebarHeader>
@@ -194,7 +184,6 @@ export default function Layout({ children }) {
                           <Link
                             to={item.url}
                             onClick={() => {
-                              // Fechar sidebar mobile ao clicar
                               if (window.innerWidth < 768) {
                                 const sidebarTrigger = document.querySelector('[data-sidebar="trigger"]');
                                 if (sidebarTrigger) sidebarTrigger.click();
@@ -255,7 +244,6 @@ export default function Layout({ children }) {
                 )}
               </SidebarMenu>
 
-              {/* BOTÃO DE EXPANDIR / COLAPSAR – DESKTOP */}
               <div className="hidden md:block mt-2">
                 <Button
                   variant="ghost"
@@ -279,7 +267,6 @@ export default function Layout({ children }) {
           </Sidebar>
         </div>
 
-        {/* CONTEÚDO PRINCIPAL — EXPANDE DINAMICAMENTE */}
         <main className="flex-1 flex flex-col transition-all duration-300">
           <header className="bg-white/80 backdrop-blur-sm border-b border-purple-100/50 px-6 py-4 sticky top-0 z-10">
             <div className="flex items-center justify-between">
@@ -287,6 +274,20 @@ export default function Layout({ children }) {
                 <SidebarTrigger className="hover:bg-purple-50 p-2 rounded-lg transition-colors duration-200 md:hidden">
                   <Menu className="w-5 h-5 text-gray-600" />
                 </SidebarTrigger>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h1 className="font-bold text-gray-900 text-lg leading-tight">
+                      {empresa?.nome || 'Meu Estabelecimento'}
+                    </h1>
+                    <p className="text-xs text-purple-600">
+                      {currentUser?.tipo === 'funcionario' ? 'Funcionário' : 'Gestor'}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <DropdownMenu>
