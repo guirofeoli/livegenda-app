@@ -1,3 +1,4 @@
+import { useToast } from "@/components/ui/use-toast";
 import {
   Toast,
   ToastClose,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/toast";
 
 export function Toaster() {
+  const { toasts } = useToast();
 
   return (
     <ToastProvider>
@@ -28,4 +30,4 @@ export function Toaster() {
       <ToastViewport />
     </ToastProvider>
   );
-} 
+}

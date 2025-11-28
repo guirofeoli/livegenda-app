@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 import ClienteSearch from "../components/agendamento/ClienteSearch";
 import ServicoSelect from "../components/agendamento/ServicoSelect";
@@ -16,8 +16,8 @@ import ClienteModal from "../components/clientes/ClienteModal";
 export default function NovoAgendamento() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
-  // Obter empresa do usuário logado
   const currentUser = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
   const empresaId = currentUser.empresa_id;
 
@@ -26,7 +26,7 @@ export default function NovoAgendamento() {
   const [duracao, setDuracao] = useState(null);
   const [preco, setPreco] = useState(null);
   const [selectedProfissional, setSelectedProfissional] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Changed from null to new Date()
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
   const [showClienteModal, setShowClienteModal] = useState(false);
   
@@ -36,19 +36,23 @@ export default function NovoAgendamento() {
     sincronizar_google: true,
   });
 
-  // Mock: Mariana Costa sem horário às 15:00 no dia 15/11/2025
-  const horariosIndisponiveis = [
-    { data: "2025-11-15", hora: "15:00" }, // Updated mock data
-  ];
-
   const createClienteMutation = useMutation({
     mutationFn: (data) => base44.entities.Cliente.create(data),
     onSuccess: (newCliente) => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setSelectedCliente(newCliente);
       setShowClienteModal(false);
+      toast({
+        title: "Cliente cadastrado",
+        description: "O cliente foi adicionado com sucesso.",
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      toast({
+        title: "Erro ao cadastrar cliente",
+        description: error.message || "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -56,9 +60,18 @@ export default function NovoAgendamento() {
     mutationFn: (data) => base44.entities.Agendamento.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agendamentos'] });
-      navigate("/");
+      toast({
+        title: "Agendamento confirmado",
+        description: "O agendamento foi criado com sucesso.",
+      });
+      navigate("/agendamentos");
     },
-    onError: () => {
+    onError: (error) => {
+      toast({
+        title: "Erro ao criar agendamento",
+        description: error.message || "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -66,18 +79,23 @@ export default function NovoAgendamento() {
     e.preventDefault();
 
     if (!selectedCliente) {
+      toast({ title: "Selecione um cliente", variant: "destructive" });
       return;
     }
     if (!selectedServico) {
+      toast({ title: "Selecione um serviço", variant: "destructive" });
       return;
     }
     if (!duracao || !preco) {
+      toast({ title: "Serviço sem duração ou preço", variant: "destructive" });
       return;
     }
     if (!selectedProfissional) {
+      toast({ title: "Selecione um profissional", variant: "destructive" });
       return;
     }
     if (!selectedDate || !selectedTime) {
+      toast({ title: "Selecione data e horário", variant: "destructive" });
       return;
     }
 
@@ -134,7 +152,11 @@ export default function NovoAgendamento() {
         >
           <ServicoSelect
             selectedServico={selectedServico}
-            onSelectServico={setSelectedServico}
+            onSelectServico={(servico) => {
+              setSelectedServico(servico);
+              setDuracao(servico?.duracao_minutos);
+              setPreco(servico?.preco);
+            }}
             duracao={duracao}
             preco={preco}
             onDuracaoChange={setDuracao}
@@ -188,7 +210,7 @@ export default function NovoAgendamento() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/agendamentos")}
             className="border-gray-300 hover:bg-gray-50"
           >
             Cancelar
@@ -198,7 +220,7 @@ export default function NovoAgendamento() {
             disabled={createAgendamentoMutation.isPending}
             className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30"
           >
-            Confirmar Agendamento
+            {createAgendamentoMutation.isPending ? "Salvando..." : "Confirmar Agendamento"}
           </Button>
         </motion.div>
       </form>

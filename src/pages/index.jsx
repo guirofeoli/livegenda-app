@@ -2,6 +2,7 @@ import Layout from "./Layout.jsx";
 import Login from "./Login";
 import Onboarding from "./Onboarding";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Toaster } from "@/components/ui/toaster";
 
 import Funcionarios from "./Funcionarios";
 import Clientes from "./Clientes";
@@ -42,7 +43,6 @@ function _getCurrentPage(url) {
     return pageName || Object.keys(PAGES)[0];
 }
 
-// Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
     const location = useLocation();
     const currentPage = _getCurrentPage(location.pathname);
@@ -57,20 +57,13 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            {/* Protected routes */}
+            {/* Rota raiz redireciona para agendamentos */}
             <Route path="/" element={
                 <ProtectedRoute>
-                    <Navigate to="/login" replace />
+                    <Navigate to="/agendamentos" replace />
                 </ProtectedRoute>
             } />
             
-            <Route path="/" element={
-                <ProtectedRoute>
-                    <Layout currentPageName="Funcionarios">
-                        <Funcionarios />
-                    </Layout>
-                </ProtectedRoute>
-            } />
             <Route path="/funcionarios" element={
                 <ProtectedRoute>
                     <Layout currentPageName="Funcionarios">
@@ -78,7 +71,6 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-
             
             <Route path="/clientes" element={
                 <ProtectedRoute>
@@ -159,6 +151,7 @@ export default function Pages() {
     return (
         <Router>
             <PagesContent />
+            <Toaster />
         </Router>
     );
 }
