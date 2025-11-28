@@ -42,6 +42,59 @@ const initializeStorage = () => {
 
 initializeStorage();
 
+// Helper functions para converter formato de horário - DEFINIDAS ANTES DO USO
+const convertHorarioToForm = (horarioFuncionamento) => {
+  if (!horarioFuncionamento) {
+    return {
+      segunda: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      terca: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      quarta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      quinta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      sexta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
+      sabado: { ativo: true, abertura: "09:00", fechamento: "14:00" },
+      domingo: { ativo: false, abertura: "09:00", fechamento: "18:00" }
+    };
+  }
+  
+  const result = {};
+  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+  
+  dias.forEach(dia => {
+    const horario = horarioFuncionamento[dia];
+    if (horario) {
+      result[dia] = {
+        ativo: horario.ativo !== false,
+        abertura: horario.inicio || horario.abertura || "09:00",
+        fechamento: horario.fim || horario.fechamento || "18:00"
+      };
+    } else {
+      result[dia] = { ativo: false, abertura: "09:00", fechamento: "18:00" };
+    }
+  });
+  
+  return result;
+};
+
+const convertHorarioFromForm = (horario_funcionamento) => {
+  if (!horario_funcionamento) return null;
+  
+  const result = {};
+  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+  
+  dias.forEach(dia => {
+    const h = horario_funcionamento[dia];
+    if (h) {
+      result[dia] = {
+        inicio: h.abertura,
+        fim: h.fechamento,
+        ativo: h.ativo
+      };
+    }
+  });
+  
+  return result;
+};
+
 // Helper to get current user's empresa_id
 const getCurrentEmpresaId = () => {
   const user = localStorage.getItem('livegenda_user');
@@ -74,8 +127,11 @@ class MockEntity {
     const empresaId = getCurrentEmpresaId();
     let data = getFromStorage(this.entityName);
     
-    // Filter by empresa_id for multi-tenant entities
-    if (empresaId && ['funcionarios', 'clientes', 'servicos', 'agendamentos'].includes(this.entityName)) {
+    // Retornar array vazio se não houver empresa_id para entidades multi-tenant
+    if (['funcionarios', 'clientes', 'servicos', 'agendamentos'].includes(this.entityName)) {
+      if (!empresaId) {
+        return [];
+      }
       data = data.filter(item => item.empresa_id === empresaId);
     }
     
@@ -95,6 +151,14 @@ class MockEntity {
 
   async create(item) {
     const empresaId = getCurrentEmpresaId();
+    
+    // Impedir criação sem empresa_id para entidades multi-tenant
+    if (['funcionarios', 'clientes', 'servicos', 'agendamentos'].includes(this.entityName)) {
+      if (!empresaId && !item.empresa_id) {
+        throw new Error('Empresa não definida. Faça login novamente.');
+      }
+    }
+    
     const data = getFromStorage(this.entityName);
     const newItem = {
       ...item,
@@ -191,6 +255,8 @@ export const mockClient = {
         if (!empresa) return null;
         
         // Mapear campos da empresa para formato esperado pelo componente
+        const horarioConvertido = convertHorarioToForm(empresa.horarioFuncionamento);
+        
         return {
           id: empresa.id,
           nome_negocio: empresa.nome,
@@ -200,7 +266,9 @@ export const mockClient = {
           endereco: empresa.endereco,
           cep: empresa.cep || '',
           logo_url: empresa.logo_url || '',
-          horario_funcionamento: convertHorarioToForm(empresa.horarioFuncionamento),
+          horario_funcionamento: horarioConvertido,
+          // Também incluir formato original para compatibilidade com DateTimePicker
+          horarioFuncionamento: empresa.horarioFuncionamento,
           intervaloAgendamento: empresa.intervaloAgendamento || 30,
           lembreteAutomatico: empresa.lembreteAutomatico !== false,
           tempoAntecedenciaLembrete: empresa.tempoAntecedenciaLembrete || 24
@@ -212,6 +280,8 @@ export const mockClient = {
         if (!user) throw new Error('Usuário não autenticado');
         
         const empresas = getFromStorage('empresas', []);
+        const horarioConvertido = convertHorarioFromForm(data.horario_funcionamento);
+        
         const newEmpresa = {
           id: Date.now().toString(),
           nome: data.nome_negocio,
@@ -221,7 +291,7 @@ export const mockClient = {
           endereco: data.endereco,
           cep: data.cep,
           logo_url: data.logo_url,
-          horarioFuncionamento: convertHorarioFromForm(data.horario_funcionamento),
+          horarioFuncionamento: horarioConvertido,
           intervaloAgendamento: 30,
           lembreteAutomatico: true,
           tempoAntecedenciaLembrete: 24,
@@ -256,6 +326,8 @@ export const mockClient = {
         
         if (index === -1) throw new Error('Empresa não encontrada');
         
+        const horarioConvertido = convertHorarioFromForm(data.horario_funcionamento);
+        
         empresas[index] = {
           ...empresas[index],
           nome: data.nome_negocio,
@@ -265,7 +337,7 @@ export const mockClient = {
           endereco: data.endereco,
           cep: data.cep,
           logo_url: data.logo_url,
-          horarioFuncionamento: convertHorarioFromForm(data.horario_funcionamento)
+          horarioFuncionamento: horarioConvertido
         };
         
         saveToStorage('empresas', empresas);
@@ -286,58 +358,5 @@ export const mockClient = {
     }
   }
 };
-
-// Helper functions para converter formato de horário
-function convertHorarioToForm(horarioFuncionamento) {
-  if (!horarioFuncionamento) {
-    return {
-      segunda: { ativo: true, abertura: "09:00", fechamento: "18:00" },
-      terca: { ativo: true, abertura: "09:00", fechamento: "18:00" },
-      quarta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
-      quinta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
-      sexta: { ativo: true, abertura: "09:00", fechamento: "18:00" },
-      sabado: { ativo: true, abertura: "09:00", fechamento: "14:00" },
-      domingo: { ativo: false, abertura: "09:00", fechamento: "18:00" }
-    };
-  }
-  
-  const result = {};
-  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-  
-  dias.forEach(dia => {
-    const horario = horarioFuncionamento[dia];
-    if (horario) {
-      result[dia] = {
-        ativo: horario.ativo !== false,
-        abertura: horario.inicio || horario.abertura || "09:00",
-        fechamento: horario.fim || horario.fechamento || "18:00"
-      };
-    } else {
-      result[dia] = { ativo: false, abertura: "09:00", fechamento: "18:00" };
-    }
-  });
-  
-  return result;
-}
-
-function convertHorarioFromForm(horario_funcionamento) {
-  if (!horario_funcionamento) return null;
-  
-  const result = {};
-  const dias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-  
-  dias.forEach(dia => {
-    const h = horario_funcionamento[dia];
-    if (h) {
-      result[dia] = {
-        inicio: h.abertura,
-        fim: h.fechamento,
-        ativo: h.ativo
-      };
-    }
-  });
-  
-  return result;
-}
 
 export default mockClient;
