@@ -6,6 +6,7 @@ import AgendamentoCard from "./AgendamentoCard";
 
 const DIAS_SEMANA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 const HORARIOS = Array.from({ length: 14 }, (_, i) => i + 9); // 9h às 22h
+const SLOT_HEIGHT = 80; // Altura de cada slot de hora em pixels
 
 export default function WeekView({
   currentDate,
@@ -20,7 +21,6 @@ export default function WeekView({
 }) {
   const getWeekDays = () => {
     const days = [];
-    // Normalizar a data para evitar problemas de timezone
     let curr;
     if (typeof currentDate === 'string') {
       const [year, month, day] = currentDate.split('-').map(Number);
@@ -43,7 +43,6 @@ export default function WeekView({
 
   const allWeekDays = getWeekDays();
 
-  // Buscar configuração de horário de funcionamento
   const { data: configuracoes = [] } = useQuery({
     queryKey: ['configuracoes'],
     queryFn: () => base44.entities.ConfiguracaoNegocio.list(),
@@ -52,20 +51,17 @@ export default function WeekView({
 
   const configuracao = configuracoes[0];
 
-  // Mapear dia da semana para chave do horário
   const getDiaChave = (dayIndex) => {
     const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
     return dias[dayIndex];
   };
 
-  // Verificar se o estabelecimento está aberto em um dia específico
   const isEstabelecimentoFechado = (date) => {
     if (!configuracao?.horario_funcionamento) return false;
     const diaChave = getDiaChave(date.getDay());
     return configuracao.horario_funcionamento[diaChave]?.ativo === false;
   };
 
-  // Filtrar apenas dias abertos
   const weekDays = allWeekDays.filter(day => !isEstabelecimentoFechado(day));
 
   const getAgendamentosForDate = (date) => {
@@ -77,15 +73,56 @@ export default function WeekView({
     }).sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
   };
 
+  // Retorna agendamentos que OCUPAM essa hora (iniciam nela OU cruzam ela)
   const getAgendamentosForDateAndHour = (date, hour) => {
     const dateString = date.toISOString().split('T')[0];
     return agendamentos.filter(agendamento => {
       if (agendamento.data !== dateString) return false;
-      const agendHour = parseInt(agendamento.hora_inicio.split(':')[0]);
-      const matchHour = agendHour === hour;
-      const matchFuncionario = !selectedFuncionarioId || agendamento.funcionario_id === selectedFuncionarioId;
-      return matchHour && matchFuncionario;
+      if (selectedFuncionarioId && agendamento.funcionario_id !== selectedFuncionarioId) return false;
+      
+      const [startHour, startMin] = agendamento.hora_inicio.split(':').map(Number);
+      const startTotalMinutes = startHour * 60 + startMin;
+      const endTotalMinutes = startTotalMinutes + (agendamento.duracao_minutos || 30);
+      
+      const slotStartMinutes = hour * 60;
+      const slotEndMinutes = (hour + 1) * 60;
+      
+      // Agendamento ocupa este slot se: inicia antes do fim do slot E termina depois do início do slot
+      return startTotalMinutes < slotEndMinutes && endTotalMinutes > slotStartMinutes;
     });
+  };
+
+  // Calcula posição e altura do agendamento dentro do slot
+  const getAgendamentoPosition = (agendamento, slotHour) => {
+    const [startHour, startMin] = agendamento.hora_inicio.split(':').map(Number);
+    const startTotalMinutes = startHour * 60 + startMin;
+    const endTotalMinutes = startTotalMinutes + (agendamento.duracao_minutos || 30);
+    
+    const slotStartMinutes = slotHour * 60;
+    const slotEndMinutes = (slotHour + 1) * 60;
+    
+    // Calcular onde o agendamento começa dentro deste slot
+    const visibleStartMinutes = Math.max(startTotalMinutes, slotStartMinutes);
+    const visibleEndMinutes = Math.min(endTotalMinutes, slotEndMinutes);
+    
+    // Offset do topo (em porcentagem do slot)
+    const topOffset = ((visibleStartMinutes - slotStartMinutes) / 60) * 100;
+    
+    // Altura (em porcentagem do slot)
+    const heightPercent = ((visibleEndMinutes - visibleStartMinutes) / 60) * 100;
+    
+    // Se é a primeira hora do agendamento
+    const isFirstSlot = startHour === slotHour;
+    
+    // Se é a última hora do agendamento
+    const isLastSlot = endTotalMinutes <= slotEndMinutes;
+    
+    return {
+      topPercent: topOffset,
+      heightPercent: heightPercent,
+      isFirstSlot,
+      isLastSlot
+    };
   };
 
   const isToday = (date) => {
@@ -101,7 +138,6 @@ export default function WeekView({
     );
   }
 
-  // Mobile View - Cards por dia
   return (
     <>
       {/* Mobile View */}
@@ -117,77 +153,65 @@ export default function WeekView({
             >
               <div className={`p-3 ${isToday(day) ? 'bg-purple-50' : 'bg-gray-50'}`}>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-gray-500 font-medium mb-0.5">
-                      {DIAS_SEMANA[day.getDay()]}
-                    </div>
-                    <div className={`text-lg font-semibold ${
-                      isToday(day) ? 'text-purple-600' : 'text-gray-900'
-                    }`}>
-                      {day.getDate()}/{String(day.getMonth() + 1).padStart(2, '0')}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {dayAgendamentos.length} agendamento{dayAgendamentos.length !== 1 ? 's' : ''}
-                  </div>
+                  <span className="text-xs font-semibold text-purple-600">
+                    {DIAS_SEMANA[day.getDay()]}
+                  </span>
+                  <span className={`text-lg font-bold ${isToday(day) ? 'text-purple-700' : 'text-gray-700'}`}>
+                    {day.getDate()}
+                  </span>
                 </div>
               </div>
-              
-              {dayAgendamentos.length > 0 ? (
-                <div className="p-3 space-y-2">
-                  {dayAgendamentos.map((agendamento) => {
+              <div className="divide-y divide-purple-50">
+                {dayAgendamentos.length > 0 ? (
+                  dayAgendamentos.map((agendamento) => {
                     const cliente = clientes.find(c => c.id === agendamento.cliente_id);
                     const servico = servicos.find(s => s.id === agendamento.servico_id);
                     const funcionario = funcionarios.find(f => f.id === agendamento.funcionario_id);
-
                     return (
-                      <AgendamentoCard
-                        key={agendamento.id}
-                        agendamento={agendamento}
-                        cliente={cliente}
-                        servico={servico}
-                        funcionario={funcionario}
-                        onClick={() => onAgendamentoClick(agendamento)}
-                      />
+                      <div key={agendamento.id} className="p-2">
+                        <AgendamentoCard
+                          agendamento={agendamento}
+                          cliente={cliente}
+                          servico={servico}
+                          funcionario={funcionario}
+                          onClick={() => onAgendamentoClick(agendamento)}
+                        />
+                      </div>
                     );
-                  })}
-                </div>
-              ) : (
-                <div className="p-6 text-center text-gray-400 text-xs">
-                  Nenhum agendamento
-                </div>
-              )}
+                  })
+                ) : (
+                  <div className="p-4 text-center text-gray-400 text-sm">
+                    Sem agendamentos
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Desktop/Tablet View - Grade */}
+      {/* Desktop View */}
       <div className="hidden md:block bg-white rounded-xl border border-purple-100 overflow-hidden">
-        {/* Header com dias da semana */}
+        {/* Cabeçalho */}
         <div 
-          className="border-b border-purple-100"
-          style={{
+          className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-purple-100"
+          style={{ 
             display: 'grid',
             gridTemplateColumns: `60px repeat(${weekDays.length}, minmax(0, 1fr))`,
           }}
         >
-          <div className="p-2 lg:p-4 text-xs text-gray-500 font-medium">
-            GMT-03
-          </div>
+          <div className="p-3"></div>
           {weekDays.map((day, idx) => (
             <div
               key={idx}
-              className={`p-2 lg:p-4 text-center border-l border-purple-100 ${
-                isToday(day) ? 'bg-purple-50' : ''
+              className={`p-3 text-center border-l border-purple-100 ${
+                isToday(day) ? 'bg-purple-100' : ''
               }`}
             >
-              <div className="text-xs text-gray-500 font-medium mb-1">
+              <div className="text-xs font-semibold text-purple-600">
                 {DIAS_SEMANA[day.getDay()]}
               </div>
-              <div className={`text-lg lg:text-2xl font-semibold ${
-                isToday(day) ? 'text-purple-600' : 'text-gray-900'
-              }`}>
+              <div className={`text-xl font-bold ${isToday(day) ? 'text-purple-700' : 'text-gray-700'}`}>
                 {day.getDate()}
               </div>
             </div>
@@ -201,7 +225,7 @@ export default function WeekView({
               key={hora}
               className="border-b border-purple-50 hover:bg-purple-50/30 transition-colors"
               style={{ 
-                minHeight: '80px',
+                height: `${SLOT_HEIGHT}px`,
                 display: 'grid',
                 gridTemplateColumns: `60px repeat(${weekDays.length}, minmax(0, 1fr))`,
               }}
@@ -217,23 +241,36 @@ export default function WeekView({
                 return (
                   <div
                     key={dayIdx}
-                    className="border-l border-purple-100 p-1 lg:p-2 relative overflow-hidden"
-                    onDoubleClick={() => onDoubleClickSlot(day, `${hora}:00`)}
+                    className="border-l border-purple-100 relative"
+                    style={{ height: `${SLOT_HEIGHT}px` }}
+                    onDoubleClick={() => onDoubleClickSlot && onDoubleClickSlot(day, `${hora}:00`)}
                   >
                     {dayAgendamentos.map((agendamento) => {
                       const cliente = clientes.find(c => c.id === agendamento.cliente_id);
                       const servico = servicos.find(s => s.id === agendamento.servico_id);
                       const funcionario = funcionarios.find(f => f.id === agendamento.funcionario_id);
+                      const position = getAgendamentoPosition(agendamento, hora);
 
                       return (
-                        <AgendamentoCard
-                          key={agendamento.id}
-                          agendamento={agendamento}
-                          cliente={cliente}
-                          servico={servico}
-                          funcionario={funcionario}
-                          onClick={() => onAgendamentoClick(agendamento)}
-                        />
+                        <div
+                          key={`${agendamento.id}-${hora}`}
+                          className="absolute left-1 right-1"
+                          style={{
+                            top: `${position.topPercent}%`,
+                            height: `${position.heightPercent}%`,
+                            minHeight: '20px',
+                            zIndex: 10
+                          }}
+                        >
+                          <AgendamentoCard
+                            agendamento={agendamento}
+                            cliente={cliente}
+                            servico={servico}
+                            funcionario={funcionario}
+                            onClick={() => onAgendamentoClick(agendamento)}
+                            compact={!position.isFirstSlot}
+                          />
+                        </div>
                       );
                     })}
                   </div>

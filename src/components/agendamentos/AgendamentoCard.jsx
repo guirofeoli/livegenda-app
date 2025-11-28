@@ -14,7 +14,8 @@ export default function AgendamentoCard({
   cliente,
   servico,
   funcionario,
-  onClick
+  onClick,
+  compact = false
 }) {
   const calcularHoraFim = () => {
     if (!agendamento.hora_inicio || !agendamento.duracao_minutos) return "";
@@ -30,27 +31,41 @@ export default function AgendamentoCard({
   const horaFim = calcularHoraFim();
   const colorClass = STATUS_COLORS[agendamento.status] || STATUS_COLORS.Agendado;
 
+  // Modo compacto: apenas mostra uma barra colorida indicando continuação
+  if (compact) {
+    return (
+      <button
+        onClick={onClick}
+        className={cn(
+          "h-full w-full rounded-lg border-l-4 transition-all hover:shadow-md opacity-60",
+          colorClass
+        )}
+        title={`${cliente?.nome_completo || "Cliente"} - ${servico?.nome || "Serviço"}`}
+      />
+    );
+  }
+
   return (
     <button
       onClick={onClick}
       className={cn(
-        "my-1 p-2 text-left rounded-lg w-full border-l-4 transition-all hover:shadow-md hover:scale-[1.02]",
+        "p-2 text-left rounded-lg w-full h-full border-l-4 transition-all hover:shadow-md hover:scale-[1.01] overflow-hidden",
         colorClass
       )}
     >
-      <div className="space-y-1">
-        <p className="font-semibold text-sm truncate">
+      <div className="space-y-0.5">
+        <p className="font-semibold text-sm truncate leading-tight">
           {cliente?.nome_completo || "Cliente não encontrado"}
         </p>
-        <p className="text-xs truncate opacity-90">
+        <p className="text-xs truncate opacity-90 leading-tight">
           {servico?.nome || "Serviço"}
         </p>
         <div className="flex items-center gap-1 text-xs opacity-80">
-          <Clock className="w-3 h-3" />
+          <Clock className="w-3 h-3 flex-shrink-0" />
           <span>{agendamento.hora_inicio} - {horaFim}</span>
         </div>
         <div className="flex items-center gap-1 text-xs opacity-80">
-          <User className="w-3 h-3" />
+          <User className="w-3 h-3 flex-shrink-0" />
           <span className="truncate">{funcionario?.nome_completo || "Profissional"}</span>
         </div>
       </div>
