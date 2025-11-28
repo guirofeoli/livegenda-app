@@ -53,6 +53,7 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
               {filteredClientes.map((cliente) => (
                 <button
                   key={cliente.id}
+                  type="button"
                   onClick={() => handleSelectCliente(cliente)}
                   className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors flex items-center gap-3 border-b border-purple-50 last:border-0"
                 >
