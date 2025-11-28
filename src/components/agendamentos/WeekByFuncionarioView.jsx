@@ -6,7 +6,6 @@ import AgendamentoCard from "./AgendamentoCard";
 
 const DIAS_SEMANA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 
-// Paleta de cores pasteis da identidade visual
 const COLOR_PALETTE = [
   { bg: "from-purple-400 to-purple-500", border: "border-purple-400", shadow: "shadow-purple-400/30" },
   { bg: "from-indigo-400 to-indigo-500", border: "border-indigo-400", shadow: "shadow-indigo-400/30" },
@@ -34,10 +33,16 @@ export default function WeekByFuncionarioView({
   const getWeekDays = () => {
     const days = [];
     const curr = new Date(currentDate);
-    const first = curr.getDate() - curr.getDay();
-
+    const dayOfWeek = curr.getDay();
+    
+    // Calcular o primeiro dia da semana (domingo)
+    const firstDayOfWeek = new Date(curr);
+    firstDayOfWeek.setDate(curr.getDate() - dayOfWeek);
+    
+    // Gerar os 7 dias da semana
     for (let i = 0; i < 7; i++) {
-      const day = new Date(curr.setDate(first + i));
+      const day = new Date(firstDayOfWeek);
+      day.setDate(firstDayOfWeek.getDate() + i);
       days.push(day);
     }
     return days;
@@ -45,7 +50,6 @@ export default function WeekByFuncionarioView({
 
   const allWeekDays = getWeekDays();
 
-  // Buscar configuração de horário de funcionamento
   const { data: configuracoes = [] } = useQuery({
     queryKey: ['configuracoes'],
     queryFn: () => base44.entities.ConfiguracaoNegocio.list(),
@@ -54,20 +58,17 @@ export default function WeekByFuncionarioView({
 
   const configuracao = configuracoes[0];
 
-  // Mapear dia da semana para chave do horário
   const getDiaChave = (dayIndex) => {
     const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
     return dias[dayIndex];
   };
 
-  // Verificar se o estabelecimento está aberto em um dia específico
   const isEstabelecimentoFechado = (date) => {
     if (!configuracao?.horario_funcionamento) return false;
     const diaChave = getDiaChave(date.getDay());
     return configuracao.horario_funcionamento[diaChave]?.ativo === false;
   };
 
-  // Filtrar apenas dias abertos
   const weekDays = allWeekDays.filter(day => !isEstabelecimentoFechado(day));
 
   const getHorariosComAgendamentos = (funcionarioId) => {
@@ -150,51 +151,35 @@ export default function WeekByFuncionarioView({
           }
 
           return (
-            <div
-              key={funcionario.id}
-              className={`bg-white rounded-xl border-2 ${colors.border} overflow-hidden`}
-            >
-              <div className="p-3 bg-gradient-to-r from-purple-50 to-white border-b-2 border-inherit">
-                <div className="flex items-center gap-2">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${colors.bg} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg ${colors.shadow}`}>
-                    {funcionario.nome_completo?.substring(0, 2).toUpperCase() || "??"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {funcionario.nome_completo}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">{funcionario.cargo}</p>
-                  </div>
-                </div>
-                <div className="mt-2 text-xs text-gray-600">
-                  {funcAgendamentos.length} agendamento{funcAgendamentos.length !== 1 ? 's' : ''}
-                </div>
+            <div key={funcionario.id} className="bg-white rounded-xl border border-purple-100 overflow-hidden">
+              <div className={`bg-gradient-to-r ${colors.bg} px-4 py-3`}>
+                <h3 className="font-semibold text-white">{funcionario.nome}</h3>
               </div>
-              
-              <div className="p-3 space-y-2">
+              <div className="divide-y divide-purple-50">
                 {funcAgendamentos.map((agendamento) => {
                   const cliente = clientes.find(c => c.id === agendamento.cliente_id);
                   const servico = servicos.find(s => s.id === agendamento.servico_id);
-                  const horaFim = calcularHoraFim(agendamento);
-
+                  
                   return (
-                    <div key={agendamento.id} className="space-y-1">
-                      <div className="text-xs text-gray-500 font-medium">
-                        {formatDate(agendamento.data)} • {agendamento.hora_inicio} - {horaFim}
+                    <div
+                      key={agendamento.id}
+                      onClick={() => onAgendamentoClick(agendamento)}
+                      className="p-3 hover:bg-purple-50/50 transition-colors cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="text-xs text-purple-600 font-medium">
+                          {formatDate(agendamento.data)} • {agendamento.hora_inicio} - {calcularHoraFim(agendamento)}
+                        </span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          agendamento.status === 'Confirmado' ? 'bg-green-100 text-green-700' :
+                          agendamento.status === 'Cancelado' ? 'bg-red-100 text-red-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {agendamento.status || 'Pendente'}
+                        </span>
                       </div>
-                      <button
-                        onClick={() => onAgendamentoClick(agendamento)}
-                        className="bg-green-100 text-green-900 p-2.5 text-left rounded-lg w-full border-l-4 border-green-300 transition-all hover:shadow-md"
-                      >
-                        <div className="space-y-0.5">
-                          <p className="font-semibold text-xs">
-                            {cliente?.nome_completo || "Cliente"}
-                          </p>
-                          <p className="text-xs opacity-90">
-                            {servico?.nome || "Serviço"}
-                          </p>
-                        </div>
-                      </button>
+                      <p className="font-medium text-gray-900 text-sm">{cliente?.nome || 'Cliente não encontrado'}</p>
+                      <p className="text-xs text-gray-500">{servico?.nome || 'Serviço não encontrado'}</p>
                     </div>
                   );
                 })}
@@ -202,123 +187,90 @@ export default function WeekByFuncionarioView({
             </div>
           );
         })}
+        
+        {funcionariosFiltrados.every(f => getAgendamentosForFuncionario(f.id).length === 0) && (
+          <div className="bg-white rounded-xl border border-purple-100 p-8 text-center">
+            <p className="text-gray-500">Nenhum agendamento nesta semana</p>
+          </div>
+        )}
       </div>
 
-      {/* Desktop/Tablet View - Grade */}
+      {/* Desktop View - Tabela por funcionário */}
       <div className="hidden md:block bg-white rounded-xl border border-purple-100 overflow-hidden">
-        {/* Header com dias da semana */}
-        <div 
-          className="border-b border-purple-100 sticky top-0 bg-white z-10"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `140px 50px repeat(${weekDays.length}, minmax(0, 1fr))`,
-          }}
-        >
-          <div className="p-2 lg:p-4 text-xs text-gray-500 font-medium border-r border-purple-100">
-            Profissional
-          </div>
-          <div className="p-2 lg:p-4 text-xs text-gray-500 font-medium border-r border-purple-100">
-
-          </div>
-          {weekDays.map((day, idx) => (
-            <div
-              key={idx}
-              className={`p-2 lg:p-4 text-center border-l border-purple-100 ${
-                isToday(day) ? 'bg-purple-50' : ''
-              }`}
-            >
-              <div className="text-xs text-gray-500 font-medium mb-1">
-                {DIAS_SEMANA[day.getDay()]}
-              </div>
-              <div className={`text-lg lg:text-2xl font-semibold ${
-                isToday(day) ? 'text-purple-600' : 'text-gray-900'
-              }`}>
-                {day.getDate()}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Grade por funcionário e horário */}
-        <div className="overflow-auto">
-          {funcionariosFiltrados.map((funcionario, funcionarioIndex) => {
-            const horariosComAgendamentos = getHorariosComAgendamentos(funcionario.id);
-            const colors = COLOR_PALETTE[funcionarioIndex % COLOR_PALETTE.length];
-            
-            if (horariosComAgendamentos.length === 0) {
-              return null;
-            }
-
-            return (
-              <div 
-                key={funcionario.id} 
-                className={`border-b-2 ${colors.border}`}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: `140px 50px repeat(${weekDays.length}, minmax(0, 1fr))`,
-                }}
-              >
-                {/* Coluna do nome do funcionário - ocupa todas as linhas */}
-                <div 
-                  className={`sticky left-0 bg-white border-r-2 ${colors.border} p-2 lg:p-3 flex items-center gap-2 lg:gap-3`}
-                  style={{ gridRow: `span ${horariosComAgendamentos.length}` }}
-                >
-                  <div className={`w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br ${colors.bg} rounded-full flex items-center justify-center text-white font-bold text-xs lg:text-sm shadow-lg ${colors.shadow} flex-shrink-0`}>
-                    {funcionario.nome_completo?.substring(0, 2).toUpperCase() || "??"}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs lg:text-sm font-medium text-gray-900 truncate">
-                      {funcionario.nome_completo}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">{funcionario.cargo}</p>
-                  </div>
-                </div>
-
-                {/* Horários e células dos dias */}
-                {horariosComAgendamentos.map((hora, horaIdx) => (
-                  <React.Fragment key={hora}>
-                    {/* Coluna de horários */}
-                    <div className={`border-r border-purple-100 ${horaIdx < horariosComAgendamentos.length - 1 ? 'border-b border-purple-50' : ''} p-2 lg:p-3 flex items-center justify-center bg-gray-50`} style={{ minHeight: '60px' }}>
-                      <span className="text-xs text-gray-600 font-medium">
-                        {String(hora).padStart(2, '0')}:00
-                      </span>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gradient-to-r from-purple-50 to-indigo-50">
+                <th className="p-3 text-left text-xs font-semibold text-purple-700 uppercase tracking-wider border-b border-purple-100 w-40">
+                  Profissional
+                </th>
+                {weekDays.map((day, index) => (
+                  <th
+                    key={index}
+                    className={`p-3 text-center text-xs font-semibold uppercase tracking-wider border-b border-purple-100 min-w-[120px] ${
+                      isToday(day) ? 'bg-purple-100 text-purple-700' : 'text-purple-600'
+                    }`}
+                  >
+                    <div>{DIAS_SEMANA[day.getDay()]}</div>
+                    <div className={`text-lg font-bold ${isToday(day) ? 'text-purple-700' : 'text-gray-700'}`}>
+                      {day.getDate()}
                     </div>
-
-                    {/* Células dos dias para esse horário */}
-                    {weekDays.map((day, dayIdx) => {
-                      const slotAgendamentos = getAgendamentosForSlot(funcionario.id, day, hora);
-
-                      return (
-                        <div
-                          key={dayIdx}
-                          className={`border-l border-purple-100 ${horaIdx < horariosComAgendamentos.length - 1 ? 'border-b border-purple-50' : ''} p-1 lg:p-2 relative overflow-hidden`}
-                          style={{ minHeight: '60px' }}
-                          onDoubleClick={() => onDoubleClickSlot(day, `${String(hora).padStart(2, '0')}:00`)}
-                        >
-                          {slotAgendamentos.map((agendamento) => {
-                            const cliente = clientes.find(c => c.id === agendamento.cliente_id);
-                            const servico = servicos.find(s => s.id === agendamento.servico_id);
-                            const funcionarioData = funcionarios.find(f => f.id === agendamento.funcionario_id);
-
-                            return (
-                              <AgendamentoCard
-                                key={agendamento.id}
-                                agendamento={agendamento}
-                                cliente={cliente}
-                                servico={servico}
-                                funcionario={funcionarioData}
-                                onClick={() => onAgendamentoClick(agendamento)}
-                              />
-                            );
-                          })}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {funcionariosFiltrados.map((funcionario, funcIndex) => {
+                const colors = COLOR_PALETTE[funcIndex % COLOR_PALETTE.length];
+                
+                return (
+                  <tr key={funcionario.id} className="border-b border-purple-50 hover:bg-purple-50/30 transition-colors">
+                    <td className="p-3 align-top">
+                      <div className={`flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r ${colors.bg} text-white`}>
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+                          {funcionario.nome?.charAt(0) || '?'}
                         </div>
+                        <span className="font-medium text-sm truncate">{funcionario.nome}</span>
+                      </div>
+                    </td>
+                    {weekDays.map((day, dayIndex) => {
+                      const dayAgendamentos = getAgendamentosForFuncionario(funcionario.id)
+                        .filter(a => a.data === day.toISOString().split('T')[0]);
+                      
+                      return (
+                        <td
+                          key={dayIndex}
+                          className={`p-2 align-top border-l border-purple-50 ${
+                            isToday(day) ? 'bg-purple-50/50' : ''
+                          }`}
+                          onDoubleClick={() => onDoubleClickSlot && onDoubleClickSlot(day, funcionario.id)}
+                        >
+                          <div className="space-y-1 min-h-[60px]">
+                            {dayAgendamentos.map((agendamento) => {
+                              const cliente = clientes.find(c => c.id === agendamento.cliente_id);
+                              const servico = servicos.find(s => s.id === agendamento.servico_id);
+                              
+                              return (
+                                <AgendamentoCard
+                                  key={agendamento.id}
+                                  agendamento={agendamento}
+                                  cliente={cliente}
+                                  servico={servico}
+                                  onClick={() => onAgendamentoClick(agendamento)}
+                                  colors={colors}
+                                  calcularHoraFim={calcularHoraFim}
+                                />
+                              );
+                            })}
+                          </div>
+                        </td>
                       );
                     })}
-                  </React.Fragment>
-                ))}
-              </div>
-            );
-          })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </>
