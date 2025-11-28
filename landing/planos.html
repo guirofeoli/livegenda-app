@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Planos e Assinatura</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#38e07b",
+            "background-light": "#f6f8f7",
+            "background-dark": "#122017",
+            "text-light-primary": "#111714",
+            "text-light-secondary": "#648772",
+            "text-dark-primary": "#f0f4f2",
+            "text-dark-secondary": "#a0b5a9",
+            "card-light": "#ffffff",
+            "card-dark": "#1a2c20",
+            "border-light": "#e3e8e5",
+            "border-dark": "#2d4436",
+          },
+          fontFamily: {
+            "display": ["Manrope", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden text-text-light-primary dark:text-dark-primary">
+<!-- Top App Bar -->
+<div class="flex items-center bg-card-light dark:bg-card-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-border-light dark:border-border-dark">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-2xl text-text-light-primary dark:text-dark-primary">arrow_back</span>
+</div>
+<h1 class="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Planos e Assinatura</h1>
+<div class="size-12 shrink-0"></div>
+</div>
+<main class="flex-1">
+<!-- Current Plan Card -->
+<div class="p-4 @container">
+<p class="text-base font-semibold leading-normal pb-2 px-1 text-text-light-secondary dark:text-dark-secondary">Seu Plano Atual</p>
+<div class="flex flex-col items-stretch justify-start rounded-xl @xl:flex-row @xl:items-start shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-card-light dark:bg-card-dark border border-primary/50">
+<div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-1 p-4">
+<p class="text-lg font-bold leading-tight tracking-[-0.015em]">Seu Plano: Intermediário</p>
+<div class="flex flex-col @sm:flex-row items-start @sm:items-end gap-3 justify-between pt-1">
+<div class="flex flex-col gap-1">
+<p class="text-base font-normal leading-normal text-text-light-secondary dark:text-dark-secondary">Sua assinatura será renovada em 15 de julho de 2024.</p>
+<p class="text-base font-normal leading-normal text-text-light-secondary dark:text-dark-secondary">R$ 99,90/mês</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-background-dark text-sm font-bold leading-normal w-full @sm:w-auto">
+<span class="truncate">Alterar Plano</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Headline & Subtitle -->
+<h2 class="text-2xl md:text-3xl font-bold leading-tight tracking-tight px-4 text-center pb-1 pt-8 text-text-light-primary dark:text-dark-primary">Escolha o plano ideal para o seu negócio</h2>
+<p class="text-base font-normal leading-normal pb-3 pt-1 px-4 text-center text-text-light-secondary dark:text-dark-secondary">Desconto especial no plano anual!</p>
+<!-- Segmented Buttons -->
+<div class="flex px-4 py-3 justify-center">
+<div class="flex h-10 w-full max-w-sm flex-1 items-center justify-center rounded-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-full px-2 has-[:checked]:bg-card-light dark:has-[:checked]:bg-card-dark has-[:checked]:shadow-[0_2px_8px_rgba(0,0,0,0.08)] has-[:checked]:text-text-light-primary dark:has-[:checked]:text-dark-primary text-text-light-secondary dark:text-dark-secondary text-sm font-medium leading-normal transition-all duration-200">
+<span class="truncate">Mensal</span>
+<input class="invisible w-0" name="billing_cycle" type="radio" value="Mensal"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-full px-2 has-[:checked]:bg-card-light dark:has-[:checked]:bg-card-dark has-[:checked]:shadow-[0_2px_8px_rgba(0,0,0,0.08)] has-[:checked]:text-text-light-primary dark:has-[:checked]:text-dark-primary text-text-light-secondary dark:text-dark-secondary text-sm font-medium leading-normal transition-all duration-200">
+<span class="truncate">Anual (economize 20%)</span>
+<input checked="" class="invisible w-0" name="billing_cycle" type="radio" value="Anual (economize 20%)"/>
+</label>
+</div>
+</div>
+<!-- Pricing Plans Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4">
+<!-- Plan Card: Simples -->
+<div class="flex flex-col rounded-xl p-6 bg-card-light dark:bg-card-dark shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-light dark:border-border-dark">
+<div class="flex-1">
+<h3 class="text-xl font-bold">Simples</h3>
+<p class="mt-2 text-text-light-secondary dark:text-dark-secondary">Ideal para começar e organizar seus agendamentos.</p>
+<p class="mt-4">
+<span class="text-4xl font-extrabold tracking-tight">R$ 59</span>
+<span class="text-base font-medium text-text-light-secondary dark:text-dark-secondary">/mês</span>
+</p>
+<ul class="mt-6 space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Até 100 agendamentos/mês</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">1 usuário</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Lembretes via WhatsApp</span>
+</li>
+</ul>
+</div>
+<button class="mt-8 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary/20 dark:bg-primary/30 text-primary text-base font-bold leading-normal hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors">
+<span class="truncate">Selecionar Plano</span>
+</button>
+</div>
+<!-- Plan Card: Intermediário (Most Popular) -->
+<div class="relative flex flex-col rounded-xl p-6 bg-card-light dark:bg-card-dark shadow-[0_4px_12px_rgba(0,0,0,0.05)] border-2 border-primary">
+<div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
+<div class="rounded-full bg-primary px-4 py-1 text-xs font-bold uppercase tracking-wider text-background-dark">
+              Mais Popular
+            </div>
+</div>
+<div class="flex-1">
+<h3 class="text-xl font-bold">Intermediário</h3>
+<p class="mt-2 text-text-light-secondary dark:text-dark-secondary">Para equipes em crescimento que precisam de mais poder.</p>
+<p class="mt-4">
+<span class="text-4xl font-extrabold tracking-tight">R$ 99</span>
+<span class="text-base font-medium text-text-light-secondary dark:text-dark-secondary">/mês</span>
+</p>
+<ul class="mt-6 space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Até 500 agendamentos/mês</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Até 5 usuários</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Integração com Google Calendar</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Canais de lembrete</span>
+</li>
+</ul>
+</div>
+<button class="mt-8 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary text-background-dark text-base font-bold leading-normal hover:opacity-90 transition-opacity">
+<span class="truncate">Seu Plano Atual</span>
+</button>
+</div>
+<!-- Plan Card: Enterprise -->
+<div class="flex flex-col rounded-xl p-6 bg-card-light dark:bg-card-dark shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-light dark:border-border-dark">
+<div class="flex-1">
+<h3 class="text-xl font-bold">Enterprise</h3>
+<p class="mt-2 text-text-light-secondary dark:text-dark-secondary">Soluções avançadas para grandes operações e equipes.</p>
+<p class="mt-4">
+<span class="text-4xl font-extrabold tracking-tight">Contato</span>
+</p>
+<ul class="mt-6 space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Agendamentos ilimitados</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Usuários ilimitados</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Controle de escala de funcionários</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Suporte prioritário 24/7</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-text-light-secondary dark:text-dark-secondary">Integrações personalizadas</span>
+</li>
+</ul>
+</div>
+<button class="mt-8 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary/20 dark:bg-primary/30 text-primary text-base font-bold leading-normal hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors">
+<span class="truncate">Entre em Contato</span>
+</button>
+</div>
+</div>
+<!-- FAQ Section -->
+<div class="px-4 py-12">
+<h2 class="text-2xl font-bold text-center mb-8">Perguntas Frequentes</h2>
+<div class="mx-auto max-w-3xl space-y-4">
+<details class="group rounded-xl bg-card-light dark:bg-card-dark p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-light dark:border-border-dark" open="">
+<summary class="flex cursor-pointer list-none items-center justify-between font-medium">
+<span class="text-base font-semibold">Como funciona o upgrade?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<p class="group-open:animate-fadeIn mt-4 text-text-light-secondary dark:text-dark-secondary">Ao fazer o upgrade, o valor será cobrado pro-rata com base nos dias restantes do seu ciclo de faturamento atual. Seu novo plano e recursos estarão disponíveis imediatamente.</p>
+</details>
+<details class="group rounded-xl bg-card-light dark:bg-card-dark p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-light dark:border-border-dark">
+<summary class="flex cursor-pointer list-none items-center justify-between font-medium">
+<span class="text-base font-semibold">Posso cancelar a qualquer momento?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<p class="group-open:animate-fadeIn mt-4 text-text-light-secondary dark:text-dark-secondary">Sim, você pode cancelar sua assinatura a qualquer momento. Você continuará com acesso aos recursos do seu plano até o final do período de faturamento já pago.</p>
+</details>
+<details class="group rounded-xl bg-card-light dark:bg-card-dark p-6 shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-border-light dark:border-border-dark">
+<summary class="flex cursor-pointer list-none items-center justify-between font-medium">
+<span class="text-base font-semibold">Qual a diferença entre faturamento anual e mensal?</span>
+<span class="transition group-open:rotate-180">
+<span class="material-symbols-outlined">expand_more</span>
+</span>
+</summary>
+<p class="group-open:animate-fadeIn mt-4 text-text-light-secondary dark:text-dark-secondary">Optando pelo faturamento anual, você paga por 12 meses adiantado e recebe um desconto de 20% sobre o valor total, o que equivale a mais de dois meses grátis em comparação com o plano mensal.</p>
+</details>
+</div>
+</div>
+</main>
+</div>
+</body></html>

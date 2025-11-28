@@ -1,20 +1,42 @@
-# Base44 App
+# Livegenda
 
+Sistema completo de agendamento para salões de beleza, barbearias e clínicas de estética.
 
-This app was created automatically by Base44.
-It's a Vite+React app that communicates with the Base44 API.
+## Estrutura do Projeto
 
-## Running the app
-
-```bash
-npm install
-npm run dev
+```
+/                  → Aplicação React (app.livegenda.com)
+/landing           → Landing Page (livegenda.com)
 ```
 
-## Building the app
+## Deploy
+
+### Aplicação (App)
+- Build: `pnpm run build`
+- Output: `dist/`
+- URL: https://app.livegenda.com
+
+### Landing Page
+- Arquivos estáticos em `/landing`
+- URL: https://livegenda.com
+
+## Desenvolvimento
 
 ```bash
-npm run build
+# Instalar dependências
+pnpm install
+
+# Rodar aplicação em desenvolvimento
+pnpm run dev
+
+# Build para produção
+pnpm run build
 ```
 
-For more information and support, please contact Base44 support at app@base44.com.
+## Tecnologias
+
+- React + Vite
+- TailwindCSS
+- Shadcn/ui
+- React Router
+- React Query
