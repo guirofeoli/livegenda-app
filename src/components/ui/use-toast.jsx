@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 3000;
@@ -115,9 +115,6 @@ function toast({ ...props }) {
       ...props,
       id,
       open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss();
-      },
     },
   });
 
