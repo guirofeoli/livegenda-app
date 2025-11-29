@@ -136,7 +136,7 @@ export default function Layout({ children }) {
   };
 
   const menuItems = getMenuItems();
-  const showConfiguracoes = currentUser?.tipo === 'gestor';
+  const isGestor = currentUser?.tipo === 'gestor';
 
   const getCategoriaLabel = () => {
     if (!empresa?.categoria) return 'Estabelecimento';
@@ -234,37 +234,43 @@ export default function Layout({ children }) {
             </SidebarContent>
 
             <SidebarFooter className="border-t border-purple-100/50 p-3">
-              <SidebarMenu>
-                {showConfiguracoes && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    className={`hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 rounded-xl ${
-                      location.pathname === createPageUrl("Configuracoes")
-                        ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:text-white"
-                        : ""
-                    } ${isCollapsed ? "md:justify-center md:px-1" : ""}`}
-                  >
-                    <Link
-                      to={createPageUrl("Configuracoes")}
-                      className={`flex items-center py-3 ${
-                        isCollapsed ? "md:justify-center md:px-1" : "gap-3 px-4"
-                      }`}
-                      data-testid="link-configuracoes-sidebar"
+              {isGestor && (
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      className={`hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 rounded-xl ${
+                        location.pathname === createPageUrl("Configuracoes")
+                          ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:text-white"
+                          : ""
+                      } ${isCollapsed ? "md:justify-center md:px-1" : ""}`}
                     >
-                      <Settings className="w-5 h-5 flex-shrink-0" />
-                      <span
-                        className={`font-medium ${
-                          isCollapsed ? "md:hidden" : ""
+                      <Link
+                        to={createPageUrl("Configuracoes")}
+                        onClick={() => {
+                          if (window.innerWidth < 768) {
+                            const sidebarTrigger = document.querySelector('[data-sidebar="trigger"]');
+                            if (sidebarTrigger) sidebarTrigger.click();
+                          }
+                        }}
+                        className={`flex items-center py-3 ${
+                          isCollapsed ? "md:justify-center md:px-1" : "gap-3 px-4"
                         }`}
+                        data-testid="link-configuracoes-sidebar"
                       >
-                        Configurações
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                )}
-              </SidebarMenu>
+                        <Settings className="w-5 h-5 flex-shrink-0" />
+                        <span
+                          className={`font-medium ${
+                            isCollapsed ? "md:hidden" : ""
+                          }`}
+                        >
+                          Configurações
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              )}
 
               <div className="hidden md:block mt-2">
                 <Button
