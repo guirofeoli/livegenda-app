@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Toast,
@@ -12,26 +11,6 @@ import {
 export function Toaster() {
   const { toasts, dismiss } = useToast();
 
-  // Fechar ao clicar fora
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      const toastContainer = document.querySelector('[toast-close]')?.closest('div[role="status"]') || 
-                            document.querySelector('[toast-close]')?.closest('div[class*="group"]');
-      
-      if (toastContainer && !toastContainer.contains(e.target)) {
-        toasts.forEach(({ id }) => dismiss(id));
-      }
-    };
-
-    if (toasts.length > 0) {
-      document.addEventListener("click", handleClickOutside, true);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
-  }, [toasts, dismiss]);
-
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, open, ...props }) {
@@ -40,8 +19,8 @@ export function Toaster() {
             key={id} 
             {...props}
             open={open}
-            onOpenChange={(isOpen) => {
-              if (!isOpen) {
+            onOpenChange={(newOpen) => {
+              if (!newOpen) {
                 dismiss(id);
               }
             }}
@@ -54,7 +33,11 @@ export function Toaster() {
             </div>
             {action}
             <ToastClose 
-              onClick={() => dismiss(id)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setTimeout(() => dismiss(id), 0);
+              }}
             />
           </Toast>
         );
