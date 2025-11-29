@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import {
   Users,
   Calendar,
+  CalendarPlus,
   BarChart3,
   Settings,
   Menu,
@@ -52,7 +53,7 @@ const navigationItems = [
   {
     title: "Novo Agendamento",
     url: createPageUrl("NovoAgendamento"),
-    icon: Calendar,
+    icon: CalendarPlus,
   },
   {
     title: "Clientes",

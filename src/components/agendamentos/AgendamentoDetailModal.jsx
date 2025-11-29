@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -50,6 +49,7 @@ export default function AgendamentoDetailModal({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     if (agendamento) {
@@ -62,6 +62,7 @@ export default function AgendamentoDetailModal({
         preco: agendamento.preco,
         observacoes: agendamento.observacoes || "",
       });
+      setIsOpen(true);
     }
   }, [agendamento]);
 
@@ -118,6 +119,29 @@ export default function AgendamentoDetailModal({
     });
   };
 
+  const handleOpenChange = (open) => {
+    if (!open) {
+      setIsOpen(false);
+      setTimeout(() => {
+        onClose();
+      }, 150);
+    }
+  };
+
+  const handleConfirmClick = () => {
+    setIsOpen(false);
+    setTimeout(() => {
+      onConfirm();
+    }, 150);
+  };
+
+  const handleCancelClick = () => {
+    setIsOpen(false);
+    setTimeout(() => {
+      onCancel();
+    }, 150);
+  };
+
   const currentServico = isEditing 
     ? servicos.find(s => s.id === editedData.servico_id)
     : servico;
@@ -133,7 +157,7 @@ export default function AgendamentoDetailModal({
   );
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center justify-between">
@@ -199,24 +223,22 @@ export default function AgendamentoDetailModal({
                   
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Duração (min)</label>
+                      <p className="text-xs text-gray-500 mb-1">Duração (min)</p>
                       <Input
                         type="number"
                         value={editedData.duracao_minutos}
-                        onChange={(e) => setEditedData({ ...editedData, duracao_minutos: Number(e.target.value) })}
+                        onChange={(e) => setEditedData({...editedData, duracao_minutos: parseInt(e.target.value) || 0})}
                         className="h-9 border-purple-200 focus:border-purple-500"
-                        min="1"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Preço (R$)</label>
+                      <p className="text-xs text-gray-500 mb-1">Preço (R$)</p>
                       <Input
                         type="number"
                         step="0.01"
                         value={editedData.preco}
-                        onChange={(e) => setEditedData({ ...editedData, preco: Number(e.target.value) })}
+                        onChange={(e) => setEditedData({...editedData, preco: parseFloat(e.target.value) || 0})}
                         className="h-9 border-purple-200 focus:border-purple-500"
-                        min="0"
                       />
                     </div>
                   </div>
@@ -227,7 +249,7 @@ export default function AgendamentoDetailModal({
                     {currentServico?.nome || "Não informado"}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {duracaoMinutos} minutos • R$ {agendamento.preco?.toFixed(2)}
+                    {duracaoMinutos} min • R$ {agendamento.preco?.toFixed(2)}
                   </p>
                 </>
               )}
@@ -240,11 +262,11 @@ export default function AgendamentoDetailModal({
               <User className="w-5 h-5 text-purple-600" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-500 mb-1">Profissional</p>
+              <p className="text-sm text-gray-500">Profissional</p>
               {isEditing ? (
                 <Select
                   value={editedData.funcionario_id}
-                  onValueChange={(value) => setEditedData({ ...editedData, funcionario_id: value })}
+                  onValueChange={(value) => setEditedData({...editedData, funcionario_id: value})}
                 >
                   <SelectTrigger className="h-9 border-purple-200 focus:border-purple-500">
                     <SelectValue />
@@ -265,43 +287,52 @@ export default function AgendamentoDetailModal({
             </div>
           </div>
 
-          {/* Data e Hora - EDITÁVEL */}
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-5 h-5 text-purple-600" />
-            </div>
-            <div className="flex-1 space-y-2">
-              <p className="text-sm text-gray-500">Data e Horário</p>
-              {isEditing ? (
-                <div className="space-y-2">
+          {/* Data e Hora - EDITÁVEIS */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-500">Data</p>
+                {isEditing ? (
                   <Input
                     type="date"
                     value={editedData.data}
-                    onChange={(e) => setEditedData({ ...editedData, data: e.target.value })}
+                    onChange={(e) => setEditedData({...editedData, data: e.target.value})}
                     className="h-9 border-purple-200 focus:border-purple-500"
                   />
+                ) : (
+                  <p className="font-semibold text-gray-900 text-sm">
+                    {formatDate(agendamento.data)}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <Clock className="w-5 h-5 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-500">Horário</p>
+                {isEditing ? (
                   <Input
                     type="time"
                     value={editedData.hora_inicio}
-                    onChange={(e) => setEditedData({ ...editedData, hora_inicio: e.target.value })}
+                    onChange={(e) => setEditedData({...editedData, hora_inicio: e.target.value})}
                     className="h-9 border-purple-200 focus:border-purple-500"
                   />
-                </div>
-              ) : (
-                <>
-                  <p className="font-semibold text-gray-900 capitalize">
-                    {formatDate(agendamento.data)}
+                ) : (
+                  <p className="font-semibold text-gray-900">
+                    {agendamento.hora_inicio} - {horaFim}
                   </p>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span>{agendamento.hora_inicio} - {horaFim}</span>
-                  </div>
-                </>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Observações - EDITÁVEL */}
+          {/* Observações - EDITÁVEIS */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
               <FileText className="w-5 h-5 text-purple-600" />
@@ -311,9 +342,9 @@ export default function AgendamentoDetailModal({
               {isEditing ? (
                 <Textarea
                   value={editedData.observacoes}
-                  onChange={(e) => setEditedData({ ...editedData, observacoes: e.target.value })}
+                  onChange={(e) => setEditedData({...editedData, observacoes: e.target.value})}
+                  className="min-h-[80px] border-purple-200 focus:border-purple-500"
                   placeholder="Adicione observações..."
-                  className="min-h-[80px] border-purple-200 focus:border-purple-500 resize-none"
                 />
               ) : (
                 <p className="text-gray-900">
@@ -358,7 +389,7 @@ export default function AgendamentoDetailModal({
             <>
               <Button
                 variant="outline"
-                onClick={onClose}
+                onClick={() => handleOpenChange(false)}
                 disabled={isLoading}
                 className="border-gray-300 hover:bg-gray-50"
               >
@@ -366,7 +397,7 @@ export default function AgendamentoDetailModal({
               </Button>
               
               {agendamento.status !== "Cancelado" && agendamento.status !== "Concluído" && (
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       disabled={isLoading}
@@ -392,7 +423,7 @@ export default function AgendamentoDetailModal({
                     </DropdownMenuItem>
                     
                     {agendamento.status === "Agendado" && (
-                      <DropdownMenuItem onClick={onConfirm} className="text-green-600">
+                      <DropdownMenuItem onClick={handleConfirmClick} className="text-green-600">
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Confirmar Agendamento
                       </DropdownMenuItem>
@@ -400,7 +431,7 @@ export default function AgendamentoDetailModal({
                     
                     <DropdownMenuSeparator />
                     
-                    <DropdownMenuItem onClick={onCancel} className="text-red-600">
+                    <DropdownMenuItem onClick={handleCancelClick} className="text-red-600">
                       <XCircle className="w-4 h-4 mr-2" />
                       Cancelar Agendamento
                     </DropdownMenuItem>
