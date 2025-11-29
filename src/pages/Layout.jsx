@@ -104,8 +104,12 @@ export default function Layout({ children }) {
       if (funcionario) {
         user.nome = funcionario.nome_completo?.split(' ')[0];
       }
-    } else if (user.tipo === 'gestor') {
+    } else if (user.tipo === 'gestor' || !user.tipo) {
       user.nome = user.email?.split('@')[0] || 'Gestor';
+      // Garantir que tipo seja 'gestor' se não for funcionario
+      if (!user.tipo) {
+        user.tipo = 'gestor';
+      }
     }
     
     setCurrentUser(user);
@@ -115,16 +119,16 @@ export default function Layout({ children }) {
       const empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
       setEmpresa(empresaEncontrada);
       
-      if (user.tipo === 'gestor' && !empresaEncontrada && location.pathname !== '/onboarding') {
+      if ((user.tipo === 'gestor' || !user.tipo) && !empresaEncontrada && location.pathname !== '/onboarding') {
         navigate('/onboarding');
       }
-    } else if (user.tipo === 'gestor' && location.pathname !== '/onboarding') {
+    } else if ((user.tipo === 'gestor' || !user.tipo) && location.pathname !== '/onboarding') {
       navigate('/onboarding');
     }
   }, [location.pathname, navigate]);
 
   const getMenuItems = () => {
-    if (!currentUser || !currentUser.tipo) return navigationItems;
+    if (!currentUser || !currentUser.tipo) return navigationItems.filter(item => !item.funcionarioOnly);
     
     if (currentUser.tipo === 'funcionario') {
       return navigationItems.filter(item => 
@@ -136,7 +140,9 @@ export default function Layout({ children }) {
   };
 
   const menuItems = getMenuItems();
-  const isGestor = currentUser?.tipo === 'gestor';
+  
+  // Mostrar Configurações se NÃO for funcionário (gestor ou sem tipo definido)
+  const showConfiguracoes = currentUser?.tipo !== 'funcionario';
 
   const getCategoriaLabel = () => {
     if (!empresa?.categoria) return 'Estabelecimento';
@@ -234,8 +240,8 @@ export default function Layout({ children }) {
             </SidebarContent>
 
             <SidebarFooter className="border-t border-purple-100/50 p-3">
-              {isGestor && (
-                <SidebarMenu>
+              {showConfiguracoes && (
+                <SidebarMenu className="mb-2">
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       asChild
@@ -272,7 +278,7 @@ export default function Layout({ children }) {
                 </SidebarMenu>
               )}
 
-              <div className="hidden md:block mt-2">
+              <div className="hidden md:block">
                 <Button
                   variant="ghost"
                   size="sm"
