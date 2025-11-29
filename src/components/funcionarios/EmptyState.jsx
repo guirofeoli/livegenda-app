@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
 
-export default function EmptyState({ onAddClick }) {
+export default function EmptyState({ onAddNew }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -44,9 +44,10 @@ export default function EmptyState({ onAddClick }) {
           transition={{ delay: 0.5 }}
         >
           <Button
-            onClick={onAddClick}
+            onClick={onAddNew}
             size="lg"
             className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30"
+            data-testid="button-add-funcionario-empty"
           >
             <Plus className="w-5 h-5 mr-2" />
             Adicionar Funcionário

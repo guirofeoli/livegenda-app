@@ -76,6 +76,18 @@ const navigationItems = [
   },
 ];
 
+const categoriasEmpresa = {
+  'salao_beleza': 'Salão de Beleza',
+  'barbearia': 'Barbearia',
+  'clinica_estetica': 'Clínica de Estética',
+  'spa': 'SPA',
+  'studio_unhas': 'Studio de Unhas',
+  'sobrancelhas': 'Design de Sobrancelhas',
+  'makeup': 'Maquiagem',
+  'massagem': 'Massagem',
+  'outro': 'Estabelecimento'
+};
+
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -126,6 +138,11 @@ export default function Layout({ children }) {
   const menuItems = getMenuItems();
   const showConfiguracoes = currentUser?.tipo === 'gestor';
 
+  const getCategoriaLabel = () => {
+    if (!empresa?.categoria) return 'Estabelecimento';
+    return categoriasEmpresa[empresa.categoria] || empresa.categoria;
+  };
+
   const handleLogout = async () => {
     try {
       await base44.auth.logout();
@@ -146,7 +163,11 @@ export default function Layout({ children }) {
             '--sidebar-width-icon': isCollapsed ? '3rem' : '4rem',
           }}
         >
-          <Sidebar className="h-full">
+          <Sidebar
+            collapsible="icon"
+            data-collapsed={isCollapsed}
+            className="transition-all duration-300"
+          >
             <SidebarHeader
               className={`border-b border-purple-100/50 transition-all duration-300 ${
                 isCollapsed ? "md:p-2" : "p-6"
@@ -229,6 +250,7 @@ export default function Layout({ children }) {
                       className={`flex items-center py-3 ${
                         isCollapsed ? "md:justify-center md:px-1" : "gap-3 px-4"
                       }`}
+                      data-testid="link-configuracoes-sidebar"
                     >
                       <Settings className="w-5 h-5 flex-shrink-0" />
                       <span
@@ -252,6 +274,7 @@ export default function Layout({ children }) {
                   className={`w-full hover:bg-purple-50 rounded-lg transition-all ${
                     isCollapsed ? "justify-center px-1" : "justify-start px-4"
                   }`}
+                  data-testid="button-collapse-sidebar"
                 >
                   {isCollapsed ? (
                     <ChevronRight className="w-4 h-4 text-gray-600" />
@@ -280,11 +303,11 @@ export default function Layout({ children }) {
                     <Building2 className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
-                    <h1 className="font-bold text-gray-900 text-lg leading-tight">
+                    <h1 className="font-bold text-gray-900 text-lg leading-tight" data-testid="text-empresa-nome">
                       {empresa?.nome || 'Meu Estabelecimento'}
                     </h1>
-                    <p className="text-xs text-purple-600">
-                      {currentUser?.tipo === 'funcionario' ? 'Funcionário' : 'Gestor'}
+                    <p className="text-xs text-purple-600" data-testid="text-empresa-categoria">
+                      {getCategoriaLabel()}
                     </p>
                   </div>
                 </div>
@@ -295,6 +318,7 @@ export default function Layout({ children }) {
                   <Button
                     variant="ghost"
                     className="flex items-center gap-2 hover:bg-purple-50"
+                    data-testid="button-user-menu"
                   >
                     <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                       <UserIcon className="w-5 h-5 text-white" />
@@ -310,34 +334,15 @@ export default function Layout({ children }) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  {currentUser?.tipo === 'funcionario' ? (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("MeuPerfil")}>Meu Perfil</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("TrocarSenha")}>Trocar Senha</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
-                        Sair
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("MeuPerfil")}>Meu Perfil</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("Configuracoes")}>Configurações da Empresa</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={createPageUrl("TrocarSenha")}>Trocar Senha</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
-                        Sair
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem asChild>
+                    <Link to={createPageUrl("MeuPerfil")} data-testid="link-meu-perfil">Meu Perfil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={createPageUrl("TrocarSenha")} data-testid="link-trocar-senha">Trocar Senha</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer" data-testid="button-logout">
+                    Sair
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
