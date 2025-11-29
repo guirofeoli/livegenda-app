@@ -2,12 +2,14 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 import InformacoesNegocio from "../components/configuracoes/InformacoesNegocio";
 import PagamentoPlano from "../components/configuracoes/PagamentoPlano";
 
 export default function Configuracoes() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: configuracao, isLoading } = useQuery({
     queryKey: ['configuracoes'],
@@ -19,8 +21,17 @@ export default function Configuracoes() {
     mutationFn: (data) => base44.entities.ConfiguracaoNegocio.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes'] });
+      toast({
+        title: "Configurações salvas!",
+        description: "As informações do seu negócio foram atualizadas com sucesso.",
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message || "Ocorreu um erro ao salvar as configurações.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -28,8 +39,17 @@ export default function Configuracoes() {
     mutationFn: (data) => base44.entities.ConfiguracaoNegocio.update(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes'] });
+      toast({
+        title: "Configurações salvas!",
+        description: "As informações do seu negócio foram atualizadas com sucesso.",
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message || "Ocorreu um erro ao salvar as configurações.",
+        variant: "destructive",
+      });
     },
   });
 

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Phone, Mail, Upload, Image as ImageIcon } from "lucide-react";
+import { MapPin, Phone, Mail, Upload, Image as ImageIcon, Building2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const DIAS_SEMANA = [
@@ -23,6 +23,18 @@ const DIAS_SEMANA = [
   { key: "sexta", label: "Sexta-feira" },
   { key: "sabado", label: "Sábado" },
   { key: "domingo", label: "Domingo" },
+];
+
+const CATEGORIAS_EMPRESA = [
+  { value: 'salao_beleza', label: 'Salão de Beleza' },
+  { value: 'barbearia', label: 'Barbearia' },
+  { value: 'clinica_estetica', label: 'Clínica de Estética' },
+  { value: 'spa', label: 'SPA' },
+  { value: 'studio_unhas', label: 'Studio de Unhas' },
+  { value: 'sobrancelhas', label: 'Design de Sobrancelhas' },
+  { value: 'makeup', label: 'Maquiagem' },
+  { value: 'massagem', label: 'Massagem' },
+  { value: 'outro', label: 'Outro' }
 ];
 
 export default function InformacoesNegocio({ configuracao, onSave, isLoading }) {
@@ -105,7 +117,10 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
   return (
     <Card className="border-purple-100">
       <CardHeader className="border-b border-purple-50">
-        <CardTitle className="text-2xl text-gray-900">Informações do Negócio</CardTitle>
+        <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
+          <Building2 className="w-6 h-6 text-purple-600" />
+          Informações do Negócio
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -120,6 +135,7 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
                 placeholder="Ex: Studio de Beleza Maria"
                 className="border-purple-200 focus:border-purple-500"
                 required
+                data-testid="input-nome-negocio"
               />
             </div>
 
@@ -129,16 +145,18 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
               >
-                <SelectTrigger className="border-purple-200 focus:border-purple-500">
+                <SelectTrigger 
+                  className="border-purple-200 focus:border-purple-500"
+                  data-testid="select-categoria"
+                >
                   <SelectValue placeholder="Selecione a categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Salão de Beleza">Salão de Beleza</SelectItem>
-                  <SelectItem value="Clínica de Estética">Clínica de Estética</SelectItem>
-                  <SelectItem value="Barbearia">Barbearia</SelectItem>
-                  <SelectItem value="Spa">Spa</SelectItem>
-                  <SelectItem value="Estúdio de Maquiagem">Estúdio de Maquiagem</SelectItem>
-                  <SelectItem value="Outro">Outro</SelectItem>
+                  {CATEGORIAS_EMPRESA.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -156,6 +174,7 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
                   onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                   placeholder="(11) 99999-9999"
                   className="pl-10 border-purple-200 focus:border-purple-500"
+                  data-testid="input-whatsapp"
                 />
               </div>
             </div>
@@ -171,22 +190,38 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="contato@seunegocio.com"
                   className="pl-10 border-purple-200 focus:border-purple-500"
+                  data-testid="input-email"
                 />
               </div>
             </div>
           </div>
 
           {/* Endereço */}
-          <div className="space-y-2">
-            <Label htmlFor="endereco">Endereço</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="endereco">Endereço</Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  id="endereco"
+                  value={formData.endereco}
+                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                  placeholder="Rua, número, bairro, cidade"
+                  className="pl-10 border-purple-200 focus:border-purple-500"
+                  data-testid="input-endereco"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cep">CEP</Label>
               <Input
-                id="endereco"
-                value={formData.endereco}
-                onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                placeholder="Rua, número, bairro, cidade"
-                className="pl-10 border-purple-200 focus:border-purple-500"
+                id="cep"
+                value={formData.cep}
+                onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                placeholder="00000-000"
+                className="border-purple-200 focus:border-purple-500"
+                data-testid="input-cep"
               />
             </div>
           </div>
@@ -205,33 +240,29 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
                     />
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-200 bg-purple-50 flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-purple-400" />
+                  <div className="w-24 h-24 rounded-lg border-2 border-dashed border-purple-200 flex items-center justify-center bg-purple-50">
+                    <ImageIcon className="w-8 h-8 text-purple-300" />
                   </div>
                 )}
               </div>
               <div className="flex-1">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                  id="logo-upload"
-                />
-                <label htmlFor="logo-upload">
-                  <Button
-                    type="button"
-                    variant="outline"
+                <label className="cursor-pointer">
+                  <div className="flex items-center gap-2 px-4 py-2 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors w-fit">
+                    <Upload className="w-4 h-4 text-purple-600" />
+                    <span className="text-sm text-purple-600">
+                      {uploadingLogo ? 'Enviando...' : 'Escolher imagem'}
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
                     disabled={uploadingLogo}
-                    className="border-purple-200 hover:bg-purple-50"
-                    onClick={() => document.getElementById('logo-upload').click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {uploadingLogo ? "Enviando..." : "Enviar Logo"}
-                  </Button>
+                  />
                 </label>
                 <p className="text-xs text-gray-500 mt-2">
-                  Formatos aceitos: JPG, PNG. Tamanho máximo: 2MB
+                  Formatos: JPG, PNG. Tamanho máximo: 2MB
                 </p>
               </div>
             </div>
@@ -239,19 +270,22 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
 
           {/* Horário de Funcionamento */}
           <div className="space-y-4">
-            <Label className="text-base">Horário de Funcionamento</Label>
+            <Label className="text-base font-semibold">Horário de Funcionamento</Label>
             <div className="space-y-3">
               {DIAS_SEMANA.map((dia) => {
-                const horario = formData.horario_funcionamento?.[dia.key] || { ativo: false, abertura: "09:00", fechamento: "18:00" };
+                const horario = formData.horario_funcionamento[dia.key];
                 return (
-                  <div key={dia.key} className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg border border-purple-100 bg-purple-50/30">
-                    <div className="flex items-center gap-2 md:w-40">
+                  <div 
+                    key={dia.key} 
+                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-2 border-b border-purple-50 last:border-0"
+                  >
+                    <div className="flex items-center justify-between md:w-48">
+                      <span className="font-medium text-gray-700">{dia.label}</span>
                       <Switch
                         checked={horario.ativo}
                         onCheckedChange={(checked) => handleHorarioChange(dia.key, 'ativo', checked)}
                         className="data-[state=checked]:bg-purple-600"
                       />
-                      <Label className="text-sm font-medium">{dia.label}</Label>
                     </div>
                     
                     {horario.ativo && (
@@ -287,6 +321,7 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
               type="submit"
               disabled={isLoading}
               className="w-full md:w-auto bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30"
+              data-testid="button-salvar-configuracoes"
             >
               {isLoading ? (
                 <>
