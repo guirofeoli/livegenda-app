@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const TOAST_LIMIT = 20;
 const TOAST_REMOVE_DELAY = 3000;
@@ -117,9 +117,6 @@ function toast({ ...props }) {
       ...props,
       id,
       open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss();
-      },
     },
   });
 
@@ -141,14 +138,16 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-  }, [state]);
+  }, []);
+
+  const dismiss = useCallback((toastId) => {
+    dispatch({ type: actionTypes.DISMISS_TOAST, toastId });
+  }, []);
 
   return {
     ...state,
     toast,
-    dismiss: (toastId) => {
-      dispatch({ type: actionTypes.DISMISS_TOAST, toastId });
-    },
+    dismiss,
   };
 }
 
