@@ -2,7 +2,7 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 import InformacoesNegocio from "../components/configuracoes/InformacoesNegocio";
 import PagamentoPlano from "../components/configuracoes/PagamentoPlano";
