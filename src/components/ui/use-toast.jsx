@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const TOAST_LIMIT = 20;
+const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 3000;
 
 const actionTypes = {
@@ -28,7 +28,7 @@ const addToRemoveQueue = (toastId) => {
     toastTimeouts.delete(toastId);
     dispatch({
       type: actionTypes.REMOVE_TOAST,
-      toastId,
+      toastId: toastId,
     });
   }, TOAST_REMOVE_DELAY);
 
@@ -85,12 +85,11 @@ export const reducer = (state, action) => {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),
       };
-    default:
-      return state;
   }
 };
 
 const listeners = [];
+
 let memoryState = { toasts: [] };
 
 function dispatch(action) {
@@ -108,7 +107,6 @@ function toast({ ...props }) {
       type: actionTypes.UPDATE_TOAST,
       toast: { ...props, id },
     });
-
   const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
 
   dispatch({
@@ -117,11 +115,14 @@ function toast({ ...props }) {
       ...props,
       id,
       open: true,
+      onOpenChange: (open) => {
+        if (!open) dismiss();
+      },
     },
   });
 
   return {
-    id,
+    id: id,
     dismiss,
     update,
   };
@@ -138,16 +139,12 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-  }, []);
-
-  const dismiss = useCallback((toastId) => {
-    dispatch({ type: actionTypes.DISMISS_TOAST, toastId });
-  }, []);
+  }, [state]);
 
   return {
     ...state,
     toast,
-    dismiss,
+    dismiss: (toastId) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   };
 }
 
