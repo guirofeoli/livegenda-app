@@ -17,14 +17,15 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
   });
   const clientes = Array.isArray(clientesData) ? clientesData : [];
 
-  const filteredClientes = clientes.filter((cliente) =>
-    cliente.nome_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.telefone?.includes(searchTerm)
-  ).slice(0, 5);
+  const filteredClientes = clientes.filter((cliente) => {
+    const nome = cliente.nome || cliente.nome_completo || "";
+    return nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           cliente.telefone?.includes(searchTerm);
+  }).slice(0, 5);
 
   const handleSelectCliente = (cliente) => {
     onSelectCliente(cliente);
-    setSearchTerm(cliente.nome_completo);
+    setSearchTerm(cliente.nome || cliente.nome_completo || "");
     setShowResults(false);
   };
 
@@ -57,10 +58,10 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
                   onClick={() => handleSelectCliente(cliente)}
                   className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-colors flex items-center gap-3 border-b border-purple-50 last:border-0"
                 >
-                  {cliente.foto_url ? (
+                  {cliente.foto_url || cliente.foto ? (
                     <img
-                      src={cliente.foto_url}
-                      alt={cliente.nome_completo}
+                      src={cliente.foto_url || cliente.foto}
+                      alt={cliente.nome || cliente.nome_completo}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
@@ -69,7 +70,7 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
                     </div>
                   )}
                   <div>
-                    <p className="font-medium text-gray-900">{cliente.nome_completo}</p>
+                    <p className="font-medium text-gray-900">{cliente.nome || cliente.nome_completo}</p>
                     <p className="text-sm text-gray-500">{cliente.telefone}</p>
                   </div>
                 </button>
@@ -91,10 +92,10 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
 
       {selectedCliente && (
         <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200 flex items-center gap-3">
-          {selectedCliente.foto_url ? (
+          {selectedCliente.foto_url || selectedCliente.foto ? (
             <img
-              src={selectedCliente.foto_url}
-              alt={selectedCliente.nome_completo}
+              src={selectedCliente.foto_url || selectedCliente.foto}
+              alt={selectedCliente.nome || selectedCliente.nome_completo}
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
@@ -103,7 +104,7 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
             </div>
           )}
           <div>
-            <p className="font-semibold text-gray-900">{selectedCliente.nome_completo}</p>
+            <p className="font-semibold text-gray-900">{selectedCliente.nome || selectedCliente.nome_completo}</p>
             <p className="text-sm text-gray-600">{selectedCliente.telefone}</p>
           </div>
         </div>
