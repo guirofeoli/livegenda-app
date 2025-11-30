@@ -12,17 +12,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const { 
       email, 
       senha, 
-      nome: nomeUsuario,
+      nome,
       nomeNegocio,
+      emailNegocio,
       categoria,
-      tipo,
       telefone,
       endereco
     } = body;
     
-    const cat = categoria || tipo;
-    
-    if (!email || !senha || !nomeNegocio || !cat) {
+    if (!email || !senha || !nomeNegocio || !categoria) {
       return new Response(
         JSON.stringify({ error: "Campos obrigatórios: email, senha, nomeNegocio, categoria" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -38,10 +36,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
     
+    // Usar emailNegocio se fornecido, senão usar email do usuário
+    const emailEmpresa = emailNegocio || email;
+    
     // Criar empresa primeiro
     const empresaResult = await sql`
       INSERT INTO empresas (nome, categoria, telefone, email, endereco, ativo)
-      VALUES (${nomeNegocio}, ${cat}, ${telefone || null}, ${email}, ${endereco || null}, true)
+      VALUES (${nomeNegocio}, ${categoria}, ${telefone || null}, ${emailEmpresa}, ${endereco || null}, true)
       RETURNING *
     `;
     const empresa = empresaResult[0];
@@ -49,7 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // Criar usuário admin vinculado à empresa
     const usuarioResult = await sql`
       INSERT INTO usuarios (email, senha, nome, empresa_id, role, ativo)
-      VALUES (${email}, ${senha}, ${nomeUsuario || nomeNegocio}, ${empresa.id}, 'admin', true)
+      VALUES (${email}, ${senha}, ${nome || nomeNegocio}, ${empresa.id}, 'admin', true)
       RETURNING id, email, nome, empresa_id, role, ativo, criado_em
     `;
     const usuario = usuarioResult[0];
