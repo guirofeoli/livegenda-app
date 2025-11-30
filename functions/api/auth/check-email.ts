@@ -1,81 +1,78 @@
-import { neon } from "@neondatabase/serverless";
+// ============================================
+// LIVEGENDA - Check Email Endpoint
+// ============================================
+// Verifica se email existe e retorna o tipo de fluxo
+
+import { ApiContext } from '../_middleware';
 
 interface Env {
   DATABASE_URL: string;
+  ENVIRONMENT: string;
+  API_VERSION: string;
+  CORS_ORIGIN: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  const sql = neon(context.env.DATABASE_URL);
-  
+  const { request } = context;
+  const apiContext = (context as any).apiContext as ApiContext;
+  const { db } = apiContext;
+
   try {
-    const body = await context.request.json();
+    const body = await request.json() as { email?: string };
     const { email } = body;
-    
+
     if (!email) {
       return new Response(
-        JSON.stringify({ error: "Email é obrigatório" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ error: true, message: 'Email é obrigatório' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    
-    // 1. Verificar se existe em usuarios
-    const usuarios = await sql`
-      SELECT u.id, u.nome, u.empresa_id, e.nome as empresa_nome
-      FROM usuarios u
-      LEFT JOIN empresas e ON u.empresa_id = e.id
-      WHERE u.email = ${email} AND u.ativo = true
+
+    const emailLower = email.toLowerCase().trim();
+
+    // Verificar se existe em usuarios
+    const usuarioResult = await db`
+      SELECT id, empresa_id FROM usuarios 
+      WHERE LOWER(email) = ${emailLower} AND ativo = true
+      LIMIT 1
     `;
-    
-    if (usuarios.length > 0) {
-      const user = usuarios[0];
+
+    if (usuarioResult.length > 0) {
       return new Response(
-        JSON.stringify({
-          exists: true,
-          type: "usuario",
-          hasEmpresa: !!user.empresa_id,
-          empresaNome: user.empresa_nome || null,
-          nome: user.nome
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ type: 'usuario' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    
-    // 2. Verificar se existe em funcionarios (sem conta de usuario ainda)
-    const funcionarios = await sql`
-      SELECT f.id, f.nome, f.empresa_id, e.nome as empresa_nome
-      FROM funcionarios f
-      JOIN empresas e ON f.empresa_id = e.id
-      WHERE f.email = ${email} AND f.ativo = true
+
+    // Verificar se existe em funcionarios
+    const funcionarioResult = await db`
+      SELECT id, empresa_id FROM funcionarios 
+      WHERE LOWER(email) = ${emailLower} AND ativo = true
+      LIMIT 1
     `;
-    
-    if (funcionarios.length > 0) {
-      const func = funcionarios[0];
+
+    if (funcionarioResult.length > 0) {
       return new Response(
-        JSON.stringify({
-          exists: true,
-          type: "funcionario",
-          funcionarioId: func.id,
-          empresaId: func.empresa_id,
-          empresaNome: func.empresa_nome,
-          nome: func.nome
+        JSON.stringify({ 
+          type: 'funcionario',
+          funcionarioId: funcionarioResult[0].id,
+          empresaId: funcionarioResult[0].empresa_id
         }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    
-    // 3. Email não existe em lugar nenhum
+
+    // Email não existe em nenhuma tabela
     return new Response(
-      JSON.stringify({
-        exists: false,
-        type: "novo"
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ type: 'novo' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
-    
+
   } catch (error) {
+    console.error('Check email error:', error);
     return new Response(
-      JSON.stringify({ error: "Erro ao verificar email", details: String(error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ error: true, message: 'Erro ao verificar email' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
