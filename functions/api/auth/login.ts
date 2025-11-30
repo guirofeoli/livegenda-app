@@ -20,7 +20,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // Buscar usuário por email
     const usuarios = await sql`
-      SELECT u.*, e.nome as empresa_nome, e.tipo as empresa_tipo
+      SELECT u.*, e.nome as empresa_nome, e.categoria as empresa_categoria
       FROM usuarios u
       LEFT JOIN empresas e ON u.empresa_id = e.id
       WHERE u.email = ${email} AND u.ativo = true
@@ -35,7 +35,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     const usuario = usuarios[0];
     
-    // Verificar senha (por enquanto comparação simples - implementar bcrypt depois)
+    // Verificar senha
     if (usuario.senha !== senha) {
       return new Response(
         JSON.stringify({ error: "Senha incorreta" }),
@@ -50,11 +50,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       JSON.stringify({
         success: true,
         usuario: usuarioSemSenha,
-        empresa: {
+        empresa: usuario.empresa_id ? {
           id: usuario.empresa_id,
           nome: usuario.empresa_nome,
-          tipo: usuario.empresa_tipo
-        }
+          categoria: usuario.empresa_categoria
+        } : null
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
@@ -67,7 +67,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 };
 
-// GET para verificar sessão (opcional)
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   return new Response(
     JSON.stringify({ message: "Use POST para fazer login" }),
