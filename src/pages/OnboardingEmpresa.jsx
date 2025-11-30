@@ -128,7 +128,7 @@ export default function OnboardingEmpresa() {
       const data = await response.json();
       
       if (!response.ok) {
-        setError(data.error || "Erro ao criar conta");
+        setError(data.message || "Erro ao criar conta");
         setLoading(false);
         return;
       }
