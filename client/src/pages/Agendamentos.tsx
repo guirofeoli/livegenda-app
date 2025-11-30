@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Calendar as CalendarIcon, Clock, User, Scissors, Phone } from "lucide-react";
-import { format, isSameDay, parseISO, startOfDay, endOfDay } from "date-fns";
+import { Plus, Calendar as CalendarIcon, Clock, User, Scissors, Phone, RefreshCw } from "lucide-react";
+import { format, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 
 interface Agendamento {
   id: string;
@@ -57,7 +57,23 @@ const statusLabels: Record<string, string> = {
 
 export default function Agendamentos() {
   const [, navigate] = useLocation();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const searchString = useSearch();
+  
+  // Pegar data da URL se existir (após criar agendamento)
+  const getInitialDate = () => {
+    const params = new URLSearchParams(searchString);
+    const dataParam = params.get("data");
+    if (dataParam) {
+      const date = new Date(dataParam);
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+    return new Date();
+  };
+
+  const [selectedDate, setSelectedDate] = useState<Date>(getInitialDate);
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(getInitialDate);
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,32 +91,52 @@ export default function Agendamentos() {
     }
   }, []);
 
-  useEffect(() => {
+  // Função para buscar agendamentos do mês
+  const fetchAgendamentos = useCallback(async (mesReferencia: Date) => {
     if (!empresaId) return;
-
-    async function fetchAgendamentos() {
-      setLoading(true);
-      setError(null);
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Buscar agendamentos do mês (com margem de 1 semana antes e depois)
+      const dataInicio = subMonths(startOfMonth(mesReferencia), 0).toISOString();
+      const dataFim = addMonths(endOfMonth(mesReferencia), 0).toISOString();
       
-      try {
-        const response = await fetch(`/api/agendamentos?empresa_id=${empresaId}`);
-        
-        if (!response.ok) {
-          throw new Error("Erro ao carregar agendamentos");
-        }
-        
-        const data = await response.json();
-        setAgendamentos(data);
-      } catch (err) {
-        console.error("Erro ao carregar agendamentos:", err);
-        setError("Não foi possível carregar os agendamentos");
-      } finally {
-        setLoading(false);
+      const response = await fetch(
+        `/api/agendamentos?empresa_id=${empresaId}&data_inicio=${dataInicio}&data_fim=${dataFim}`
+      );
+      
+      if (!response.ok) {
+        throw new Error("Erro ao carregar agendamentos");
       }
+      
+      const data = await response.json();
+      setAgendamentos(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Erro ao carregar agendamentos:", err);
+      setError("Não foi possível carregar os agendamentos");
+    } finally {
+      setLoading(false);
     }
-
-    fetchAgendamentos();
   }, [empresaId]);
+
+  // Buscar agendamentos quando o mês muda ou empresa é carregada
+  useEffect(() => {
+    if (empresaId) {
+      fetchAgendamentos(displayedMonth);
+    }
+  }, [empresaId, displayedMonth, fetchAgendamentos]);
+
+  // Função para atualizar manualmente
+  const handleRefresh = () => {
+    fetchAgendamentos(displayedMonth);
+  };
+
+  // Quando o mês visível do calendário muda
+  const handleMonthChange = (date: Date) => {
+    setDisplayedMonth(date);
+  };
 
   const agendamentosDoDia = agendamentos.filter((agendamento) => {
     const dataAgendamento = parseISO(agendamento.data_hora);
@@ -122,10 +158,15 @@ export default function Agendamentos() {
             {format(selectedDate, "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </p>
         </div>
-        <Button onClick={handleNovoAgendamento} data-testid="button-novo-agendamento">
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Agendamento
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={handleRefresh} disabled={loading} data-testid="button-atualizar">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </Button>
+          <Button onClick={handleNovoAgendamento} data-testid="button-novo-agendamento">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Agendamento
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -141,6 +182,8 @@ export default function Agendamentos() {
               mode="single"
               selected={selectedDate}
               onSelect={(date) => date && setSelectedDate(date)}
+              month={displayedMonth}
+              onMonthChange={handleMonthChange}
               locale={ptBR}
               className="rounded-md border w-full"
               modifiers={{

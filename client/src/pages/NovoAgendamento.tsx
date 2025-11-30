@@ -283,7 +283,8 @@ export default function NovoAgendamento() {
         description: "Agendamento criado com sucesso!",
       });
 
-      navigate("/agendamentos");
+      // Redirecionar para agendamentos com a data selecionada
+      navigate(`/agendamentos?data=${selectedDate.toISOString()}`);
     } catch (err: any) {
       console.error("Erro ao criar agendamento:", err);
       toast({
