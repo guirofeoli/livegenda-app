@@ -1,18 +1,25 @@
-import { Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { livegenda } from '@/api/livegendaClient';
+import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, requireEmpresa = false }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
-    const currentUser = await livegenda.auth.getUser();
-    setUser(currentUser);
+  const checkAuth = () => {
+    try {
+      const savedUser = localStorage.getItem("livegenda_user");
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+      }
+    } catch (e) {
+      console.error("Erro ao verificar auth:", e);
+    }
     setLoading(false);
   };
 
@@ -24,10 +31,20 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
+  // Não logado -> vai para login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // Logado mas sem empresa e não está no onboarding -> vai para onboarding
+  if (!user.empresa_id && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // Logado com empresa mas está no onboarding -> vai para agendamentos
+  if (user.empresa_id && location.pathname === "/onboarding") {
+    return <Navigate to="/agendamentos" replace />;
+  }
+
   return children;
 }
-
