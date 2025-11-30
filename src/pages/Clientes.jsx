@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,14 +43,14 @@ export default function Clientes() {
 
   const { data: clientesData = [], isLoading } = useQuery({
     queryKey: ['clientes'],
-    queryFn: () => base44.entities.Cliente.list(),
+    queryFn: () => livegenda.entities.Cliente.list(),
     initialData: [],
   });
   
   const clientes = Array.isArray(clientesData) ? clientesData : [];
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Cliente.create({
+    mutationFn: (data) => livegenda.entities.Cliente.create({
       ...data,
       empresa_id: empresaId
     }),
@@ -73,7 +73,7 @@ export default function Clientes() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Cliente.update(id, data),
+    mutationFn: ({ id, data }) => livegenda.entities.Cliente.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setShowModal(false);
@@ -93,7 +93,7 @@ export default function Clientes() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Cliente.delete(id),
+    mutationFn: (id) => livegenda.entities.Cliente.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setDeletingCliente(null);
@@ -112,7 +112,7 @@ export default function Clientes() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Cliente.update(id, { status }),
+    mutationFn: ({ id, status }) => livegenda.entities.Cliente.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       toast({
@@ -318,3 +318,4 @@ export default function Clientes() {
     </div>
   );
 }
+
