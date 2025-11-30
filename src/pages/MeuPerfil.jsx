@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export default function MeuPerfil() {
 
   const { data: funcionariosData = [] } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => base44.entities.Funcionario.list(),
+    queryFn: () => livegenda.entities.Funcionario.list(),
     initialData: [],
   });
 
@@ -28,7 +28,7 @@ export default function MeuPerfil() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.Funcionario.update(funcionarioId, data),
+    mutationFn: (data) => livegenda.entities.Funcionario.update(funcionarioId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
     },
@@ -168,3 +168,4 @@ export default function MeuPerfil() {
     </div>
   );
 }
+
