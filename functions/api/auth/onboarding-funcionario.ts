@@ -74,11 +74,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Criar usuário funcionário
+    // Criar usuário funcionário com onboarding concluído
     const usuarioResult = await db`
-      INSERT INTO usuarios (nome, email, senha, empresa_id, role, ativo)
-      VALUES (${nome}, ${emailLower}, ${senha}, ${empresa_id}, 'funcionario', true)
-      RETURNING id, nome, email, empresa_id, role, ativo, criado_em
+      INSERT INTO usuarios (nome, email, senha, empresa_id, role, onboarding_concluido, ativo)
+      VALUES (${nome}, ${emailLower}, ${senha}, ${empresa_id}, 'funcionario', true, true)
+      RETURNING id, nome, email, empresa_id, role, onboarding_concluido, ativo, criado_em
     `;
 
     const usuario = usuarioResult[0];

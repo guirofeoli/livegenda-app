@@ -29,7 +29,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Buscar usuário
     const result = await db`
-      SELECT u.id, u.nome, u.email, u.senha, u.empresa_id, u.role, u.ativo,
+      SELECT u.id, u.nome, u.email, u.senha, u.empresa_id, u.role, u.ativo, u.onboarding_concluido,
              e.nome as empresa_nome, e.categoria as empresa_categoria
       FROM usuarios u
       LEFT JOIN empresas e ON u.empresa_id = e.id
@@ -71,6 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           email: usuario.email,
           empresa_id: usuario.empresa_id,
           role: usuario.role,
+          onboarding_concluido: usuario.onboarding_concluido || false,
         },
         empresa: usuario.empresa_id ? {
           id: usuario.empresa_id,

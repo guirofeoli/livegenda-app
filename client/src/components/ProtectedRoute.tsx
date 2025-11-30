@@ -8,6 +8,7 @@ interface User {
   email: string;
   empresa_id: string | null;
   role: string;
+  onboarding_concluido: boolean;
 }
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -39,8 +40,12 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return <Redirect to="/login" />;
   }
 
-  if (!user.empresa_id && location !== "/onboarding-empresa") {
-    return <Redirect to="/onboarding-empresa" />;
+  // Se onboarding não foi concluído, redirecionar para a página apropriada
+  if (!user.onboarding_concluido && location !== "/onboarding-empresa" && location !== "/onboarding-funcionario") {
+    // Se não tem empresa_id, é um novo usuário admin - vai para onboarding-empresa
+    if (!user.empresa_id) {
+      return <Redirect to="/onboarding-empresa" />;
+    }
   }
 
   return <>{children}</>;

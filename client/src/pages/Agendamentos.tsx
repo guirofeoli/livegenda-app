@@ -139,11 +139,27 @@ export default function Agendamentos() {
   };
 
   const agendamentosDoDia = agendamentos.filter((agendamento) => {
-    const dataAgendamento = parseISO(agendamento.data_hora);
-    return isSameDay(dataAgendamento, selectedDate);
+    if (!agendamento.data_hora) return false;
+    try {
+      const dataAgendamento = parseISO(agendamento.data_hora);
+      if (isNaN(dataAgendamento.getTime())) return false;
+      return isSameDay(dataAgendamento, selectedDate);
+    } catch {
+      return false;
+    }
   }).sort((a, b) => new Date(a.data_hora).getTime() - new Date(b.data_hora).getTime());
 
-  const datasComAgendamento = agendamentos.map((a) => parseISO(a.data_hora));
+  const datasComAgendamento = agendamentos
+    .filter((a) => a.data_hora)
+    .map((a) => {
+      try {
+        const date = parseISO(a.data_hora);
+        return isNaN(date.getTime()) ? null : date;
+      } catch {
+        return null;
+      }
+    })
+    .filter((d): d is Date => d !== null);
 
   const handleNovoAgendamento = () => {
     navigate("/novo-agendamento");
