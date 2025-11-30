@@ -59,7 +59,7 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({ ...formData, nome: formData.nome_completo });
   };
 
   const handlePermissionChange = (permission, checked) => {

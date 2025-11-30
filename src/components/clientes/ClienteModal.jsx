@@ -36,7 +36,7 @@ export default function ClienteModal({ cliente, onSave, onClose, isLoading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({ ...formData, nome: formData.nome_completo });
   };
 
   return (
