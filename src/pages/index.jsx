@@ -112,6 +112,11 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
+        {/* Fallback: /onboarding redireciona para /onboarding-empresa */}
+            <Route path="/onboarding" element={<Navigate to="/onboarding-empresa" replace />} />
+            
+            {/* Catch-all: rotas não encontradas vão para login */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     );
 }
