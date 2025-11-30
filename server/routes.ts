@@ -82,7 +82,7 @@ export async function registerRoutes(
           id: usuario[0].id,
           nome: usuario[0].nome,
           email: usuario[0].email,
-          empresaId: usuario[0].empresaId,
+          empresa_id: usuario[0].empresaId,
           role: usuario[0].role,
           onboarding_concluido: usuario[0].onboardingConcluido || false
         },
@@ -137,7 +137,7 @@ export async function registerRoutes(
           id: usuario.id,
           nome: usuario.nome,
           email: usuario.email,
-          empresaId: usuario.empresaId,
+          empresa_id: usuario.empresaId,
           role: usuario.role,
           onboarding_concluido: true
         },
@@ -190,7 +190,7 @@ export async function registerRoutes(
           id: usuario.id,
           nome: usuario.nome,
           email: usuario.email,
-          empresaId: usuario.empresaId,
+          empresa_id: usuario.empresaId,
           role: usuario.role,
           onboarding_concluido: true
         },

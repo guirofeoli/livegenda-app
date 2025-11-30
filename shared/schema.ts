@@ -33,6 +33,9 @@ export const empresas = pgTable("empresas", {
   email: text("email"),
   endereco: text("endereco"),
   logo: text("logo"),
+  horarioAbertura: text("horario_abertura").default("08:00"),
+  horarioFechamento: text("horario_fechamento").default("18:00"),
+  diasFuncionamento: text("dias_funcionamento").array().default(sql`ARRAY['seg', 'ter', 'qua', 'qui', 'sex']`),
   ativo: boolean("ativo").default(true),
   criadoEm: timestamp("criado_em").defaultNow(),
 });
