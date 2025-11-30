@@ -59,29 +59,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    let agendamentos;
-    
-    // Query simples primeiro para buscar agendamentos
-    const agendamentosRaw = await db`
+    // Query simples para buscar agendamentos
+    let agendamentos = await db`
       SELECT * FROM agendamentos
       WHERE empresa_id = ${empresaId}
       ORDER BY data_hora DESC
       LIMIT 500
     `;
-    
-    // Buscar dados relacionados para cada agendamento
-    agendamentos = await Promise.all(agendamentosRaw.map(async (a: any) => {
-      const [cliente] = await db`SELECT id, nome, telefone FROM clientes WHERE id = ${a.cliente_id}`;
-      const [funcionario] = await db`SELECT id, nome, cor FROM funcionarios WHERE id = ${a.funcionario_id}`;
-      const [servico] = await db`SELECT id, nome, duracao_minutos, preco FROM servicos WHERE id = ${a.servico_id}`;
-      
-      return {
-        ...a,
-        cliente: cliente || null,
-        funcionario: funcionario || null,
-        servico: servico || null
-      };
-    }));
 
     // Aplicar filtros em memória (mais simples que SQL dinâmico)
     if (funcionarioId) {
