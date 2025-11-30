@@ -41,10 +41,20 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }
 
   // Se onboarding não foi concluído, redirecionar para a página apropriada
-  if (!user.onboarding_concluido && location !== "/onboarding-empresa" && location !== "/onboarding-funcionario") {
+  if (!user.onboarding_concluido) {
+    // Permitir acesso às páginas de onboarding
+    if (location === "/onboarding-empresa" || location === "/onboarding-funcionario") {
+      return <>{children}</>;
+    }
+    
     // Se não tem empresa_id, é um novo usuário admin - vai para onboarding-empresa
     if (!user.empresa_id) {
       return <Redirect to="/onboarding-empresa" />;
+    }
+    
+    // Se tem empresa_id mas onboarding não concluído, é funcionário - vai para onboarding-funcionario
+    if (user.role === "funcionario") {
+      return <Redirect to="/onboarding-funcionario" />;
     }
   }
 
