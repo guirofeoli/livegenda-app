@@ -167,7 +167,7 @@ class ApiEntity {
   }
 }
 
-// Auth API
+// Auth API - uses /api/auth endpoints
 const livegendaAuth = {
   isLoggedIn: async () => {
     return !!getCurrentUser();
@@ -179,20 +179,25 @@ const livegendaAuth = {
   
   login: async (email, password) => {
     try {
-      const empresas = await apiRequest('/empresas');
-      const empresa = empresas.find(e => e.email === email);
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: password })
+      });
       
-      if (empresa) {
-        const user = {
-          id: `user_${empresa.id}`,
-          email: empresa.email,
-          nome: empresa.nome,
-          empresa_id: empresa.id
-        };
-        localStorage.setItem('livegenda_user', JSON.stringify(user));
-        return user;
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer login');
       }
-      throw new Error('Email nao encontrado');
+      
+      // Save user and empresa to localStorage
+      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+      if (data.empresa) {
+        localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
+      }
+      
+      return data.usuario;
     } catch (error) {
       throw new Error('Erro ao fazer login: ' + error.message);
     }
@@ -200,31 +205,53 @@ const livegendaAuth = {
   
   logout: async () => {
     localStorage.removeItem('livegenda_user');
+    localStorage.removeItem('livegenda_empresa');
   },
   
   register: async (userData) => {
     try {
-      const empresa = await apiRequest('/empresas', {
+      const response = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nome: userData.nome_negocio || userData.nome || 'Minha Empresa',
-          tipo: userData.categoria || 'salao',
-          telefone: userData.whatsapp || null,
           email: userData.email,
-          endereco: userData.endereco || null
+          senha: userData.senha || userData.password,
+          nome: userData.nome || userData.email.split('@')[0]
         })
       });
       
-      const user = {
-        id: `user_${empresa.id}`,
-        email: empresa.email,
-        nome: empresa.nome,
-        empresa_id: empresa.id
-      };
-      localStorage.setItem('livegenda_user', JSON.stringify(user));
-      return user;
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao registrar');
+      }
+      
+      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+      return data.usuario;
     } catch (error) {
       throw new Error('Erro ao registrar: ' + error.message);
+    }
+  },
+  
+  onboarding: async (userData) => {
+    try {
+      const response = await fetch(`${API_BASE}/auth/onboarding`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer onboarding');
+      }
+      
+      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+      localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
+      return data;
+    } catch (error) {
+      throw new Error('Erro ao fazer onboarding: ' + error.message);
     }
   }
 };
