@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import AgendamentoCard from "./AgendamentoCard";
 
@@ -20,7 +20,7 @@ export default function DayView({
   // Buscar configuração de horário de funcionamento
   const { data: configuracoes = [] } = useQuery({
     queryKey: ['configuracoes'],
-    queryFn: () => base44.entities.ConfiguracaoNegocio.list(),
+    queryFn: () => livegenda.entities.ConfiguracaoNegocio.list(),
     initialData: [],
   });
 
