@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -7,9 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Calendar as CalendarIcon, Clock, Loader2 } from "lucide-react";
-import { format, addMinutes, setHours, setMinutes, isBefore, startOfDay } from "date-fns";
+import { format, addMinutes, setHours, setMinutes, isBefore, startOfDay, parseISO, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useLocation } from "wouter";
+
+interface AgendamentoExistente {
+  id: string;
+  data_hora: string;
+  data_hora_fim: string;
+  funcionario_id: string;
+}
 
 interface Cliente {
   id: string;
@@ -56,9 +63,11 @@ export default function NovoAgendamento() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [horarioFuncionamento, setHorarioFuncionamento] = useState<HorarioFuncionamento | null>(null);
+  const [agendamentosExistentes, setAgendamentosExistentes] = useState<AgendamentoExistente[]>([]);
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
 
   useEffect(() => {
     try {
@@ -121,6 +130,37 @@ export default function NovoAgendamento() {
     fetchData();
   }, [empresaId, toast]);
 
+  // Buscar agendamentos do funcionário na data selecionada
+  useEffect(() => {
+    if (!empresaId || !funcionarioId || !selectedDate) {
+      setAgendamentosExistentes([]);
+      return;
+    }
+
+    async function fetchAgendamentosDoDia() {
+      setLoadingHorarios(true);
+      try {
+        const dataInicio = startOfDay(selectedDate!).toISOString();
+        const dataFim = new Date(startOfDay(selectedDate!).getTime() + 24 * 60 * 60 * 1000).toISOString();
+        
+        const response = await fetch(
+          `/api/agendamentos?empresa_id=${empresaId}&funcionario_id=${funcionarioId}&data_inicio=${dataInicio}&data_fim=${dataFim}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setAgendamentosExistentes(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar agendamentos do dia:", err);
+      } finally {
+        setLoadingHorarios(false);
+      }
+    }
+
+    fetchAgendamentosDoDia();
+  }, [empresaId, funcionarioId, selectedDate]);
+
   const gerarHorarios = (): string[] => {
     if (!selectedDate || !horarioFuncionamento) {
       return gerarHorariosPadrao();
@@ -165,6 +205,43 @@ export default function NovoAgendamento() {
     
     return !config || !config.ativo;
   };
+
+  // Verificar se um horário está ocupado considerando a duração do serviço
+  const isHorarioOcupado = useMemo(() => {
+    return (horario: string): boolean => {
+      if (!selectedDate || !servicoId || agendamentosExistentes.length === 0) {
+        return false;
+      }
+
+      const servicoSelecionado = servicos.find((s) => s.id === servicoId);
+      const duracao = servicoSelecionado?.duracao_minutos || 30;
+
+      const [hora, minuto] = horario.split(":").map(Number);
+      const novoInicio = new Date(selectedDate);
+      novoInicio.setHours(hora, minuto, 0, 0);
+      const novoFim = addMinutes(novoInicio, duracao);
+
+      // Verificar conflito com agendamentos existentes
+      for (const agendamento of agendamentosExistentes) {
+        if (agendamento.funcionario_id !== funcionarioId) continue;
+
+        const existenteInicio = parseISO(agendamento.data_hora);
+        const existenteFim = parseISO(agendamento.data_hora_fim);
+
+        // Verificar sobreposição
+        const temConflito = 
+          (novoInicio >= existenteInicio && novoInicio < existenteFim) ||
+          (novoFim > existenteInicio && novoFim <= existenteFim) ||
+          (novoInicio <= existenteInicio && novoFim >= existenteFim);
+
+        if (temConflito) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+  }, [selectedDate, servicoId, funcionarioId, agendamentosExistentes, servicos]);
 
   const handleSubmit = async () => {
     if (!selectedDate || !selectedTime || !clienteId || !funcionarioId || !servicoId || !empresaId) {
@@ -268,23 +345,37 @@ export default function NovoAgendamento() {
             {selectedDate && (
               <div className="space-y-2">
                 <Label>Horário</Label>
-                {horarios.length === 0 ? (
+                {!funcionarioId || !servicoId ? (
+                  <p className="text-sm text-muted-foreground">
+                    Selecione o profissional e serviço para ver os horários disponíveis
+                  </p>
+                ) : loadingHorarios ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-sm text-muted-foreground">Carregando horários...</span>
+                  </div>
+                ) : horarios.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Empresa fechada neste dia
                   </p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                    {horarios.map((horario) => (
-                      <Button
-                        key={horario}
-                        variant={selectedTime === horario ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSelectedTime(horario)}
-                        data-testid={`button-horario-${horario}`}
-                      >
-                        {horario}
-                      </Button>
-                    ))}
+                    {horarios.map((horario) => {
+                      const ocupado = isHorarioOcupado(horario);
+                      return (
+                        <Button
+                          key={horario}
+                          variant={selectedTime === horario ? "default" : ocupado ? "ghost" : "outline"}
+                          size="sm"
+                          onClick={() => !ocupado && setSelectedTime(horario)}
+                          disabled={ocupado}
+                          className={ocupado ? "opacity-50 line-through cursor-not-allowed" : ""}
+                          data-testid={`button-horario-${horario}`}
+                        >
+                          {horario}
+                        </Button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

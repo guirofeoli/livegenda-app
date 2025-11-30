@@ -61,7 +61,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Retornar dados do usuário (sem a senha)
+    // Retornar dados do usuário (sem a senha) - usar camelCase para frontend
     return new Response(
       JSON.stringify({
         success: true,
@@ -69,7 +69,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           id: usuario.id,
           nome: usuario.nome,
           email: usuario.email,
-          empresa_id: usuario.empresa_id,
+          empresaId: usuario.empresa_id,
           role: usuario.role,
         },
         empresa: usuario.empresa_id ? {
