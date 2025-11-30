@@ -63,7 +63,12 @@ export default function OnboardingFuncionario() {
       const result = await response.json();
       if (!response.ok) { setError(result.error || "Erro ao criar conta"); setLoading(false); return; }
 
-      localStorage.setItem("livegenda_user", JSON.stringify(result.usuario));
+      // Garantir que onboarding_concluido seja true após completar o onboarding
+      const usuarioComOnboarding = {
+        ...result.usuario,
+        onboarding_concluido: true
+      };
+      localStorage.setItem("livegenda_user", JSON.stringify(usuarioComOnboarding));
       localStorage.setItem("livegenda_empresa", JSON.stringify(result.empresa));
       localStorage.removeItem("livegenda_onboarding_data");
 
