@@ -12,16 +12,14 @@ import {
 } from "@/components/ui/select";
 
 export default function ServicoSelect({ selectedServico, onSelectServico, duracao, preco, onDuracaoChange, onPrecoChange }) {
-  // Obter empresa do usuário logado
   const currentUser = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
   const empresaId = currentUser.empresa_id;
   
   const { data: servicosData = [] } = useQuery({
     queryKey: ['servicos'],
-    queryFn: () => livegenda.entities.Servico.filter({ status: "Ativo" }),
+    queryFn: () => livegenda.entities.Servico.list(),
     initialData: [],
   });
-  // Filtrar serviços por empresa
   const servicos = Array.isArray(servicosData) 
     ? servicosData.filter(s => s.empresa_id === empresaId)
     : [];
@@ -31,7 +29,7 @@ export default function ServicoSelect({ selectedServico, onSelectServico, duraca
     if (servico) {
       onSelectServico(servico);
       onDuracaoChange(servico.duracao_minutos);
-      onPrecoChange(servico.preco);
+      onPrecoChange(parseFloat(servico.preco) || 0);
     }
   };
 

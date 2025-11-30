@@ -16,7 +16,7 @@ export default function ProfissionalSelect({ selectedProfissional, onSelectProfi
   
   const { data: funcionariosData = [] } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => livegenda.entities.Funcionario.filter({ status: "Ativo" }),
+    queryFn: () => livegenda.entities.Funcionario.list(),
     initialData: [],
   });
   const funcionarios = Array.isArray(funcionariosData) 
