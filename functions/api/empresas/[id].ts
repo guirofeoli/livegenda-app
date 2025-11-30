@@ -8,7 +8,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const sql = neon(context.env.DATABASE_URL);
   const id = context.params.id;
   try {
-    const result = await sql`SELECT * FROM empresas WHERE id = ${id}`;
+    const result = await sql`
+      SELECT id, nome, categoria, telefone, email, endereco, logo, cep, horario_funcionamento, ativo, criado_em 
+      FROM empresas 
+      WHERE id = ${id}
+    `;
     if (result.length === 0) {
       return new Response(JSON.stringify({ error: "Empresa nao encontrada" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
@@ -40,7 +44,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
         logo = COALESCE(${logo_url}, logo),
         horario_funcionamento = COALESCE(${horarioJson}::jsonb, horario_funcionamento)
       WHERE id = ${id} 
-      RETURNING *
+      RETURNING id, nome, categoria, telefone, email, endereco, logo, cep, horario_funcionamento, ativo, criado_em
     `;
     
     if (result.length === 0) {
