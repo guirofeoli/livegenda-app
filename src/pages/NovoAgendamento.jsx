@@ -99,19 +99,20 @@ export default function NovoAgendamento() {
       return;
     }
 
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const dataHora = new Date(`${dateStr}T${selectedTime}:00`).toISOString();
+    const dataHoraFim = new Date(new Date(`${dateStr}T${selectedTime}:00`).getTime() + (duracao * 60000)).toISOString();
+
     const agendamentoData = {
       empresa_id: empresaId,
       cliente_id: selectedCliente.id,
       servico_id: selectedServico.id,
       funcionario_id: selectedProfissional.id,
-      data: selectedDate.toISOString().split('T')[0],
-      hora_inicio: selectedTime,
-      duracao_minutos: duracao,
-      preco: preco,
+      data_hora: dataHora,
+      data_hora_fim: dataHoraFim,
+      preco_final: preco,
       observacoes: formData.observacoes,
-      enviar_whatsapp: formData.enviar_whatsapp,
-      sincronizar_google: formData.sincronizar_google,
-      status: "Agendado",
+      status: "pendente",
     };
 
     createAgendamentoMutation.mutate(agendamentoData);
@@ -152,11 +153,7 @@ export default function NovoAgendamento() {
         >
           <ServicoSelect
             selectedServico={selectedServico}
-            onSelectServico={(servico) => {
-              setSelectedServico(servico);
-              setDuracao(servico?.duracao_minutos);
-              setPreco(servico?.preco);
-            }}
+            onSelectServico={setSelectedServico}
             duracao={duracao}
             preco={preco}
             onDuracaoChange={setDuracao}
@@ -183,10 +180,8 @@ export default function NovoAgendamento() {
           <DateTimePicker
             selectedDate={selectedDate}
             selectedTime={selectedTime}
-            onSelectDate={setSelectedDate}
-            onSelectTime={setSelectedTime}
-            funcionarioId={selectedProfissional?.id}
-            duracaoServico={duracao}
+            onDateChange={setSelectedDate}
+            onTimeChange={setSelectedTime}
           />
         </motion.div>
 
@@ -238,4 +233,3 @@ export default function NovoAgendamento() {
     </div>
   );
 }
-
