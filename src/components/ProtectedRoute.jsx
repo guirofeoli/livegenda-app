@@ -2,8 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function ProtectedRoute({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [authState, setAuthState] = useState({ user: null, empresa: null, loading: true });
 
   useEffect(() => {
     checkAuth();
@@ -12,17 +11,26 @@ export default function ProtectedRoute({ children }) {
   const checkAuth = () => {
     try {
       const savedUser = localStorage.getItem("livegenda_user");
+      const savedEmpresa = localStorage.getItem("livegenda_empresa");
+      
+      let user = null;
+      let empresa = null;
+      
       if (savedUser) {
-        const userData = JSON.parse(savedUser);
-        setUser(userData);
+        user = JSON.parse(savedUser);
       }
+      if (savedEmpresa) {
+        empresa = JSON.parse(savedEmpresa);
+      }
+      
+      setAuthState({ user, empresa, loading: false });
     } catch (e) {
       console.error("Erro ao verificar auth:", e);
+      setAuthState({ user: null, empresa: null, loading: false });
     }
-    setLoading(false);
   };
 
-  if (loading) {
+  if (authState.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -31,12 +39,15 @@ export default function ProtectedRoute({ children }) {
   }
 
   // Não logado -> vai para login
-  if (!user) {
+  if (!authState.user) {
     return <Navigate to="/login" replace />;
   }
 
+  // Verificar empresa_id do user OU empresa salva separadamente
+  const hasEmpresa = authState.user.empresa_id || authState.empresa?.id;
+  
   // Usuário logado mas sem empresa -> vai para onboarding de empresa
-  if (!user.empresa_id) {
+  if (!hasEmpresa) {
     return <Navigate to="/onboarding-empresa" replace />;
   }
 
