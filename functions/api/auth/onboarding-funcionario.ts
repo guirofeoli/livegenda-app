@@ -3,8 +3,6 @@
 // ============================================
 // Cria conta de usuário para funcionário existente
 
-import { ApiContext } from '../_middleware';
-
 interface Env {
   DATABASE_URL: string;
   ENVIRONMENT: string;
@@ -22,8 +20,7 @@ interface OnboardingFuncionarioBody {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request } = context;
-  const apiContext = (context as any).apiContext as ApiContext;
-  const { db } = apiContext;
+  const db = context.data.db as any;
 
   try {
     const body = await request.json() as OnboardingFuncionarioBody;

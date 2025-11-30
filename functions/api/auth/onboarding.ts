@@ -3,8 +3,6 @@
 // ============================================
 // Cria nova empresa + usuário admin
 
-import { ApiContext } from '../_middleware';
-
 interface Env {
   DATABASE_URL: string;
   ENVIRONMENT: string;
@@ -24,8 +22,7 @@ interface OnboardingBody {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request } = context;
-  const apiContext = (context as any).apiContext as ApiContext;
-  const { db } = apiContext;
+  const db = context.data.db as any;
 
   try {
     const body = await request.json() as OnboardingBody;
