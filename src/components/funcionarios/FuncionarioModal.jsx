@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -40,13 +39,13 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
   useEffect(() => {
     if (funcionario) {
       setFormData({
-        nome_completo: funcionario.nome_completo || "",
+        nome_completo: funcionario.nome || funcionario.nome_completo || "",
         telefone: funcionario.telefone || "",
         email: funcionario.email || "",
         cargo: funcionario.cargo || "Atendente",
-        status: funcionario.status || "Ativo",
-        foto_url: funcionario.foto_url || "",
-        data_vinculacao: funcionario.data_vinculacao || new Date().toISOString().split('T')[0],
+        status: funcionario.ativo !== false ? "Ativo" : "Inativo",
+        foto_url: funcionario.foto || funcionario.foto_url || "",
+        data_vinculacao: funcionario.criado_em || funcionario.data_vinculacao || new Date().toISOString().split('T')[0],
         permissoes: funcionario.permissoes || {
           acessar_agenda: false,
           criar_agendamentos: false,
@@ -83,7 +82,6 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-6 py-4">
-            {/* Informações Básicas */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide">
                 Informações Básicas
@@ -134,69 +132,42 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
 
                 <div className="space-y-2">
                   <Label htmlFor="cargo" className="text-gray-700">
-                    Cargo / Função *
+                    Cargo
                   </Label>
-                  <Select value={formData.cargo} onValueChange={(value) => setFormData({ ...formData, cargo: value })}>
+                  <Select
+                    value={formData.cargo}
+                    onValueChange={(value) => setFormData({ ...formData, cargo: value })}
+                  >
                     <SelectTrigger className="border-purple-200 focus:border-purple-500 focus:ring-purple-500">
-                      <SelectValue />
+                      <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Gerente">Gerente</SelectItem>
                       <SelectItem value="Atendente">Atendente</SelectItem>
-                      <SelectItem value="Profissional">Profissional</SelectItem>
-                      <SelectItem value="Administrador">Administrador</SelectItem>
-                      <SelectItem value="Outro">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="data_vinculacao" className="text-gray-700">
-                    Data de Vinculação
-                  </Label>
-                  <Input
-                    id="data_vinculacao"
-                    type="date"
-                    value={formData.data_vinculacao}
-                    onChange={(e) => setFormData({ ...formData, data_vinculacao: e.target.value })}
-                    className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="status" className="text-gray-700">
-                    Status *
-                  </Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                    <SelectTrigger className="border-purple-200 focus:border-purple-500 focus:ring-purple-500">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Ativo">Ativo</SelectItem>
-                      <SelectItem value="Inativo">Inativo</SelectItem>
+                      <SelectItem value="Cabeleireiro(a)">Cabeleireiro(a)</SelectItem>
+                      <SelectItem value="Manicure">Manicure</SelectItem>
+                      <SelectItem value="Esteticista">Esteticista</SelectItem>
+                      <SelectItem value="Barbeiro">Barbeiro</SelectItem>
+                      <SelectItem value="Maquiador(a)">Maquiador(a)</SelectItem>
+                      <SelectItem value="Recepcionista">Recepcionista</SelectItem>
+                      <SelectItem value="Gerente">Gerente</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </div>
 
-            {/* Permissões */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide">
-                Permissões no Sistema
+                Permissões
               </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="acessar_agenda"
                     checked={formData.permissoes.acessar_agenda}
                     onCheckedChange={(checked) => handlePermissionChange("acessar_agenda", checked)}
                   />
-                  <label
-                    htmlFor="acessar_agenda"
-                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                  >
+                  <label htmlFor="acessar_agenda" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Acessar agenda
                   </label>
                 </div>
@@ -207,10 +178,7 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
                     checked={formData.permissoes.criar_agendamentos}
                     onCheckedChange={(checked) => handlePermissionChange("criar_agendamentos", checked)}
                   />
-                  <label
-                    htmlFor="criar_agendamentos"
-                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                  >
+                  <label htmlFor="criar_agendamentos" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Criar agendamentos
                   </label>
                 </div>
@@ -221,10 +189,7 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
                     checked={formData.permissoes.editar_agendamentos}
                     onCheckedChange={(checked) => handlePermissionChange("editar_agendamentos", checked)}
                   />
-                  <label
-                    htmlFor="editar_agendamentos"
-                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                  >
+                  <label htmlFor="editar_agendamentos" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Editar agendamentos
                   </label>
                 </div>
@@ -235,10 +200,7 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
                     checked={formData.permissoes.visualizar_relatorios}
                     onCheckedChange={(checked) => handlePermissionChange("visualizar_relatorios", checked)}
                   />
-                  <label
-                    htmlFor="visualizar_relatorios"
-                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                  >
+                  <label htmlFor="visualizar_relatorios" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Visualizar relatórios
                   </label>
                 </div>

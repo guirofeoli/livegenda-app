@@ -31,7 +31,7 @@ function MobileCard({ funcionario, onEdit, onDelete, onToggleStatus }) {
         {funcionario.foto_url ? (
           <img
             src={funcionario.foto_url}
-            alt={funcionario.nome_completo}
+            alt={funcionario.nome}
             className="w-14 h-14 rounded-full object-cover ring-2 ring-purple-100"
           />
         ) : (
@@ -41,7 +41,7 @@ function MobileCard({ funcionario, onEdit, onDelete, onToggleStatus }) {
         )}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-lg truncate">
-            {funcionario.nome_completo}
+            {funcionario.nome}
           </h3>
           {funcionario.email && (
             <p className="text-sm text-gray-500 truncate">{funcionario.email}</p>
@@ -246,7 +246,7 @@ export default function FuncionariosTable({
                       {funcionario.foto_url ? (
                         <img
                           src={funcionario.foto_url}
-                          alt={funcionario.nome_completo}
+                          alt={funcionario.nome}
                           className="w-10 h-10 rounded-full object-cover ring-2 ring-purple-100"
                         />
                       ) : (
@@ -255,7 +255,7 @@ export default function FuncionariosTable({
                         </div>
                       )}
                       <div>
-                        <p className="font-medium text-gray-900">{funcionario.nome_completo}</p>
+                        <p className="font-medium text-gray-900">{funcionario.nome}</p>
                         {funcionario.email && (
                           <p className="text-xs text-gray-500">{funcionario.email}</p>
                         )}
