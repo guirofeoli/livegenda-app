@@ -30,7 +30,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   
   try {
     const body = await context.request.json();
-    const { nome, telefone, email, cor, foto } = body;
+    const { nome, telefone, email, cargo, cor, foto } = body;
     
     const result = await sql`
       UPDATE funcionarios 
@@ -38,6 +38,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
         nome = COALESCE(${nome || null}, nome),
         telefone = COALESCE(${telefone || null}, telefone),
         email = COALESCE(${email || null}, email),
+        cargo = COALESCE(${cargo || null}, cargo),
         cor = COALESCE(${cor || null}, cor),
         foto = COALESCE(${foto || null}, foto)
       WHERE id = ${id} AND ativo = true
