@@ -1,17 +1,10 @@
-import { base44 } from './base44Client';
+import { livegenda } from './livegendaApi';
 
-
-export const Funcionario = base44.entities.Funcionario;
-
-export const Cliente = base44.entities.Cliente;
-
-export const Servico = base44.entities.Servico;
-
-export const Agendamento = base44.entities.Agendamento;
-
-export const ConfiguracaoNegocio = base44.entities.ConfiguracaoNegocio;
-
-
+export const Funcionario = livegenda.entities.Funcionario;
+export const Cliente = livegenda.entities.Cliente;
+export const Servico = livegenda.entities.Servico;
+export const Agendamento = livegenda.entities.Agendamento;
+export const ConfiguracaoNegocio = livegenda.entities.ConfiguracaoNegocio;
 
 // auth sdk:
-export const User = base44.auth;
+export const User = livegenda.auth;
