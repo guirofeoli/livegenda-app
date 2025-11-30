@@ -28,6 +28,7 @@ export interface ApiContext {
 // Lista de origens permitidas
 const ALLOWED_ORIGINS = [
   'https://livegenda.pages.dev',
+  'https://new-livegenda.pages.dev',
   'https://app.livegenda.com',
   'https://livegenda.com',
   'http://localhost:5000',
@@ -45,6 +46,7 @@ function isOriginAllowed(origin: string | null, env: Env): boolean {
   
   // Em dev/preview, permitir origens de preview do Cloudflare
   if (origin.endsWith('.livegenda.pages.dev') || 
+      origin.endsWith('.new-livegenda.pages.dev') ||
       origin.endsWith('.pages.dev') ||
       origin.startsWith('http://localhost')) {
     return true;
@@ -129,9 +131,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Inicializar conexão com banco (singleton)
     const db = getDbConnection(env.DATABASE_URL);
     
-    // Adicionar contexto via context.data (forma correta do Cloudflare)
-    context.data.env = env;
-    context.data.db = db;
+    // IMPORTANTE: Inicializar context.data de forma defensiva
+    // Cloudflare Pages pode não inicializar context.data automaticamente
+    const data = (context.data ??= {}) as Record<string, unknown>;
+    data.env = env;
+    data.db = db;
 
     // Verificar autenticação (se necessário)
     const authHeader = request.headers.get('Authorization');
@@ -139,7 +143,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       // TODO: Implementar verificação JWT
       // const token = authHeader.slice(7);
       // const user = await verifyToken(token, env.JWT_SECRET);
-      // context.data.user = user;
+      // data.user = user;
     }
 
     // Continuar para a rota
