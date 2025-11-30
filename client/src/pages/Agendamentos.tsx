@@ -77,14 +77,14 @@ export default function Agendamentos() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [empresaId, setEmpresaId] = useState<string | null>(null);
+  const [empresa_id, setEmpresaId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem("livegenda_user");
       if (savedUser) {
         const user = JSON.parse(savedUser);
-        setEmpresaId(user.empresaId);
+        setEmpresaId(user.empresa_id);
       }
     } catch {
       console.error("Erro ao obter dados do usuário");
@@ -93,7 +93,7 @@ export default function Agendamentos() {
 
   // Função para buscar agendamentos do mês
   const fetchAgendamentos = useCallback(async (mesReferencia: Date) => {
-    if (!empresaId) return;
+    if (!empresa_id) return;
     
     setLoading(true);
     setError(null);
@@ -104,7 +104,7 @@ export default function Agendamentos() {
       const dataFim = addMonths(endOfMonth(mesReferencia), 0).toISOString();
       
       const response = await fetch(
-        `/api/agendamentos?empresa_id=${empresaId}&data_inicio=${dataInicio}&data_fim=${dataFim}`
+        `/api/agendamentos?empresa_id=${empresa_id}&data_inicio=${dataInicio}&data_fim=${dataFim}`
       );
       
       if (!response.ok) {
@@ -119,14 +119,14 @@ export default function Agendamentos() {
     } finally {
       setLoading(false);
     }
-  }, [empresaId]);
+  }, [empresa_id]);
 
   // Buscar agendamentos quando o mês muda ou empresa é carregada
   useEffect(() => {
-    if (empresaId) {
+    if (empresa_id) {
       fetchAgendamentos(displayedMonth);
     }
-  }, [empresaId, displayedMonth, fetchAgendamentos]);
+  }, [empresa_id, displayedMonth, fetchAgendamentos]);
 
   // Função para atualizar manualmente
   const handleRefresh = () => {

@@ -52,7 +52,7 @@ export default function NovoAgendamento() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   
-  const [empresaId, setEmpresaId] = useState<string | null>(null);
+  const [empresa_id, setEmpresaId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [clienteId, setClienteId] = useState<string>("");
@@ -75,7 +75,7 @@ export default function NovoAgendamento() {
       const savedUser = localStorage.getItem("livegenda_user");
       if (savedUser) {
         const user = JSON.parse(savedUser);
-        setEmpresaId(user.empresaId);
+        setEmpresaId(user.empresa_id);
       }
     } catch {
       console.error("Erro ao obter dados do usuário");
@@ -83,16 +83,16 @@ export default function NovoAgendamento() {
   }, []);
 
   useEffect(() => {
-    if (!empresaId) return;
+    if (!empresa_id) return;
 
     async function fetchData() {
       setLoading(true);
       try {
         const [clientesRes, funcionariosRes, servicosRes, empresaRes] = await Promise.all([
-          fetch(`/api/clientes?empresa_id=${empresaId}`),
-          fetch(`/api/funcionarios?empresa_id=${empresaId}`),
-          fetch(`/api/servicos?empresa_id=${empresaId}`),
-          fetch(`/api/empresas/${empresaId}`),
+          fetch(`/api/clientes?empresa_id=${empresa_id}`),
+          fetch(`/api/funcionarios?empresa_id=${empresa_id}`),
+          fetch(`/api/servicos?empresa_id=${empresa_id}`),
+          fetch(`/api/empresas/${empresa_id}`),
         ]);
 
         if (clientesRes.ok) {
@@ -129,11 +129,11 @@ export default function NovoAgendamento() {
     }
 
     fetchData();
-  }, [empresaId, toast]);
+  }, [empresa_id, toast]);
 
   // Buscar agendamentos do funcionário na data selecionada
   useEffect(() => {
-    if (!empresaId || !funcionarioId || !selectedDate) {
+    if (!empresa_id || !funcionarioId || !selectedDate) {
       setAgendamentosExistentes([]);
       return;
     }
@@ -145,7 +145,7 @@ export default function NovoAgendamento() {
         const dataFim = new Date(startOfDay(selectedDate!).getTime() + 24 * 60 * 60 * 1000).toISOString();
         
         const response = await fetch(
-          `/api/agendamentos?empresa_id=${empresaId}&funcionario_id=${funcionarioId}&data_inicio=${dataInicio}&data_fim=${dataFim}`
+          `/api/agendamentos?empresa_id=${empresa_id}&funcionario_id=${funcionarioId}&data_inicio=${dataInicio}&data_fim=${dataFim}`
         );
 
         if (response.ok) {
@@ -160,7 +160,7 @@ export default function NovoAgendamento() {
     }
 
     fetchAgendamentosDoDia();
-  }, [empresaId, funcionarioId, selectedDate]);
+  }, [empresa_id, funcionarioId, selectedDate]);
 
   const gerarHorarios = (): string[] => {
     if (!selectedDate || !horarioFuncionamento) {
@@ -251,7 +251,7 @@ export default function NovoAgendamento() {
   }, [selectedDate, servicoId, funcionarioId, agendamentosExistentes, servicos]);
 
   const handleSubmit = async () => {
-    if (!selectedDate || !selectedTime || !clienteId || !funcionarioId || !servicoId || !empresaId) {
+    if (!selectedDate || !selectedTime || !clienteId || !funcionarioId || !servicoId || !empresa_id) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios",
@@ -271,7 +271,7 @@ export default function NovoAgendamento() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          empresa_id: empresaId,
+          empresa_id: empresa_id,
           cliente_id: clienteId,
           funcionario_id: funcionarioId,
           servico_id: servicoId,
