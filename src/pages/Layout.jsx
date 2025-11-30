@@ -116,15 +116,33 @@ export default function Layout({ children }) {
     setCurrentUser(user);
     
     if (user.empresa_id) {
-      const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
-      const empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
+      // Verificar em livegenda_empresa (onboarding) OU empresas (lista completa)
+      let empresaEncontrada = null;
+      
+      // Primeiro, tentar livegenda_empresa (salvo no onboarding)
+      const savedEmpresa = localStorage.getItem('livegenda_empresa');
+      if (savedEmpresa) {
+        const parsedEmpresa = JSON.parse(savedEmpresa);
+        if (parsedEmpresa.id === user.empresa_id) {
+          empresaEncontrada = parsedEmpresa;
+        }
+      }
+      
+      // Se não encontrou, tentar na lista de empresas
+      if (!empresaEncontrada) {
+        const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
+        empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
+      }
+      
       setEmpresa(empresaEncontrada);
       
+      // Só redireciona se realmente não encontrou a empresa em nenhum lugar
       if ((user.tipo === 'gestor' || !user.tipo) && !empresaEncontrada && location.pathname !== '/onboarding') {
         navigate('/onboarding');
       }
     } else if ((user.tipo === 'gestor' || !user.tipo) && location.pathname !== '/onboarding') {
       navigate('/onboarding');
+    }
     }
   }, [location.pathname, navigate]);
 
