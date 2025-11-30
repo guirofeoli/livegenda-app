@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Plus, Filter, Calendar as CalendarIcon } from "lucide-react";
@@ -46,7 +46,7 @@ export default function Agendamentos() {
 
   const { data: agendamentosData = [], isLoading } = useQuery({
     queryKey: ['agendamentos'],
-    queryFn: () => base44.entities.Agendamento.list("-created_date"),
+    queryFn: () => livegenda.entities.Agendamento.list("-created_date"),
     initialData: [],
   });
   
@@ -61,7 +61,7 @@ export default function Agendamentos() {
 
   const { data: clientesDataData = [] } = useQuery({
     queryKey: ['clientes'],
-    queryFn: () => base44.entities.Cliente.list(),
+    queryFn: () => livegenda.entities.Cliente.list(),
     initialData: [],
   });
   const clientesData = Array.isArray(clientesDataData) ? clientesDataData : [];
@@ -69,7 +69,7 @@ export default function Agendamentos() {
 
   const { data: servicosDataData = [] } = useQuery({
     queryKey: ['servicos'],
-    queryFn: () => base44.entities.Servico.list(),
+    queryFn: () => livegenda.entities.Servico.list(),
     initialData: [],
   });
   const servicosData = Array.isArray(servicosDataData) ? servicosDataData : [];
@@ -77,14 +77,14 @@ export default function Agendamentos() {
 
   const { data: funcionariosDataData = [] } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => base44.entities.Funcionario.list(),
+    queryFn: () => livegenda.entities.Funcionario.list(),
     initialData: [],
   });
   const funcionariosData = Array.isArray(funcionariosDataData) ? funcionariosDataData : [];
   const funcionarios = Array.isArray(funcionariosData) ? funcionariosData : [];
 
   const updateAgendamentoMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Agendamento.update(id, data),
+    mutationFn: ({ id, data }) => livegenda.entities.Agendamento.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['agendamentos'] });
       const statusMessages = {
