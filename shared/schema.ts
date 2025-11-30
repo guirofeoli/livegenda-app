@@ -6,8 +6,14 @@ import { z } from "zod";
 // Enums
 export const categoriasEmpresaEnum = pgEnum("categoria_empresa", [
   "salao_beleza",
-  "barbearia", 
-  "clinica_estetica"
+  "barbearia",
+  "clinica_estetica",
+  "spa",
+  "studio_unhas",
+  "sobrancelhas",
+  "makeup",
+  "massagem",
+  "outro"
 ]);
 
 export const statusAgendamentoEnum = pgEnum("status_agendamento", [
