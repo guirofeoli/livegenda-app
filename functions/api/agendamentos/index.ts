@@ -3,7 +3,7 @@
 // ============================================
 // CRUD completo para agendamentos
 
-import type { Env, ApiContext } from '../_middleware';
+import type { Env } from '../_middleware';
 
 // Validação de UUID
 function isValidUUID(str: string): boolean {
@@ -40,8 +40,7 @@ function validateAgendamento(body: any): { valid: boolean; error?: string } {
 
 // GET /api/agendamentos - Listar agendamentos
 export const onRequestGet: PagesFunction<Env> = async (context) => {
-  const apiContext = (context as any).apiContext as ApiContext;
-  const { db } = apiContext;
+  const db = (context as any).data.db;
   const url = new URL(context.request.url);
   
   const empresaId = url.searchParams.get('empresa_id');
@@ -98,8 +97,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 // POST /api/agendamentos - Criar novo agendamento
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  const apiContext = (context as any).apiContext as ApiContext;
-  const { db } = apiContext;
+  const db = (context as any).data.db;
 
   try {
     const body = await context.request.json();
