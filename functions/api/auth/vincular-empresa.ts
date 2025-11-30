@@ -14,6 +14,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       nomeNegocio,
       categoria,
       telefone,
+      emailNegocio,
       endereco
     } = body;
     
@@ -43,10 +44,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
     
+    // Usar emailNegocio se fornecido, senão usar email do usuário
+    const emailEmpresa = emailNegocio || user.email;
+    
     // Criar empresa
     const empresaResult = await sql`
       INSERT INTO empresas (nome, categoria, telefone, email, endereco, ativo)
-      VALUES (${nomeNegocio}, ${categoria}, ${telefone || null}, ${user.email}, ${endereco || null}, true)
+      VALUES (${nomeNegocio}, ${categoria}, ${telefone || null}, ${emailEmpresa}, ${endereco || null}, true)
       RETURNING *
     `;
     const empresa = empresaResult[0];
