@@ -1,7 +1,7 @@
-// Standalone client (without Base44 SDK)
-import { mockClient } from './mockClient';
+// API Client - connects to Cloudflare Pages Functions
+import { apiClient } from './apiClient';
 
-// Export mock client as base44 to maintain compatibility
-export const base44 = mockClient;
+// Export API client as base44 to maintain compatibility
+export const base44 = apiClient;
 
-export default mockClient;
+export default apiClient;
