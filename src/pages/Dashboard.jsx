@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, TrendingUp, Users, Star } from "lucide-react";
@@ -14,7 +14,7 @@ export default function Dashboard() {
   // Buscar dados do funcionário
   const { data: funcionariosData = [] } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => base44.entities.Funcionario.list(),
+    queryFn: () => livegenda.entities.Funcionario.list(),
     initialData: [],
   });
   
@@ -23,7 +23,7 @@ export default function Dashboard() {
   // Buscar agendamentos do funcionário
   const { data: agendamentosData = [] } = useQuery({
     queryKey: ['agendamentos'],
-    queryFn: () => base44.entities.Agendamento.list(),
+    queryFn: () => livegenda.entities.Agendamento.list(),
     initialData: [],
   });
 
@@ -230,3 +230,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
