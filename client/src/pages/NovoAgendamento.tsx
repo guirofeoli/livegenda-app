@@ -16,6 +16,7 @@ interface AgendamentoExistente {
   data_hora: string;
   data_hora_fim: string;
   funcionario_id: string;
+  status: string;
 }
 
 interface Cliente {
@@ -221,9 +222,15 @@ export default function NovoAgendamento() {
       novoInicio.setHours(hora, minuto, 0, 0);
       const novoFim = addMinutes(novoInicio, duracao);
 
+      // Status que não bloqueiam horários (igual ao backend)
+      const statusLivres = ["cancelado", "nao_compareceu"];
+
       // Verificar conflito com agendamentos existentes
       for (const agendamento of agendamentosExistentes) {
         if (agendamento.funcionario_id !== funcionarioId) continue;
+        
+        // Ignorar agendamentos cancelados ou não comparecidos
+        if (statusLivres.includes(agendamento.status)) continue;
 
         const existenteInicio = parseISO(agendamento.data_hora);
         const existenteFim = parseISO(agendamento.data_hora_fim);
