@@ -121,7 +121,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary">Livegenda</h1>
-          <p className="text-muted-foreground mt-2">Sistema de Agendamento</p>
+          <p className="text-muted-foreground mt-2">Sistema de Agendamento Inteligente</p>
         </div>
         
         <Card>
@@ -132,11 +132,9 @@ export default function Login() {
             <CardDescription>
               {step === "email" 
                 ? "Digite seu email para continuar" 
-                : `Entrando como ${emailInfo?.nome || email}`
-              }
+                : `Olá, ${emailInfo?.nome || 'usuário'}!`}
             </CardDescription>
           </CardHeader>
-          
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4">
@@ -144,7 +142,7 @@ export default function Login() {
               </Alert>
             )}
             
-            {step === "email" && (
+            {step === "email" ? (
               <form onSubmit={handleCheckEmail} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -180,21 +178,15 @@ export default function Login() {
                   )}
                 </Button>
               </form>
-            )}
-            
-            {step === "password" && (
+            ) : (
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{email}</span>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
-                      className="ml-auto text-xs"
-                      onClick={handleBack}
-                    >
+                  <Label>Email</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-3 py-2 bg-muted rounded-md text-sm">
+                      {email}
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={handleBack}>
                       Trocar
                     </Button>
                   </div>
