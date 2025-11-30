@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Building2, Phone, Mail, MapPin, Clock, Loader2, User } from "lucide-react";
+import { Building2, Phone, Mail, MapPin, Clock, Loader2 } from "lucide-react";
 
 const API_BASE = "";
 
@@ -36,9 +36,9 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const [formData, setFormData] = useState({
+    emailNegocio: "",
     nomeNegocio: "",
     categoria: "",
     telefone: "",
@@ -58,14 +58,14 @@ export default function Onboarding() {
     const savedUser = localStorage.getItem("livegenda_user");
     if (savedUser) {
       const userData = JSON.parse(savedUser);
-      if (userData.empresa_id) {
-        navigate("/dashboard");
-        return;
-      }
       setUser(userData);
-      setIsLoggedIn(true);
+      // Preencher email do negócio com o email do usuário como sugestão
+      setFormData(prev => ({
+        ...prev,
+        emailNegocio: userData.email || ""
+      }));
     }
-  }, [navigate]);
+  }, []);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -87,13 +87,13 @@ export default function Onboarding() {
     setLoading(true);
     setError("");
 
-    try {
-      if (!formData.nomeNegocio || !formData.telefone || !formData.categoria) {
-        setError("Preencha todos os campos obrigatórios");
-        setLoading(false);
-        return;
-      }
+    if (!formData.nomeNegocio || !formData.telefone || !formData.categoria || !formData.emailNegocio) {
+      setError("Preencha todos os campos obrigatórios");
+      setLoading(false);
+      return;
+    }
 
+    try {
       const response = await fetch(`${API_BASE}/api/auth/vincular-empresa`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,6 +102,7 @@ export default function Onboarding() {
           nomeNegocio: formData.nomeNegocio,
           categoria: formData.categoria,
           telefone: formData.telefone,
+          emailNegocio: formData.emailNegocio,
           endereco: formData.endereco || null
         })
       });
@@ -119,6 +120,7 @@ export default function Onboarding() {
         return;
       }
 
+      // Atualizar localStorage com dados atualizados
       localStorage.setItem("livegenda_user", JSON.stringify(data.usuario));
       localStorage.setItem("livegenda_empresa", JSON.stringify(data.empresa));
 
@@ -127,7 +129,8 @@ export default function Onboarding() {
         description: "Seu negócio foi configurado com sucesso!",
       });
 
-      navigate("/dashboard");
+      // Navegar para agendamentos
+      navigate("/agendamentos");
 
     } catch (err) {
       console.error("Erro no onboarding:", err);
@@ -152,36 +155,6 @@ export default function Onboarding() {
     { key: "domingo", label: "Domingo" }
   ];
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
-        <div className="w-full max-w-lg">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Configure seu negócio</CardTitle>
-              <CardDescription>
-                Você precisa fazer login primeiro
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="mb-4 text-muted-foreground">
-                Para configurar seu negócio, faça login ou crie uma conta.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => navigate("/login")}>
-                  Fazer login
-                </Button>
-                <Button onClick={() => navigate("/register")}>
-                  Criar conta
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
@@ -189,7 +162,7 @@ export default function Onboarding() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Configure seu negócio</CardTitle>
             <CardDescription>
-              Olá, {user?.nome || ""}! Configure as informações do seu estabelecimento
+              Olá{user?.nome ? `, ${user.nome}` : ""}! Preencha as informações do seu estabelecimento
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -212,6 +185,23 @@ export default function Onboarding() {
                     className="pl-10"
                     disabled={loading}
                     data-testid="input-nome-negocio"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="emailNegocio">Email do negócio *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="emailNegocio"
+                    type="email"
+                    placeholder="contato@meunegocio.com"
+                    value={formData.emailNegocio}
+                    onChange={(e) => handleInputChange("emailNegocio", e.target.value)}
+                    className="pl-10"
+                    disabled={loading}
+                    data-testid="input-email-negocio"
                   />
                 </div>
               </div>
