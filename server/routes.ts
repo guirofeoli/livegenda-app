@@ -83,7 +83,8 @@ export async function registerRoutes(
           nome: usuario[0].nome,
           email: usuario[0].email,
           empresaId: usuario[0].empresaId,
-          role: usuario[0].role
+          role: usuario[0].role,
+          onboarding_concluido: usuario[0].onboardingConcluido || false
         },
         empresa
       });
@@ -119,13 +120,14 @@ export async function registerRoutes(
       }).returning();
       const empresa = empresaResult[0];
       
-      // Criar usuario
+      // Criar usuario com onboarding concluído
       const usuarioResult = await db.insert(usuarios).values({
         email,
         senha,
         nome,
         empresaId: empresa.id,
         role: "admin",
+        onboardingConcluido: true,
         ativo: true
       }).returning();
       const usuario = usuarioResult[0];
@@ -136,7 +138,8 @@ export async function registerRoutes(
           nome: usuario.nome,
           email: usuario.email,
           empresaId: usuario.empresaId,
-          role: usuario.role
+          role: usuario.role,
+          onboarding_concluido: true
         },
         empresa
       });
@@ -167,13 +170,14 @@ export async function registerRoutes(
         return res.status(409).json({ error: "Email já em uso" });
       }
       
-      // Criar usuario
+      // Criar usuario com onboarding concluído
       const usuarioResult = await db.insert(usuarios).values({
         email,
         senha,
         nome,
         empresaId,
         role: "funcionario",
+        onboardingConcluido: true,
         ativo: true
       }).returning();
       const usuario = usuarioResult[0];
@@ -187,7 +191,8 @@ export async function registerRoutes(
           nome: usuario.nome,
           email: usuario.email,
           empresaId: usuario.empresaId,
-          role: usuario.role
+          role: usuario.role,
+          onboarding_concluido: true
         },
         empresa: emp[0]
       });
