@@ -9,7 +9,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   
   try {
     const body = await context.request.json();
-    const { email, senha, nome, empresa_id } = body;
+    const { email, senha, nome } = body;
     
     if (!email || !senha || !nome) {
       return new Response(
@@ -30,10 +30,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
     
-    // Criar usuário
+    // Criar usuário (empresa_id pode ser NULL agora)
     const result = await sql`
       INSERT INTO usuarios (email, senha, nome, empresa_id, role, ativo)
-      VALUES (${email}, ${senha}, ${nome}, ${empresa_id || null}, 'admin', true)
+      VALUES (${email}, ${senha}, ${nome}, NULL, 'admin', true)
       RETURNING id, email, nome, empresa_id, role, ativo, criado_em
     `;
     
