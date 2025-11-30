@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { livegenda } from '@/api/livegendaClient';
 
 export default function ProtectedRoute({ children }) {
   const [user, setUser] = useState(null);
@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children }) {
   }, []);
 
   const checkAuth = async () => {
-    const currentUser = await base44.auth.getUser();
+    const currentUser = await livegenda.auth.getUser();
     setUser(currentUser);
     setLoading(false);
   };
@@ -30,3 +30,4 @@ export default function ProtectedRoute({ children }) {
 
   return children;
 }
+
