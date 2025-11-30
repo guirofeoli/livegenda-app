@@ -22,13 +22,39 @@ const apiRequest = async (endpoint, options = {}) => {
 
 // Get current user from localStorage
 const getCurrentUser = () => {
-  const user = localStorage.getItem('livegenda_user');
-  return user ? JSON.parse(user) : null;
+  try {
+    const user = localStorage.getItem('livegenda_user');
+    return user ? JSON.parse(user) : null;
+  } catch (e) {
+    console.error('Erro ao ler usuario do localStorage:', e);
+    return null;
+  }
 };
 
+// Get empresa_id com fallback
 const getCurrentEmpresaId = () => {
-  const user = getCurrentUser();
-  return user?.empresa_id || null;
+  try {
+    // Primeiro, tentar do usuario
+    const user = getCurrentUser();
+    if (user?.empresa_id) {
+      return user.empresa_id;
+    }
+    
+    // Fallback: tentar da empresa salva separadamente
+    const empresaStr = localStorage.getItem('livegenda_empresa');
+    if (empresaStr) {
+      const empresa = JSON.parse(empresaStr);
+      if (empresa?.id) {
+        return empresa.id;
+      }
+    }
+    
+    console.warn('empresa_id nao encontrado no localStorage');
+    return null;
+  } catch (e) {
+    console.error('Erro ao obter empresa_id:', e);
+    return null;
+  }
 };
 
 // Helper to populate agendamentos with full objects
