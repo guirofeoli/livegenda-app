@@ -1,26 +1,10 @@
-import { base44 } from './base44Client';
+import { livegenda } from './livegendaApi';
 
-
-
-
-export const Core = base44.integrations.Core;
-
-export const InvokeLLM = base44.integrations.Core.InvokeLLM;
-
-export const SendEmail = base44.integrations.Core.SendEmail;
-
-export const UploadFile = base44.integrations.Core.UploadFile;
-
-export const GenerateImage = base44.integrations.Core.GenerateImage;
-
-export const ExtractDataFromUploadedFile = base44.integrations.Core.ExtractDataFromUploadedFile;
-
-export const CreateFileSignedUrl = base44.integrations.Core.CreateFileSignedUrl;
-
-export const UploadPrivateFile = base44.integrations.Core.UploadPrivateFile;
-
-
-
-
-
-
+export const Core = livegenda.integrations.Core;
+export const InvokeLLM = livegenda.integrations.Core.InvokeLLM;
+export const SendEmail = livegenda.integrations.Core.SendEmail;
+export const UploadFile = livegenda.integrations.Core.UploadFile;
+export const GenerateImage = livegenda.integrations.Core.GenerateImage;
+export const ExtractDataFromUploadedFile = livegenda.integrations.Core.ExtractDataFromUploadedFile;
+export const CreateFileSignedUrl = livegenda.integrations.Core.CreateFileSignedUrl;
+export const UploadPrivateFile = livegenda.integrations.Core.UploadPrivateFile;
