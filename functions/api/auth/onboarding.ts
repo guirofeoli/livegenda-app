@@ -10,23 +10,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const body = await context.request.json();
     const { 
-      // Dados do usuário
       email, 
       senha, 
       nome: nomeUsuario,
-      // Dados da empresa
       nomeNegocio,
       categoria,
+      tipo,
       telefone,
-      endereco,
-      horarioFuncionamento,
-      intervaloAgendamento,
-      lembreteAutomatico,
-      tempoAntecedenciaLembrete
+      endereco
     } = body;
     
-    // Validações
-    if (!email || !senha || !nomeNegocio || !categoria) {
+    const cat = categoria || tipo;
+    
+    if (!email || !senha || !nomeNegocio || !cat) {
       return new Response(
         JSON.stringify({ error: "Campos obrigatórios: email, senha, nomeNegocio, categoria" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -44,8 +40,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     
     // Criar empresa primeiro
     const empresaResult = await sql`
-      INSERT INTO empresas (nome, tipo, telefone, email, endereco, ativo)
-      VALUES (${nomeNegocio}, ${categoria}, ${telefone || null}, ${email}, ${endereco || null}, true)
+      INSERT INTO empresas (nome, categoria, telefone, email, endereco, ativo)
+      VALUES (${nomeNegocio}, ${cat}, ${telefone || null}, ${email}, ${endereco || null}, true)
       RETURNING *
     `;
     const empresa = empresaResult[0];
