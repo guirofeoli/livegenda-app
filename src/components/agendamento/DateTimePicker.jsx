@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery } from "@tanstack/react-query";
 import { getHorariosDisponiveis, isDiaAtivo } from "@/utils/horariosDisponiveis";
 
@@ -30,7 +30,7 @@ export default function DateTimePicker({
     queryKey: ['configuracao'],
     queryFn: async () => {
       try {
-        const result = await base44.entities.ConfiguracaoNegocio.get();
+        const result = await livegenda.entities.ConfiguracaoNegocio.get();
         return result;
       } catch (error) {
         console.error('Erro ao buscar configuração:', error);
@@ -44,7 +44,7 @@ export default function DateTimePicker({
     queryKey: ['agendamentos'],
     queryFn: async () => {
       try {
-        const result = await base44.entities.Agendamento.list();
+        const result = await livegenda.entities.Agendamento.list();
         return result || [];
       } catch (error) {
         console.error('Erro ao buscar agendamentos:', error);
