@@ -6,14 +6,8 @@ import { z } from "zod";
 // Enums
 export const categoriasEmpresaEnum = pgEnum("categoria_empresa", [
   "salao_beleza",
-  "barbearia",
-  "clinica_estetica",
-  "spa",
-  "studio_unhas",
-  "sobrancelhas",
-  "makeup",
-  "massagem",
-  "outro"
+  "barbearia", 
+  "clinica_estetica"
 ]);
 
 export const statusAgendamentoEnum = pgEnum("status_agendamento", [
@@ -59,6 +53,7 @@ export const usuarios = pgTable("usuarios", {
   email: text("email").notNull().unique(),
   senha: text("senha").notNull(),
   role: roleUsuarioEnum("role").default("admin"),
+  onboardingConcluido: boolean("onboarding_concluido").default(false),
   ativo: boolean("ativo").default(true),
   criadoEm: timestamp("criado_em").defaultNow(),
 });
@@ -77,6 +72,7 @@ export const funcionarios = pgTable("funcionarios", {
   nome: text("nome").notNull(),
   telefone: text("telefone"),
   email: text("email"),
+  cargo: text("cargo"),
   foto: text("foto"),
   cor: text("cor"), // cor para exibição no calendário
   ativo: boolean("ativo").default(true),
@@ -235,17 +231,3 @@ export type InsertServico = z.infer<typeof insertServicoSchema>;
 export type Agendamento = typeof agendamentos.$inferSelect;
 export type InsertAgendamento = z.infer<typeof insertAgendamentoSchema>;
 
-// Legacy compatibility (users table)
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-});
-
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
