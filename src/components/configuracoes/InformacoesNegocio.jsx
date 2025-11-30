@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MapPin, Phone, Mail, Upload, Image as ImageIcon, Building2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 
 const DIAS_SEMANA = [
   { key: "segunda", label: "Segunda-feira" },
@@ -101,7 +101,7 @@ export default function InformacoesNegocio({ configuracao, onSave, isLoading }) 
 
     setUploadingLogo(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await livegenda.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, logo_url: file_url });
     } catch (error) {
     } finally {
