@@ -52,8 +52,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return new Response(
         JSON.stringify({ 
           type: 'funcionario',
-          funcionarioId: funcionarioResult[0].id,
-          empresaId: funcionarioResult[0].empresa_id
+          funcionario_id: funcionarioResult[0].id,
+          empresa_id: funcionarioResult[0].empresa_id
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );

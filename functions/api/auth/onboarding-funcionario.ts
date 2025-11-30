@@ -14,8 +14,8 @@ interface OnboardingFuncionarioBody {
   nome: string;
   email: string;
   senha: string;
-  funcionarioId: string;
-  empresaId: string;
+  funcionario_id: string;
+  empresa_id: string;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -24,10 +24,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   try {
     const body = await request.json() as OnboardingFuncionarioBody;
-    const { nome, email, senha, funcionarioId, empresaId } = body;
+    const { nome, email, senha, funcionario_id, empresa_id } = body;
 
     // Validações
-    if (!nome || !email || !senha || !funcionarioId || !empresaId) {
+    if (!nome || !email || !senha || !funcionario_id || !empresa_id) {
       return new Response(
         JSON.stringify({ error: true, message: 'Todos os campos são obrigatórios' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -51,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // Verificar se funcionário existe
     const funcionario = await db`
       SELECT id, nome, empresa_id FROM funcionarios 
-      WHERE id = ${funcionarioId} AND empresa_id = ${empresaId} AND ativo = true
+      WHERE id = ${funcionario_id} AND empresa_id = ${empresa_id} AND ativo = true
       LIMIT 1
     `;
 
@@ -64,7 +64,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // Buscar dados da empresa
     const empresa = await db`
-      SELECT id, nome, categoria FROM empresas WHERE id = ${empresaId} AND ativo = true LIMIT 1
+      SELECT id, nome, categoria FROM empresas WHERE id = ${empresa_id} AND ativo = true LIMIT 1
     `;
 
     if (empresa.length === 0) {
@@ -77,7 +77,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // Criar usuário funcionário
     const usuarioResult = await db`
       INSERT INTO usuarios (nome, email, senha, empresa_id, role, ativo)
-      VALUES (${nome}, ${emailLower}, ${senha}, ${empresaId}, 'funcionario', true)
+      VALUES (${nome}, ${emailLower}, ${senha}, ${empresa_id}, 'funcionario', true)
       RETURNING id, nome, email, empresa_id, role, ativo, criado_em
     `;
 
