@@ -1,6 +1,7 @@
 import Layout from "./Layout.jsx";
 import Login from "./Login";
-import Onboarding from "./Onboarding";
+import OnboardingEmpresa from "./OnboardingEmpresa";
+import OnboardingFuncionario from "./OnboardingFuncionario";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -15,47 +16,15 @@ import Dashboard from "./Dashboard";
 import MeuPerfil from "./MeuPerfil";
 import TrocarSenha from "./TrocarSenha";
 
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
-
-const PAGES = {
-    Funcionarios: Funcionarios,
-    Clientes: Clientes,
-    NovoAgendamento: NovoAgendamento,
-    Agendamentos: Agendamentos,
-    Relatorios: Relatorios,
-    Servicos: Servicos,
-    Configuracoes: Configuracoes,
-    Dashboard: Dashboard,
-    MeuPerfil: MeuPerfil,
-    TrocarSenha: TrocarSenha,
-}
-
-function _getCurrentPage(url) {
-    if (url.endsWith('/')) {
-        url = url.slice(0, -1);
-    }
-    let urlLastPart = url.split('/').pop();
-    if (urlLastPart.includes('?')) {
-        urlLastPart = urlLastPart.split('?')[0];
-    }
-
-    const pageName = Object.keys(PAGES).find(page => page.toLowerCase() === urlLastPart.toLowerCase());
-    return pageName || Object.keys(PAGES)[0];
-}
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 function PagesContent() {
-    const location = useLocation();
-    const currentPage = _getCurrentPage(location.pathname);
-    
     return (
         <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
-            <Route path="/onboarding" element={
-                <ProtectedRoute>
-                    <Onboarding />
-                </ProtectedRoute>
-            } />
+            <Route path="/onboarding-empresa" element={<OnboardingEmpresa />} />
+            <Route path="/onboarding-funcionario" element={<OnboardingFuncionario />} />
             
             {/* Rota raiz redireciona para agendamentos */}
             <Route path="/" element={
