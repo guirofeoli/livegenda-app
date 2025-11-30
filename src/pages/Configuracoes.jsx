@@ -1,5 +1,5 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,12 +13,12 @@ export default function Configuracoes() {
 
   const { data: configuracao, isLoading } = useQuery({
     queryKey: ['configuracoes'],
-    queryFn: () => base44.entities.ConfiguracaoNegocio.get(),
+    queryFn: () => livegenda.entities.ConfiguracaoNegocio.get(),
     initialData: null,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.ConfiguracaoNegocio.create(data),
+    mutationFn: (data) => livegenda.entities.ConfiguracaoNegocio.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes'] });
       toast({
@@ -36,7 +36,7 @@ export default function Configuracoes() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.ConfiguracaoNegocio.update(data),
+    mutationFn: (data) => livegenda.entities.ConfiguracaoNegocio.update(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes'] });
       toast({
@@ -103,3 +103,4 @@ export default function Configuracoes() {
     </div>
   );
 }
+
