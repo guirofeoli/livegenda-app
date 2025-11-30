@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ export default function Servicos() {
 
   const { data: servicosData = [], isLoading } = useQuery({
     queryKey: ['servicos'],
-    queryFn: () => base44.entities.Servico.list("-created_date"),
+    queryFn: () => livegenda.entities.Servico.list("-created_date"),
     initialData: [],
   });
   
@@ -34,7 +34,7 @@ export default function Servicos() {
     : [];
 
   const createServicoMutation = useMutation({
-    mutationFn: (data) => base44.entities.Servico.create(data),
+    mutationFn: (data) => livegenda.entities.Servico.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['servicos'] });
       setShowModal(false);
@@ -53,7 +53,7 @@ export default function Servicos() {
   });
 
   const updateServicoMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Servico.update(id, data),
+    mutationFn: ({ id, data }) => livegenda.entities.Servico.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['servicos'] });
       setShowModal(false);
@@ -73,7 +73,7 @@ export default function Servicos() {
   });
 
   const deleteServicoMutation = useMutation({
-    mutationFn: (id) => base44.entities.Servico.delete(id),
+    mutationFn: (id) => livegenda.entities.Servico.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['servicos'] });
       setDeletingServico(null);
@@ -205,3 +205,4 @@ export default function Servicos() {
     </div>
   );
 }
+
