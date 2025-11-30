@@ -3,56 +3,54 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+
+const API_BASE = '';
 
 export default function Login() {
-  const [step, setStep] = useState('email'); // 'email', 'password', 'cadastro_senha'
+  const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [usuario, setUsuario] = useState(null);
   const navigate = useNavigate();
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      // Buscar usuário por email
-      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-      const usuarioEncontrado = usuarios.find(u => u.email === email);
-
-      if (usuarioEncontrado) {
-        setUsuario(usuarioEncontrado);
+      // Tentar login para verificar se usuário existe
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: 'check_exists' })
+      });
+      
+      const data = await response.json();
+      
+      if (response.status === 401) {
+        // Usuário existe, pedir senha
+        setUsuario({ email, exists: true });
         setStep('password');
-      } else {
-        // Verificar se é email de funcionário convidado
-        const funcionarios = JSON.parse(localStorage.getItem('funcionarios') || '[]');
-        const funcionario = funcionarios.find(f => f.email === email);
-        
-        if (funcionario) {
-          // Funcionário convidado - precisa cadastrar senha
-          setUsuario({
-            email,
-            tipo: 'funcionario',
-            funcionario_id: funcionario.id,
-            empresa_id: funcionario.empresa_id,
-            novo: true
-          });
-          setStep('cadastro_senha');
-        } else {
-          // Novo usuário - será dono de nova empresa
-          setUsuario({
-            email,
-            tipo: 'dono',
-            funcionario_id: null,
-            empresa_id: null,
-            novo: true
-          });
-          setStep('cadastro_senha');
-        }
+      } else if (response.status === 404) {
+        // Novo usuário - cadastrar senha
+        setUsuario({ email, exists: false });
+        setStep('cadastro_senha');
+      } else if (response.ok) {
+        // Login bem sucedido (improvável com senha fake)
+        localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+        localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
+        navigate('/');
       }
     } catch (err) {
+      // Se API falhar, assumir novo usuário
+      setUsuario({ email, exists: false });
+      setStep('cadastro_senha');
     }
     
     setLoading(false);
@@ -61,26 +59,30 @@ export default function Login() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
-      // Validar senha
-      if (usuario.senha !== password) {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha: password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.error || 'Senha incorreta');
         setLoading(false);
         return;
       }
 
-      // Salvar usuário logado
-      localStorage.setItem('livegenda_user', JSON.stringify({
-        id: usuario.id,
-        email: usuario.email,
-        tipo: usuario.tipo,
-        funcionario_id: usuario.funcionario_id,
-        empresa_id: usuario.empresa_id
-      }));
-
-
-      navigate('/agendamentos');
+      // Salvar dados da sessão
+      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+      localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
+      
+      navigate('/');
     } catch (err) {
+      setError('Erro de conexão. Tente novamente.');
     }
     
     setLoading(false);
@@ -89,52 +91,47 @@ export default function Login() {
   const handleCadastroSenha = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+
+    if (password.length < 6) {
+      setError('Senha deve ter no mínimo 6 caracteres');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem');
+      setLoading(false);
+      return;
+    }
 
     try {
-      // Validar senha
-      if (password.length < 6) {
-        setLoading(false);
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        setLoading(false);
-        return;
-      }
-
-      // Criar novo usuário
-      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-      const novoUsuario = {
-        id: Date.now().toString(),
-        email: usuario.email,
-        senha: password,
-        tipo: usuario.tipo,
-        funcionario_id: usuario.funcionario_id,
-        empresa_id: usuario.empresa_id,
-        createdAt: new Date().toISOString()
-      };
+      // Registrar usuário (sem empresa ainda - vai criar no onboarding)
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          senha: password,
+          nome: email.split('@')[0]
+        })
+      });
       
-      usuarios.push(novoUsuario);
-      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.error || 'Erro ao cadastrar');
+        setLoading(false);
+        return;
+      }
 
       // Salvar usuário logado
-      localStorage.setItem('livegenda_user', JSON.stringify({
-        id: novoUsuario.id,
-        email: novoUsuario.email,
-        tipo: novoUsuario.tipo,
-        funcionario_id: novoUsuario.funcionario_id,
-        empresa_id: novoUsuario.empresa_id
-      }));
-
-
-      // Se é dono (novo), redireciona para onboarding
-      // Se é funcionário, vai direto para agendamentos
-      if (usuario.tipo === 'dono') {
-        navigate('/onboarding');
-      } else {
-        navigate('/agendamentos');
-      }
+      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
+      
+      // Novo usuário vai para onboarding
+      navigate('/\onboarding');
     } catch (err) {
+      setError('Erro de conexão. Tente novamente.');
     }
     
     setLoading(false);
@@ -149,142 +146,93 @@ export default function Login() {
           </div>
           <CardTitle className="text-2xl">Livegenda</CardTitle>
           <CardDescription>
-            {step === 'email' && 'Faça login para acessar o sistema'}
+            {step === 'email' && 'Entre com seu email para começar'}
             {step === 'password' && 'Digite sua senha'}
-            {step === 'cadastro_senha' && 'Cadastre sua senha de acesso'}
+            {step === 'cadastro_senha' && 'Crie sua senha de acesso'}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           {step === 'email' && (
             <form onSubmit={handleEmailSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  required
-                  autoFocus
-                />
-              </div>
-              <Button type="submit" className="w-full bg-purple-500 hover:bg-purple-600" disabled={loading}>
-                {loading ? 'Verificando...' : 'Continuar'}
+              <Input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Continuar'}
               </Button>
-              <p className="text-xs text-center text-gray-500 mt-4">
-                Para teste, use qualquer email e senha com 6+ caracteres
-              </p>
             </form>
           )}
-
+          
           {step === 'password' && (
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled
-                  className="bg-gray-100"
-                />
+              <div className="text-sm text-muted-foreground mb-2">
+                Email: {email}
               </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
-                  Senha
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••"
-                  required
-                  autoFocus
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => {
-                    setStep('email');
-                    setPassword('');
-                  }}
-                >
-                  Voltar
-                </Button>
-                <Button type="submit" className="w-full bg-purple-500 hover:bg-purple-600" disabled={loading}>
-                  {loading ? 'Entrando...' : 'Entrar'}
-                </Button>
-              </div>
+              <Input
+                type="password"
+                placeholder="Sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Entrar'}
+              </Button>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full"
+                onClick={() => setStep('email')}
+              >
+                Voltar
+              </Button>
             </form>
           )}
-
+          
           {step === 'cadastro_senha' && (
             <form onSubmit={handleCadastroSenha} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  disabled
-                  className="bg-gray-100"
-                />
+              <div className="text-sm text-muted-foreground mb-2">
+                Email: {email}
               </div>
-              <div>
-                <label htmlFor="new-password" className="block text-sm font-medium mb-2">
-                  Nova Senha
-                </label>
-                <Input
-                  id="new-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label htmlFor="confirm-password" className="block text-sm font-medium mb-2">
-                  Confirmar Senha
-                </label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Digite a senha novamente"
-                  required
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => {
-                    setStep('email');
-                    setPassword('');
-                    setConfirmPassword('');
-                  }}
-                >
-                  Voltar
-                </Button>
-                <Button type="submit" className="w-full bg-purple-500 hover:bg-purple-600" disabled={loading}>
-                  {loading ? 'Cadastrando...' : 'Cadastrar Senha'}
-                </Button>
-              </div>
+              <Input
+                type="password"
+                placeholder="Crie sua senha (mín. 6 caracteres)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <Input
+                type="password"
+                placeholder="Confirme sua senha"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Criar conta'}
+              </Button>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full"
+                onClick={() => setStep('email')}
+              >
+                Voltar
+              </Button>
             </form>
           )}
         </CardContent>
