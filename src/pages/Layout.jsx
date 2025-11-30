@@ -143,7 +143,6 @@ export default function Layout({ children }) {
     } else if ((user.tipo === 'gestor' || !user.tipo) && location.pathname !== '/onboarding') {
       navigate('/onboarding');
     }
-    }
   }, [location.pathname, navigate]);
 
   const getMenuItems = () => {
