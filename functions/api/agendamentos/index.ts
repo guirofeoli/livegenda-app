@@ -18,11 +18,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const sql = neon(context.env.DATABASE_URL);
   try {
     const body = await context.request.json();
-    const { empresa_id, cliente_id, funcionario_id, servico_id, data_hora, observacoes } = body;
+    const { empresa_id, cliente_id, funcionario_id, servico_id, data_hora, data_hora_fim, preco_final, observacoes, status } = body;
     if (!empresa_id || !cliente_id || !funcionario_id || !servico_id || !data_hora) {
       return new Response(JSON.stringify({ error: "empresa_id, cliente_id, funcionario_id, servico_id e data_hora obrigatorios" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
-    const result = await sql`INSERT INTO agendamentos (empresa_id, cliente_id, funcionario_id, servico_id, data_hora, status, observacoes) VALUES (${empresa_id}, ${cliente_id}, ${funcionario_id}, ${servico_id}, ${data_hora}, 'agendado', ${observacoes || null}) RETURNING *`;
+    const result = await sql`
+      INSERT INTO agendamentos (empresa_id, cliente_id, funcionario_id, servico_id, data_hora, data_hora_fim, preco_final, status, observacoes) 
+      VALUES (${empresa_id}, ${cliente_id}, ${funcionario_id}, ${servico_id}, ${data_hora}, ${data_hora_fim || null}, ${preco_final || null}, ${status || 'pendente'}, ${observacoes || null}) 
+      RETURNING *
+    `;
     return new Response(JSON.stringify(result[0]), { status: 201, headers: { "Content-Type": "application/json" } });
   } catch (error) {
     return new Response(JSON.stringify({ error: String(error) }), { status: 500, headers: { "Content-Type": "application/json" } });
