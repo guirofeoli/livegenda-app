@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,7 +37,7 @@ export default function NovoAgendamento() {
   });
 
   const createClienteMutation = useMutation({
-    mutationFn: (data) => base44.entities.Cliente.create(data),
+    mutationFn: (data) => livegenda.entities.Cliente.create(data),
     onSuccess: (newCliente) => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       setSelectedCliente(newCliente);
@@ -57,7 +57,7 @@ export default function NovoAgendamento() {
   });
 
   const createAgendamentoMutation = useMutation({
-    mutationFn: (data) => base44.entities.Agendamento.create(data),
+    mutationFn: (data) => livegenda.entities.Agendamento.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agendamentos'] });
       toast({
@@ -238,3 +238,4 @@ export default function NovoAgendamento() {
     </div>
   );
 }
+
