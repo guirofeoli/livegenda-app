@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -12,7 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Building2, Phone, Mail, MapPin, Clock, Loader2 } from "lucide-react";
+
+const API_BASE = '';
 
 const CATEGORIAS_EMPRESA = [
   { value: 'salao_beleza', label: 'Salão de Beleza' },
@@ -29,6 +32,8 @@ const CATEGORIAS_EMPRESA = [
 export default function Onboarding() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [user, setUser] = useState(null);
   
   const [formData, setFormData] = useState({
     nomeNegocio: '',
@@ -50,278 +55,205 @@ export default function Onboarding() {
     tempoAntecedenciaLembrete: 24
   });
 
+  useEffect(() => {
+    const savedUser = localStorage.getItem('livegenda_user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      // Preencher email do usuário
+      setFormData(prev => ({ ...prev, email: userData.email || '' }));
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       // Validar campos obrigatórios
-      if (!formData.nomeNegocio || !formData.telefone || !formData.email || !formData.categoria) {
+      if (!formData.nomeNegocio || !formData.telefone || !formData.categoria) {
+        setError('Preencha todos os campos obrigatórios');
         setLoading(false);
         return;
       }
 
-      // Criar nova empresa
-      const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
-      const novaEmpresa = {
-        id: Date.now().toString(),
-        nome: formData.nomeNegocio,
-        categoria: formData.categoria,
-        cnpj: '',
-        telefone: formData.telefone,
-        email: formData.email,
-        endereco: formData.endereco,
-        horarioFuncionamento: formData.horarioFuncionamento,
-        intervaloAgendamento: formData.intervaloAgendamento,
-        lembreteAutomatico: formData.lembreteAutomatico,
-        tempoAntecedenciaLembrete: formData.tempoAntecedenciaLembrete,
-        createdAt: new Date().toISOString()
-      };
+      // Criar empresa via API
+      const response = await fetch(`${API_BASE}/api/empresas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: formData.nomeNegocio,
+          tipo: formData.categoria,
+          telefone: formData.telefone,
+          email: formData.email,
+          endereco: formData.endereco
+        })
+      });
       
-      empresas.push(novaEmpresa);
-      localStorage.setItem('empresas', JSON.stringify(empresas));
+      const empresaData = await response.json();
+      
+      if (!response.ok) {
+        setError(empresaData.error || 'Erro ao criar empresa');
+        setLoading(false);
+        return;
+      }
 
-      // Atualizar usuário logado com empresa_id e tipo gestor
-      const user = JSON.parse(localStorage.getItem('livegenda_user'));
-      user.empresa_id = novaEmpresa.id;
-      user.tipo = 'gestor';
-      localStorage.setItem('livegenda_user', JSON.stringify(user));
-      
-      // Atualizar usuário na lista de usuários
-      const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-      const usuarioIndex = usuarios.findIndex(u => u.id === user.id);
-      if (usuarioIndex !== -1) {
-        usuarios[usuarioIndex].empresa_id = novaEmpresa.id;
-        usuarios[usuarioIndex].tipo = 'gestor';
-        localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      // Atualizar usuário com empresa_id via API
+      if (user && user.id) {
+        // Buscar usuário atual e atualizar
+        const updateResponse = await fetch(`${API_BASE}/api/usuarios/${user.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            empresa_id: empresaData.id
+          })
+        });
+        
+        // Atualizar localStorage com dados da empresa
+        const updatedUser = { ...user, empresa_id: empresaData.id };
+        localStorage.setItem('livegenda_user', JSON.stringify(updatedUser));
+        localStorage.setItem('livegenda_empresa', JSON.stringify(empresaData));
       }
 
       navigate('/agendamentos');
     } catch (err) {
+      setError('Erro de conexão. Tente novamente.');
     }
     
     setLoading(false);
   };
 
-  const handleHorarioChange = (dia, field, value) => {
+  const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
-      horarioFuncionamento: {
-        ...prev.horarioFuncionamento,
-        [dia]: {
-          ...prev.horarioFuncionamento[dia],
-          [field]: value
-        }
-      }
+      [field]: value
     }));
   };
 
-  const diasSemana = [
-    { key: 'segunda', label: 'Segunda-feira' },
-    { key: 'terca', label: 'Terça-feira' },
-    { key: 'quarta', label: 'Quarta-feira' },
-    { key: 'quinta', label: 'Quinta-feira' },
-    { key: 'sexta', label: 'Sexta-feira' },
-    { key: 'sabado', label: 'Sábado' },
-    { key: 'domingo', label: 'Domingo' }
-  ];
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 p-4">
-      <Card className="w-full max-w-3xl shadow-xl border-purple-100">
-        <CardHeader className="text-center pb-2">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <span className="text-2xl font-bold text-white">L</span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mb-4">
+              <Building2 className="h-8 w-8 text-white" />
             </div>
-          </div>
-          <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
-            Bem-vindo ao Livegenda!
-          </CardTitle>
-          <CardDescription className="text-base text-gray-600 mt-2">
-            Configure seu estabelecimento para começar a usar o sistema de agendamentos
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="pt-4">
-          <form onSubmit={handleSubmit} className="space-y-6">
+            <CardTitle className="text-2xl">Configure seu negócio</CardTitle>
+            <CardDescription>
+              Preencha as informações da sua empresa para começar
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             
-            {/* Informações Básicas */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-purple-600" />
-                Informações do Estabelecimento
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nomeNegocio">Nome do Estabelecimento *</Label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Nome do Negócio */}
+              <div className="space-y-2">
+                <Label htmlFor="nomeNegocio">Nome do Negócio *</Label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="nomeNegocio"
+                    placeholder="Ex: Salão da Maria"
                     value={formData.nomeNegocio}
-                    onChange={(e) => setFormData({ ...formData, nomeNegocio: e.target.value })}
-                    placeholder="Ex: Salão Beleza Total"
-                    className="border-purple-200 focus:border-purple-500"
+                    onChange={(e) => handleInputChange('nomeNegocio', e.target.value)}
+                    className="pl-10"
                     required
-                    data-testid="input-nome-negocio"
+                    disabled={loading}
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="categoria">Categoria do Negócio *</Label>
-                  <Select
-                    value={formData.categoria}
-                    onValueChange={(value) => setFormData({ ...formData, categoria: value })}
-                    required
-                  >
-                    <SelectTrigger 
-                      className="border-purple-200 focus:border-purple-500"
-                      data-testid="select-categoria"
-                    >
-                      <SelectValue placeholder="Selecione a categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIAS_EMPRESA.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
-            </div>
 
-            {/* Contato */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Phone className="w-5 h-5 text-purple-600" />
-                Informações de Contato
-              </h3>
-              
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="telefone">WhatsApp / Telefone *</Label>
+              {/* Categoria */}
+              <div className="space-y-2">
+                <Label htmlFor="categoria">Tipo de Negócio *</Label>
+                <Select
+                  value={formData.categoria}
+                  onValueChange={(value) => handleInputChange('categoria', value)}
+                  disabled={loading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIAS_EMPRESA.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Telefone */}
+              <div className="space-y-2">
+                <Label htmlFor="telefone">Telefone/WhatsApp *</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="telefone"
-                    value={formData.telefone}
-                    onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
                     placeholder="(11) 99999-9999"
-                    className="border-purple-200 focus:border-purple-500"
+                    value={formData.telefone}
+                    onChange={(e) => handleInputChange('telefone', e.target.value)}
+                    className="pl-10"
                     required
-                    data-testid="input-telefone"
+                    disabled={loading}
                   />
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-mail *</Label>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="email"
                     type="email"
+                    placeholder="contato@empresa.com"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="contato@exemplo.com"
-                    className="border-purple-200 focus:border-purple-500"
-                    required
-                    data-testid="input-email"
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="pl-10"
+                    disabled={loading}
                   />
                 </div>
               </div>
-              
+
+              {/* Endereço */}
               <div className="space-y-2">
-                <Label htmlFor="endereco">Endereço (opcional)</Label>
-                <Input
-                  id="endereco"
-                  value={formData.endereco}
-                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                  placeholder="Rua, número, bairro, cidade"
-                  className="border-purple-200 focus:border-purple-500"
-                  data-testid="input-endereco"
-                />
+                <Label htmlFor="endereco">Endereço</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="endereco"
+                    placeholder="Rua, número, bairro, cidade"
+                    value={formData.endereco}
+                    onChange={(e) => handleInputChange('endereco', e.target.value)}
+                    className="pl-10"
+                    disabled={loading}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Horário de Funcionamento */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-purple-600" />
-                Horário de Funcionamento
-              </h3>
-              
-              <div className="space-y-3">
-                {diasSemana.map(({ key, label }) => (
-                  <div 
-                    key={key} 
-                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-2 border-b border-purple-50 last:border-0"
-                  >
-                    <div className="flex items-center justify-between md:w-48">
-                      <span className="font-medium text-gray-700">{label}</span>
-                      <Switch
-                        checked={formData.horarioFuncionamento[key].ativo}
-                        onCheckedChange={(checked) => handleHorarioChange(key, 'ativo', checked)}
-                        className="data-[state=checked]:bg-purple-600"
-                      />
-                    </div>
-                    
-                    {formData.horarioFuncionamento[key].ativo && (
-                      <div className="flex items-center gap-2 md:gap-3 flex-1">
-                        <Input
-                          type="time"
-                          value={formData.horarioFuncionamento[key].inicio}
-                          onChange={(e) => handleHorarioChange(key, 'inicio', e.target.value)}
-                          className="flex-1 md:w-32 border-purple-200 focus:border-purple-500"
-                        />
-                        <span className="text-gray-500">até</span>
-                        <Input
-                          type="time"
-                          value={formData.horarioFuncionamento[key].fim}
-                          onChange={(e) => handleHorarioChange(key, 'fim', e.target.value)}
-                          className="flex-1 md:w-32 border-purple-200 focus:border-purple-500"
-                        />
-                      </div>
-                    )}
-                    
-                    {!formData.horarioFuncionamento[key].ativo && (
-                      <span className="text-sm text-gray-500 italic">Fechado</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Configurações de Agendamento */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Configurações de Agendamento</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="intervaloAgendamento">Intervalo entre agendamentos (minutos)</Label>
-                <Input
-                  id="intervaloAgendamento"
-                  type="number"
-                  value={formData.intervaloAgendamento}
-                  onChange={(e) => setFormData({ ...formData, intervaloAgendamento: parseInt(e.target.value) })}
-                  min="15"
-                  step="15"
-                  className="border-purple-200 focus:border-purple-500"
-                  data-testid="input-intervalo"
-                />
-                <p className="text-xs text-gray-500">
-                  Define o intervalo mínimo entre os horários disponíveis
-                </p>
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30 py-6 text-lg" 
-              disabled={loading}
-              data-testid="button-submit-onboarding"
-            >
-              {loading ? 'Salvando...' : 'Começar a usar o Livegenda'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Criando...
+                  </>
+                ) : (
+                  'Criar meu negócio'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
