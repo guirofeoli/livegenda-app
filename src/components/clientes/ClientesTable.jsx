@@ -31,7 +31,7 @@ function MobileCard({ cliente, onEdit, onDelete, onToggleStatus }) {
         {cliente.foto_url ? (
           <img
             src={cliente.foto_url}
-            alt={cliente.nome_completo}
+            alt={cliente.nome}
             className="w-14 h-14 rounded-full object-cover ring-2 ring-purple-100"
           />
         ) : (
@@ -41,7 +41,7 @@ function MobileCard({ cliente, onEdit, onDelete, onToggleStatus }) {
         )}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-lg truncate">
-            {cliente.nome_completo}
+            {cliente.nome}
           </h3>
           {cliente.email && (
             <p className="text-sm text-gray-500 truncate">{cliente.email}</p>
@@ -258,7 +258,7 @@ export default function ClientesTable({
                       {cliente.foto_url ? (
                         <img
                           src={cliente.foto_url}
-                          alt={cliente.nome_completo}
+                          alt={cliente.nome}
                           className="w-10 h-10 rounded-full object-cover ring-2 ring-purple-100"
                         />
                       ) : (
@@ -267,7 +267,7 @@ export default function ClientesTable({
                         </div>
                       )}
                       <div>
-                        <p className="font-medium text-gray-900">{cliente.nome_completo}</p>
+                        <p className="font-medium text-gray-900">{cliente.nome}</p>
                         {cliente.ultimo_agendamento && new Date(cliente.ultimo_agendamento).getTime() && (
                           <p className="text-xs text-gray-500">
                             Último agendamento: {format(new Date(cliente.ultimo_agendamento), "dd/MM/yyyy")}

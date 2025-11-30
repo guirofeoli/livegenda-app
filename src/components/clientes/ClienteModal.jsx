@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -25,7 +24,7 @@ export default function ClienteModal({ cliente, onSave, onClose, isLoading }) {
   useEffect(() => {
     if (cliente) {
       setFormData({
-        nome_completo: cliente.nome_completo || "",
+        nome_completo: cliente.nome || cliente.nome_completo || "",
         telefone: cliente.telefone || "",
         email: cliente.email || "",
         observacoes: cliente.observacoes || "",
@@ -50,7 +49,6 @@ export default function ClienteModal({ cliente, onSave, onClose, isLoading }) {
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-6 py-4">
-            {/* Informações Básicas */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide">
                 Informações Básicas
@@ -101,25 +99,18 @@ export default function ClienteModal({ cliente, onSave, onClose, isLoading }) {
               </div>
             </div>
 
-            {/* Observações */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide">
                 Observações
               </h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="observacoes" className="text-gray-700">
-                  Observações sobre a cliente
-                </Label>
-                <Textarea
-                  id="observacoes"
-                  value={formData.observacoes}
-                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-                  placeholder="Escreva observações relevantes sobre a cliente..."
-                  rows={4}
-                  className="border-purple-200 focus:border-purple-500 focus:ring-purple-500 resize-none"
-                />
-              </div>
+              <Textarea
+                id="observacoes"
+                value={formData.observacoes}
+                onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                placeholder="Preferências, alergias, informações importantes..."
+                rows={4}
+                className="border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+              />
             </div>
           </div>
 
