@@ -23,8 +23,9 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   const id = context.params.id;
   try {
     const body = await context.request.json();
-    const { nome, tipo, telefone, email, endereco } = body;
-    const result = await sql`UPDATE empresas SET nome = COALESCE(${nome}, nome), tipo = COALESCE(${tipo}, tipo), telefone = COALESCE(${telefone}, telefone), email = COALESCE(${email}, email), endereco = COALESCE(${endereco}, endereco) WHERE id = ${id} RETURNING *`;
+    const { nome, tipo, categoria, telefone, email, endereco } = body;
+    const cat = categoria || tipo;
+    const result = await sql`UPDATE empresas SET nome = COALESCE(${nome}, nome), categoria = COALESCE(${cat}, categoria), telefone = COALESCE(${telefone}, telefone), email = COALESCE(${email}, email), endereco = COALESCE(${endereco}, endereco) WHERE id = ${id} RETURNING *`;
     if (result.length === 0) {
       return new Response(JSON.stringify({ error: "Empresa nao encontrada" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
