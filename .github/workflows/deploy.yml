@@ -9,11 +9,11 @@ name: Deploy Livegenda
 on:
   push:
     branches:
-      - main
+      - master
       - develop
   pull_request:
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
@@ -99,7 +99,7 @@ jobs:
         run: |
           if [ "${{ needs.deploy.result }}" == "success" ]; then
             echo "✅ Deploy completo!"
-            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            if [ "${{ github.ref }}" == "refs/heads/master" ]; then
               echo "🌐 Produção: https://new-livegenda.pages.dev"
             else
               echo "🔍 Preview: https://${{ github.ref_name }}.new-livegenda.pages.dev"
