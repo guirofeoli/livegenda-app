@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/select";
 
 export default function ProfissionalSelect({ selectedProfissional, onSelectProfissional }) {
-  // Obter empresa do usuário logado
   const currentUser = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
   const empresaId = currentUser.empresa_id;
   
@@ -20,7 +19,6 @@ export default function ProfissionalSelect({ selectedProfissional, onSelectProfi
     queryFn: () => livegenda.entities.Funcionario.filter({ status: "Ativo" }),
     initialData: [],
   });
-  // Filtrar funcionários por empresa
   const funcionarios = Array.isArray(funcionariosData) 
     ? funcionariosData.filter(f => f.empresa_id === empresaId)
     : [];
@@ -48,7 +46,7 @@ export default function ProfissionalSelect({ selectedProfissional, onSelectProfi
           <SelectContent>
             {funcionarios.map((funcionario) => (
               <SelectItem key={funcionario.id} value={funcionario.id}>
-                {funcionario.nome_completo} - {funcionario.cargo}
+                {funcionario.nome || funcionario.nome_completo}{funcionario.cargo ? ` - ${funcionario.cargo}` : ''}
               </SelectItem>
             ))}
           </SelectContent>
