@@ -38,15 +38,21 @@ interface Servico {
   preco: string;
 }
 
-interface HorarioFuncionamento {
-  [dia: string]: {
-    ativo: boolean;
-    inicio: string;
-    fim: string;
-  };
+interface EmpresaConfig {
+  horario_abertura: string;
+  horario_fechamento: string;
+  dias_funcionamento: string[];
 }
 
-const diasSemana = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
+const diasSemanaMap: Record<number, string> = {
+  0: "dom",
+  1: "seg", 
+  2: "ter",
+  3: "qua",
+  4: "qui",
+  5: "sex",
+  6: "sab"
+};
 
 export default function NovoAgendamento() {
   const [, navigate] = useLocation();
@@ -63,7 +69,7 @@ export default function NovoAgendamento() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [servicos, setServicos] = useState<Servico[]>([]);
-  const [horarioFuncionamento, setHorarioFuncionamento] = useState<HorarioFuncionamento | null>(null);
+  const [empresaConfig, setEmpresaConfig] = useState<EmpresaConfig | null>(null);
   const [agendamentosExistentes, setAgendamentosExistentes] = useState<AgendamentoExistente[]>([]);
   
   const [loading, setLoading] = useState(true);
@@ -112,9 +118,11 @@ export default function NovoAgendamento() {
 
         if (empresaRes.ok) {
           const empresa = await empresaRes.json();
-          if (empresa.horario_funcionamento) {
-            setHorarioFuncionamento(empresa.horario_funcionamento);
-          }
+          setEmpresaConfig({
+            horario_abertura: empresa.horario_abertura || "08:00",
+            horario_fechamento: empresa.horario_fechamento || "18:00",
+            dias_funcionamento: empresa.dias_funcionamento || ["seg", "ter", "qua", "qui", "sex"]
+          });
         }
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
@@ -163,20 +171,20 @@ export default function NovoAgendamento() {
   }, [empresa_id, funcionarioId, selectedDate]);
 
   const gerarHorarios = (): string[] => {
-    if (!selectedDate || !horarioFuncionamento) {
+    if (!selectedDate || !empresaConfig) {
       return gerarHorariosPadrao();
     }
 
-    const diaSemana = diasSemana[selectedDate.getDay()];
-    const config = horarioFuncionamento[diaSemana];
-
-    if (!config || !config.ativo) {
+    const diaSemana = diasSemanaMap[selectedDate.getDay()];
+    
+    // Verificar se o dia está nos dias de funcionamento
+    if (!empresaConfig.dias_funcionamento.includes(diaSemana)) {
       return [];
     }
 
     const horarios: string[] = [];
-    const [inicioHora, inicioMin] = config.inicio.split(":").map(Number);
-    const [fimHora, fimMin] = config.fim.split(":").map(Number);
+    const [inicioHora, inicioMin] = empresaConfig.horario_abertura.split(":").map(Number);
+    const [fimHora, fimMin] = empresaConfig.horario_fechamento.split(":").map(Number);
 
     let atual = setMinutes(setHours(new Date(), inicioHora), inicioMin);
     const fim = setMinutes(setHours(new Date(), fimHora), fimMin);
@@ -199,12 +207,10 @@ export default function NovoAgendamento() {
   };
 
   const isDiaFechado = (date: Date): boolean => {
-    if (!horarioFuncionamento) return false;
+    if (!empresaConfig) return false;
     
-    const diaSemana = diasSemana[date.getDay()];
-    const config = horarioFuncionamento[diaSemana];
-    
-    return !config || !config.ativo;
+    const diaSemana = diasSemanaMap[date.getDay()];
+    return !empresaConfig.dias_funcionamento.includes(diaSemana);
   };
 
   // Verificar se um horário está ocupado considerando a duração do serviço
