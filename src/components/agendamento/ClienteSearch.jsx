@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ export default function ClienteSearch({ selectedCliente, onSelectCliente, onNewC
 
   const { data: clientesData = [] } = useQuery({
     queryKey: ['clientes'],
-    queryFn: () => base44.entities.Cliente.list("-created_date"),
+    queryFn: () => livegenda.entities.Cliente.list("-created_date"),
     initialData: [],
   });
   const clientes = Array.isArray(clientesData) ? clientesData : [];
