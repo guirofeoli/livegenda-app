@@ -1,5 +1,5 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ export default function ServicoSelect({ selectedServico, onSelectServico, duraca
   
   const { data: servicosData = [] } = useQuery({
     queryKey: ['servicos'],
-    queryFn: () => base44.entities.Servico.filter({ status: "Ativo" }),
+    queryFn: () => livegenda.entities.Servico.filter({ status: "Ativo" }),
     initialData: [],
   });
   // Filtrar serviços por empresa
