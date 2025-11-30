@@ -61,21 +61,27 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   try {
     let agendamentos;
     
-    // Query com UUIDs (strings)
-    agendamentos = await db`
-      SELECT 
-        a.*,
-        json_build_object('id', c.id, 'nome', c.nome, 'telefone', c.telefone) as cliente,
-        json_build_object('id', f.id, 'nome', f.nome, 'cor', f.cor) as funcionario,
-        json_build_object('id', s.id, 'nome', s.nome, 'duracao_minutos', s.duracao_minutos, 'preco', s.preco) as servico
-      FROM agendamentos a
-      LEFT JOIN clientes c ON a.cliente_id = c.id
-      LEFT JOIN funcionarios f ON a.funcionario_id = f.id
-      LEFT JOIN servicos s ON a.servico_id = s.id
-      WHERE a.empresa_id = ${empresaId}
-      ORDER BY a.data_hora DESC
+    // Query simples primeiro para buscar agendamentos
+    const agendamentosRaw = await db`
+      SELECT * FROM agendamentos
+      WHERE empresa_id = ${empresaId}
+      ORDER BY data_hora DESC
       LIMIT 500
     `;
+    
+    // Buscar dados relacionados para cada agendamento
+    agendamentos = await Promise.all(agendamentosRaw.map(async (a: any) => {
+      const [cliente] = await db`SELECT id, nome, telefone FROM clientes WHERE id = ${a.cliente_id}`;
+      const [funcionario] = await db`SELECT id, nome, cor FROM funcionarios WHERE id = ${a.funcionario_id}`;
+      const [servico] = await db`SELECT id, nome, duracao_minutos, preco FROM servicos WHERE id = ${a.servico_id}`;
+      
+      return {
+        ...a,
+        cliente: cliente || null,
+        funcionario: funcionario || null,
+        servico: servico || null
+      };
+    }));
 
     // Aplicar filtros em memória (mais simples que SQL dinâmico)
     if (funcionarioId) {
