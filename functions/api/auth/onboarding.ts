@@ -2,7 +2,7 @@
 // LIVEGENDA - Onboarding Endpoint
 // ============================================
 // Cria nova empresa + usuário admin
-// v2.0 - Seta onboarding_concluido = true
+// v2.1-1764539869 - Seta onboarding_concluido = true
 
 interface Env {
   DATABASE_URL: string;
