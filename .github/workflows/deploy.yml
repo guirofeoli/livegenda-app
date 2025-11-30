@@ -1,0 +1,110 @@
+# ============================================
+# LIVEGENDA - CI/CD Pipeline
+# ============================================
+# Deploy automático para Cloudflare Pages
+# Trigger: push para main (prod) ou develop (preview)
+
+name: Deploy Livegenda
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  deployments: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # JOB 1: Build e Testes
+  # ============================================
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Type check
+        run: npm run check
+        continue-on-error: true
+
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ github.ref == 'refs/heads/main' && 'https://livegenda.pages.dev' || 'https://preview.livegenda.pages.dev' }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/public
+          retention-days: 1
+
+  # ============================================
+  # JOB 2: Deploy para Cloudflare Pages
+  # ============================================
+  deploy:
+    name: Deploy to Cloudflare
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=new-livegenda --branch=${{ github.ref_name }}
+
+  # ============================================
+  # JOB 3: Notificação
+  # ============================================
+  notify:
+    name: Notify
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'push'
+    
+    steps:
+      - name: Status do Deploy
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Deploy completo!"
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              echo "🌐 Produção: https://new-livegenda.pages.dev"
+            else
+              echo "🔍 Preview: https://${{ github.ref_name }}.new-livegenda.pages.dev"
+            fi
+          else
+            echo "❌ Deploy falhou!"
+            exit 1
+          fi
