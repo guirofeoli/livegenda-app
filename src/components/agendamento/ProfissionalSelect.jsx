@@ -1,5 +1,5 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,7 +17,7 @@ export default function ProfissionalSelect({ selectedProfissional, onSelectProfi
   
   const { data: funcionariosData = [] } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => base44.entities.Funcionario.filter({ status: "Ativo" }),
+    queryFn: () => livegenda.entities.Funcionario.filter({ status: "Ativo" }),
     initialData: [],
   });
   // Filtrar funcionários por empresa
