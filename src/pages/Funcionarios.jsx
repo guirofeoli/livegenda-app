@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,7 @@ export default function Funcionarios() {
 
   const { data: funcionariosData = [], isLoading } = useQuery({
     queryKey: ['funcionarios'],
-    queryFn: () => base44.entities.Funcionario.list("-created_date"),
+    queryFn: () => livegenda.entities.Funcionario.list("-created_date"),
     initialData: [],
   });
   
@@ -52,7 +52,7 @@ export default function Funcionarios() {
     : [];
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Funcionario.create(data),
+    mutationFn: (data) => livegenda.entities.Funcionario.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
       setShowModal(false);
@@ -72,7 +72,7 @@ export default function Funcionarios() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Funcionario.update(id, data),
+    mutationFn: ({ id, data }) => livegenda.entities.Funcionario.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
       setShowModal(false);
@@ -92,7 +92,7 @@ export default function Funcionarios() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Funcionario.delete(id),
+    mutationFn: (id) => livegenda.entities.Funcionario.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
       setDeletingFuncionario(null);
@@ -111,7 +111,7 @@ export default function Funcionarios() {
   });
 
   const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Funcionario.update(id, { status }),
+    mutationFn: ({ id, status }) => livegenda.entities.Funcionario.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
       toast({
@@ -319,3 +319,4 @@ export default function Funcionarios() {
     </div>
   );
 }
+
