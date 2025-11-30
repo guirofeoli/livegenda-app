@@ -23,9 +23,26 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   const id = context.params.id;
   try {
     const body = await context.request.json();
-    const { nome, tipo, categoria, telefone, email, endereco } = body;
+    const { nome, tipo, categoria, telefone, email, endereco, cep, logo_url, horario_funcionamento } = body;
     const cat = categoria || tipo;
-    const result = await sql`UPDATE empresas SET nome = COALESCE(${nome}, nome), categoria = COALESCE(${cat}, categoria), telefone = COALESCE(${telefone}, telefone), email = COALESCE(${email}, email), endereco = COALESCE(${endereco}, endereco) WHERE id = ${id} RETURNING *`;
+    
+    // Converter horario_funcionamento para JSON string se for objeto
+    const horarioJson = horario_funcionamento ? JSON.stringify(horario_funcionamento) : null;
+    
+    const result = await sql`
+      UPDATE empresas SET 
+        nome = COALESCE(${nome}, nome), 
+        categoria = COALESCE(${cat}, categoria), 
+        telefone = COALESCE(${telefone}, telefone), 
+        email = COALESCE(${email}, email), 
+        endereco = COALESCE(${endereco}, endereco),
+        cep = COALESCE(${cep}, cep),
+        logo = COALESCE(${logo_url}, logo),
+        horario_funcionamento = COALESCE(${horarioJson}::jsonb, horario_funcionamento)
+      WHERE id = ${id} 
+      RETURNING *
+    `;
+    
     if (result.length === 0) {
       return new Response(JSON.stringify({ error: "Empresa nao encontrada" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }

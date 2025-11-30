@@ -34,13 +34,11 @@ const getCurrentUser = () => {
 // Get empresa_id com fallback
 const getCurrentEmpresaId = () => {
   try {
-    // Primeiro, tentar do usuario
     const user = getCurrentUser();
     if (user?.empresa_id) {
       return user.empresa_id;
     }
     
-    // Fallback: tentar da empresa salva separadamente
     const empresaStr = localStorage.getItem('livegenda_empresa');
     if (empresaStr) {
       const empresa = JSON.parse(empresaStr);
@@ -136,39 +134,35 @@ class ApiEntity {
 
   async list() {
     const empresaId = getCurrentEmpresaId();
-    if (!empresaId) return [];
+    if (!empresaId) {
+      console.warn(`${this.entityName}.list(): empresa_id nao encontrado`);
+      return [];
+    }
     
     try {
-      let data = await apiRequest(`/${this.entityName}?empresa_id=${empresaId}`);
+      const data = await apiRequest(`/${this.entityName}?empresa_id=${empresaId}`);
       
+      // Populate agendamentos with related data
       if (this.entityName === 'agendamentos') {
-        data = await populateAgendamentos(data, empresaId);
+        return await populateAgendamentos(data, empresaId);
       }
       
       return data;
     } catch (error) {
-      console.error(`Error listing ${this.entityName}:`, error);
+      console.error(`Erro em ${this.entityName}.list():`, error);
       return [];
     }
   }
 
   async get(id) {
-    try {
-      return await apiRequest(`/${this.entityName}/${id}`);
-    } catch (error) {
-      console.error(`Error getting ${this.entityName}:`, error);
-      return null;
-    }
+    return await apiRequest(`/${this.entityName}/${id}`);
   }
 
   async create(data) {
     const empresaId = getCurrentEmpresaId();
-    if (!empresaId) throw new Error('Empresa nao configurada');
-    
-    const payload = { ...data, empresa_id: empresaId };
     return await apiRequest(`/${this.entityName}`, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ ...data, empresa_id: empresaId })
     });
   }
 
@@ -184,131 +178,69 @@ class ApiEntity {
       method: 'DELETE'
     });
   }
-
-  async filter(criteria) {
-    const all = await this.list();
-    return all.filter(item => {
-      return Object.entries(criteria).every(([key, value]) => item[key] === value);
-    });
-  }
 }
 
-// Auth API - uses /api/auth endpoints
+// Auth helper
 const livegendaAuth = {
-  isLoggedIn: async () => {
-    return !!getCurrentUser();
-  },
-  
   getUser: async () => {
     return getCurrentUser();
   },
-  
-  login: async (email, password) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha: password })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer login');
-      }
-      
-      // Save user and empresa to localStorage
-      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
-      if (data.empresa) {
-        localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
-      }
-      
-      return data.usuario;
-    } catch (error) {
-      throw new Error('Erro ao fazer login: ' + error.message);
+  login: async (email, senha) => {
+    const result = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, senha })
+    });
+    if (result.user) {
+      localStorage.setItem('livegenda_user', JSON.stringify(result.user));
     }
+    return result;
   },
-  
   logout: async () => {
     localStorage.removeItem('livegenda_user');
     localStorage.removeItem('livegenda_empresa');
   },
-  
-  register: async (userData) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: userData.email,
-          senha: userData.senha || userData.password,
-          nome: userData.nome || userData.email.split('@')[0]
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao registrar');
-      }
-      
-      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
-      return data.usuario;
-    } catch (error) {
-      throw new Error('Erro ao registrar: ' + error.message);
-    }
-  },
-  
-  onboarding: async (userData) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/onboarding`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer onboarding');
-      }
-      
-      localStorage.setItem('livegenda_user', JSON.stringify(data.usuario));
-      localStorage.setItem('livegenda_empresa', JSON.stringify(data.empresa));
-      return data;
-    } catch (error) {
-      throw new Error('Erro ao fazer onboarding: ' + error.message);
-    }
+  register: async (data) => {
+    return await apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   }
 };
 
-// Main Livegenda API client
+// Main API object
 export const livegenda = {
   entities: {
-    Funcionario: new ApiEntity('funcionarios'),
-    Cliente: new ApiEntity('clientes'),
-    Servico: new ApiEntity('servicos'),
     Agendamento: new ApiEntity('agendamentos'),
+    Cliente: new ApiEntity('clientes'),
+    Funcionario: new ApiEntity('funcionarios'),
+    Servico: new ApiEntity('servicos'),
+    Empresa: new ApiEntity('empresas'),
+    
+    // ConfiguracaoNegocio - busca/atualiza empresa do usuario
     ConfiguracaoNegocio: {
       async get() {
-        const user = await livegendaAuth.getUser();
-        if (!user || !user.empresa_id) return null;
+        const user = getCurrentUser();
+        if (!user || !user.empresa_id) {
+          console.warn('ConfiguracaoNegocio.get(): usuario ou empresa_id nao encontrado');
+          return null;
+        }
         
         try {
           const empresa = await apiRequest(`/empresas/${user.empresa_id}`);
+          
+          // Converter para formato do formulario
           return {
-            id: empresa.id,
             nome_negocio: empresa.nome,
-            categoria: empresa.tipo,
+            categoria: empresa.categoria,
             whatsapp: empresa.telefone,
             email: empresa.email,
             endereco: empresa.endereco,
-            cep: empresa.cep,
-            logo_url: empresa.logo_url,
+            cep: empresa.cep || '',
+            logo_url: empresa.logo || '',
             horario_funcionamento: convertHorarioToForm(empresa.horario_funcionamento)
           };
         } catch (error) {
-          console.error('Error getting config:', error);
+          console.error('Erro ao buscar configuracao:', error);
           return null;
         }
       },
@@ -318,7 +250,7 @@ export const livegenda = {
           method: 'POST',
           body: JSON.stringify({
             nome: data.nome_negocio,
-            tipo: data.categoria,
+            categoria: data.categoria,
             telefone: data.whatsapp,
             email: data.email,
             endereco: data.endereco
@@ -335,10 +267,10 @@ export const livegenda = {
       },
       
       async update(data) {
-        const user = await livegendaAuth.getUser();
+        const user = getCurrentUser();
         if (!user || !user.empresa_id) throw new Error('Empresa nao encontrada');
         
-        return await apiRequest(`/empresas/${user.empresa_id}`, {
+        const result = await apiRequest(`/empresas/${user.empresa_id}`, {
           method: 'PUT',
           body: JSON.stringify({
             nome: data.nome_negocio,
@@ -351,6 +283,8 @@ export const livegenda = {
             horario_funcionamento: convertHorarioFromForm(data.horario_funcionamento)
           })
         });
+        
+        return result;
       }
     }
   },
