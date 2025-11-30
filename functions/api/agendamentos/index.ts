@@ -58,13 +58,40 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    // Query simples para buscar agendamentos
+    // Query com dados relacionados
     let agendamentos = await db`
-      SELECT * FROM agendamentos
-      WHERE empresa_id = ${empresaId}
-      ORDER BY data_hora DESC
+      SELECT 
+        a.id, a.empresa_id, a.cliente_id, a.funcionario_id, a.servico_id,
+        a.data_hora, a.data_hora_fim, a.status, a.observacoes, a.preco_final, a.criado_em,
+        c.id as c_id, c.nome as c_nome, c.telefone as c_telefone,
+        f.id as f_id, f.nome as f_nome, f.cor as f_cor,
+        s.id as s_id, s.nome as s_nome, s.duracao_minutos as s_duracao, s.preco as s_preco
+      FROM agendamentos a
+      LEFT JOIN clientes c ON a.cliente_id = c.id
+      LEFT JOIN funcionarios f ON a.funcionario_id = f.id
+      LEFT JOIN servicos s ON a.servico_id = s.id
+      WHERE a.empresa_id = ${empresaId}
+      ORDER BY a.data_hora DESC
       LIMIT 500
     `;
+    
+    // Transformar resultado para formato esperado
+    agendamentos = agendamentos.map((a: any) => ({
+      id: a.id,
+      empresa_id: a.empresa_id,
+      cliente_id: a.cliente_id,
+      funcionario_id: a.funcionario_id,
+      servico_id: a.servico_id,
+      data_hora: a.data_hora,
+      data_hora_fim: a.data_hora_fim,
+      status: a.status,
+      observacoes: a.observacoes,
+      preco_final: a.preco_final,
+      criado_em: a.criado_em,
+      cliente: a.c_id ? { id: a.c_id, nome: a.c_nome, telefone: a.c_telefone } : null,
+      funcionario: a.f_id ? { id: a.f_id, nome: a.f_nome, cor: a.f_cor } : null,
+      servico: a.s_id ? { id: a.s_id, nome: a.s_nome, duracao_minutos: a.s_duracao, preco: a.s_preco } : null
+    }));
 
     // Aplicar filtros em memória (mais simples que SQL dinâmico)
     if (funcionarioId) {
