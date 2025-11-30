@@ -44,7 +44,7 @@ export default function DeleteConfirmModal({ servico, onConfirm, onCancel, isLoa
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-500">Preço:</span>
-            <span className="text-sm text-gray-900">R$ {servico.preco?.toFixed(2)}</span>
+            <span className="text-sm text-gray-900">R$ {parseFloat(servico.preco || 0).toFixed(2)}</span>
           </div>
         </motion.div>
 

@@ -43,7 +43,7 @@ const MobileServicoCard = ({ servico, onEdit, onDelete }) => {
         </div>
         <div>
           <span className="text-gray-500">Preço:</span>
-          <span className="ml-1 font-medium text-gray-900">R$ {servico.preco?.toFixed(2)}</span>
+          <span className="ml-1 font-medium text-gray-900">R$ {parseFloat(servico.preco || 0).toFixed(2)}</span>
         </div>
       </div>
 
@@ -188,7 +188,7 @@ export default function ServicosTable({
                   {servico.duracao_minutos} min
                 </TableCell>
                 <TableCell className="text-gray-900 font-medium">
-                  R$ {servico.preco?.toFixed(2)}
+                  R$ {parseFloat(servico.preco || 0).toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   <TooltipProvider>
