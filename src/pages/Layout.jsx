@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { livegenda } from "@/api/livegendaClient";
 import {
   Users,
   Calendar,
@@ -152,7 +152,7 @@ export default function Layout({ children }) {
 
   const handleLogout = async () => {
     try {
-      await base44.auth.logout();
+      await livegenda.auth.logout();
       window.location.href = '/';
     } catch (error) {
       window.location.href = '/';
@@ -367,3 +367,4 @@ export default function Layout({ children }) {
     </SidebarProvider>
   );
 }
+
