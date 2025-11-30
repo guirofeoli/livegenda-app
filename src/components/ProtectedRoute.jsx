@@ -1,10 +1,9 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-export default function ProtectedRoute({ children, requireEmpresa = false }) {
+export default function ProtectedRoute({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
 
   useEffect(() => {
     checkAuth();
@@ -36,14 +35,9 @@ export default function ProtectedRoute({ children, requireEmpresa = false }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Logado mas sem empresa e não está no onboarding -> vai para onboarding
-  if (!user.empresa_id && location.pathname !== "/onboarding") {
-    return <Navigate to="/onboarding" replace />;
-  }
-
-  // Logado com empresa mas está no onboarding -> vai para agendamentos
-  if (user.empresa_id && location.pathname === "/onboarding") {
-    return <Navigate to="/agendamentos" replace />;
+  // Usuário logado mas sem empresa -> vai para onboarding de empresa
+  if (!user.empresa_id) {
+    return <Navigate to="/onboarding-empresa" replace />;
   }
 
   return children;
