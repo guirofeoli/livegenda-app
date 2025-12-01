@@ -1,189 +1,413 @@
 # Livegenda
 
-Sistema completo de agendamento para salões de beleza, barbearias e clínicas de estética.
+Sistema SaaS multi-tenant de agendamento para salões de beleza, barbearias e clínicas de estética.
 
-## Visão Geral (Contexto de Negócio)
+## Visão Geral
 
-O Livegenda é uma aplicação web focada em otimizar o fluxo de agendamentos e operação diária de estabelecimentos de beleza e bem‑estar. Ele permite que gestores e profissionais organizem horários, cadastrem serviços e clientes, gerenciem a disponibilidade da equipe, reduzam faltas (no‑show) com lembretes automáticos e acompanhem indicadores básicos do negócio.
+O Livegenda é uma aplicação web focada em otimizar o fluxo de agendamentos e operação diária de estabelecimentos de beleza e bem-estar. Permite que gestores e profissionais organizem horários, cadastrem serviços e clientes, gerenciem a disponibilidade da equipe e reduzam faltas com lembretes automáticos.
 
-Principais objetivos:
-- Reduzir conflitos de agenda e sobreposição de horários.
-- Melhorar a taxa de comparecimento com lembretes/notificações.
-- Facilitar o autoagendamento pelo cliente (opcional) e o agendamento pelo recepcionista.
-- Dar visibilidade ao dono/gestor por meio de relatórios simples (produção por profissional, serviços mais vendidos, taxa de ocupação, etc.).
+**Principais objetivos:**
+- Reduzir conflitos de agenda e sobreposição de horários
+- Melhorar a taxa de comparecimento com notificações (Email + SMS)
+- Facilitar o autoagendamento pelo cliente e agendamento pelo recepcionista
+- Dar visibilidade ao dono/gestor por meio de relatórios
 
-## Estrutura do Projeto
+## Sitemap
 
 ```
-/                  → Aplicação React (app.livegenda.com)
-/landing           → Landing Page (livegenda.com)
+livegenda.com                     → Landing page (informações e conversão)
+├── /                             → Home com hero, features, pricing
+├── /sobre                        → Sobre a empresa
+└── /contato                      → Formulário de contato
+
+app.livegenda.com                 → Aplicação principal (autenticada)
+├── /login                        → Tela de login
+├── /register                     → Cadastro de nova empresa
+├── /onboarding                   → Wizard de configuração inicial
+├── /dashboard                    → Visão geral do dia/semana
+├── /agendamentos                 → Calendário de agendamentos
+├── /clientes                     → Lista e cadastro de clientes
+├── /funcionarios                 → Gestão de profissionais
+├── /servicos                     → Catálogo de serviços
+├── /configuracoes                → Configurações da empresa
+│   ├── /empresa                  → Dados da empresa
+│   ├── /horarios                 → Horários de funcionamento
+│   └── /notificacoes             → Preferências de notificações
+└── /relatorios                   → Relatórios e analytics
+
+app.livegenda.com/empresa/:slug   → Página pública de agendamento (cliente)
+├── /                             → Escolha de serviço e profissional
+├── /horarios                     → Seleção de data/hora
+└── /confirmar                    → Confirmação via email/telefone
 ```
 
-Pastas relevantes (nível raiz):
-- `/public` → assets estáticos do app
-- `/src` → código-fonte do frontend (componentes, páginas, hooks, etc.)
-- `/apps` → (quando aplicável) módulos/deploys adicionais
+## Arquitetura
 
-## Arquitetura (Frontend e visão futura de Backend)
+### Stack Tecnológico
 
-Frontend (atual):
-- SPA em React + Vite
-- UI com TailwindCSS e shadcn/ui
-- Roteamento via React Router
-- Comunicação com API via React Query (cache, retries, estados de loading)
+| Camada | Tecnologia |
+|--------|------------|
+| Frontend | React 18 + Vite + JavaScript |
+| UI | TailwindCSS + shadcn/ui (New York style) |
+| Roteamento | React Router DOM |
+| Estado | React Query (TanStack Query v5) |
+| Backend Dev | Express.js (Replit) |
+| Backend Prod | Cloudflare Pages Functions |
+| Banco de Dados | PostgreSQL (Neon - serverless) |
+| ORM | Drizzle ORM |
+| Email | Resend API |
+| SMS | Infobip API |
 
-Padrões recomendados no frontend:
-- Páginas em `src/pages`, componentes reutilizáveis em `src/components`, hooks em `src/hooks`, serviços de API em `src/services`.
-- Design system leve com shadcn/ui e tokens do Tailwind.
+### Estrutura de Arquivos
 
-Backend (a ser implementado):
-- API REST em `api.livegenda.com` com autenticação (JWT/OAuth) e multitenancy (cada estabelecimento = tenant).
-- Recursos principais: autenticação/usuários, agenda, agendamentos, clientes, serviços, profissionais, disponibilidade/expediente, pagamentos (futuro), notificações e relatórios.
+```
+livegenda-app/
+├── src/                          # Frontend React
+│   ├── components/               # Componentes reutilizáveis
+│   │   ├── ui/                   # shadcn/ui components
+│   │   ├── agendamento/          # Componentes de agendamento
+│   │   ├── clientes/             # Componentes de clientes
+│   │   └── funcionarios/         # Componentes de funcionários
+│   ├── pages/                    # Páginas da aplicação
+│   ├── hooks/                    # Custom hooks
+│   ├── lib/                      # Utilities
+│   └── api/                      # Clients de API
+│
+├── server/                       # Backend Express (desenvolvimento)
+│   ├── db.ts                     # Conexão Neon/Drizzle
+│   ├── routes.ts                 # Rotas Express
+│   ├── email.ts                  # Serviço de email
+│   └── sms.ts                    # Serviço de SMS
+│
+├── functions/api/                # Cloudflare Pages Functions (produção)
+│   ├── _middleware.ts            # CORS, Auth, Error handling
+│   ├── lib/                      # Helpers compartilhados
+│   ├── agendamentos/             # CRUD agendamentos
+│   ├── clientes/                 # CRUD clientes
+│   ├── funcionarios/             # CRUD funcionários
+│   ├── servicos/                 # CRUD serviços
+│   └── empresas/                 # CRUD empresas
+│
+├── shared/                       # Código compartilhado
+│   ├── schema.ts                 # Drizzle schema + Zod types
+│   └── lib/                      # Módulos compartilhados
+│       ├── runtime/              # Adapters de ambiente
+│       ├── db/                   # Cliente de banco abstrato
+│       ├── services/             # Email, SMS
+│       └── use-cases/            # Lógica de negócio
+│
+└── apps/landing/                 # Landing page estática
+```
 
-Fluxo de dados (alto nível):
-Cliente (SPA) ⇄ API REST (auth + recursos) ⇄ Banco de Dados
+## APIs
 
-## Deploy
+### APIs Externas Utilizadas
 
-### Aplicação (App)
-- Build: `pnpm run build`
-- Output: `dist/`
-- URL: https://app.livegenda.com
+| Serviço | Propósito | Documentação |
+|---------|-----------|--------------|
+| **Resend** | Envio de emails transacionais | https://resend.com/docs |
+| **Infobip** | Envio de SMS | https://www.infobip.com/docs |
+| **Neon** | Banco de dados PostgreSQL serverless | https://neon.tech/docs |
 
-### Landing Page
-- Arquivos estáticos em `/landing`
-- URL: https://livegenda.com
+### Variáveis de Ambiente
+
+```env
+# Banco de Dados
+DATABASE_URL=postgres://...
+
+# Email (Resend)
+RESEND_API=re_...
+
+# SMS (Infobip)
+INFOBIP_BASE_URL=xxxxx.api.infobip.com
+INFOBIP_API=...
+
+# Autenticação
+SESSION_SECRET=...
+JWT_SECRET=...
+```
+
+## API REST - Endpoints
+
+Base URL: `/api`
+
+### Empresas
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/empresas` | Listar empresas |
+| POST | `/empresas` | Criar empresa |
+| GET | `/empresas/:id` | Buscar empresa |
+| PUT | `/empresas/:id` | Atualizar empresa |
+| DELETE | `/empresas/:id` | Desativar empresa |
+
+**Payload POST /empresas:**
+```json
+{
+  "nome": "Salão Beleza Total",
+  "categoria": "salao_beleza",
+  "slug": "beleza-total",
+  "telefone": "11999999999",
+  "email": "contato@belezatotal.com",
+  "endereco": "Rua das Flores, 123",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "cep": "01234-567"
+}
+```
+
+### Funcionários
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/funcionarios?empresa_id=` | Listar funcionários |
+| POST | `/funcionarios` | Criar funcionário (+ email/SMS boas-vindas) |
+| GET | `/funcionarios/:id` | Buscar funcionário |
+| PUT | `/funcionarios/:id` | Atualizar funcionário |
+| DELETE | `/funcionarios/:id` | Desativar funcionário |
+
+**Payload POST /funcionarios:**
+```json
+{
+  "empresa_id": "uuid",
+  "nome": "João Silva",
+  "cargo": "Cabeleireiro",
+  "telefone": "11988888888",
+  "email": "joao@email.com",
+  "cor": "#8B5CF6",
+  "dias_trabalho": ["seg", "ter", "qua", "qui", "sex"],
+  "horario_trabalho_inicio": "09:00",
+  "horario_trabalho_fim": "18:00"
+}
+```
+
+### Clientes
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/clientes?empresa_id=` | Listar clientes |
+| POST | `/clientes` | Criar cliente |
+| GET | `/clientes/:id` | Buscar cliente |
+| PUT | `/clientes/:id` | Atualizar cliente |
+| DELETE | `/clientes/:id` | Desativar cliente |
+
+**Payload POST /clientes:**
+```json
+{
+  "empresa_id": "uuid",
+  "nome": "Maria Santos",
+  "telefone": "11977777777",
+  "email": "maria@email.com",
+  "observacoes": "Prefere horários pela manhã"
+}
+```
+
+### Serviços
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/servicos?empresa_id=` | Listar serviços |
+| POST | `/servicos` | Criar serviço |
+| GET | `/servicos/:id` | Buscar serviço |
+| PUT | `/servicos/:id` | Atualizar serviço |
+| DELETE | `/servicos/:id` | Desativar serviço |
+
+**Payload POST /servicos:**
+```json
+{
+  "empresa_id": "uuid",
+  "nome": "Corte Feminino",
+  "descricao": "Corte com lavagem e finalização",
+  "duracao_minutos": 60,
+  "preco": "120.00"
+}
+```
+
+### Agendamentos
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/agendamentos?empresa_id=` | Listar agendamentos |
+| POST | `/agendamentos` | Criar agendamento (+ email/SMS confirmação) |
+| GET | `/agendamentos/:id` | Buscar agendamento |
+| PUT | `/agendamentos/:id` | Atualizar agendamento (+ email/SMS remarcação) |
+| PATCH | `/agendamentos/:id` | Atualizar status |
+| DELETE | `/agendamentos/:id` | Cancelar agendamento (+ email/SMS cancelamento) |
+
+**Payload POST /agendamentos:**
+```json
+{
+  "empresa_id": "uuid",
+  "cliente_id": "uuid",
+  "funcionario_id": "uuid",
+  "servico_id": "uuid",
+  "data_hora": "2025-12-15T14:00:00Z",
+  "observacoes": "Cliente pediu para confirmar no dia"
+}
+```
+
+**Filtros GET /agendamentos:**
+- `empresa_id` (obrigatório)
+- `funcionario_id`
+- `cliente_id`
+- `status` (agendado, confirmado, cancelado)
+- `data_inicio` (ISO date)
+- `data_fim` (ISO date)
+
+### Autenticação
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/auth/login` | Login com email/senha |
+| POST | `/auth/register` | Registro de nova conta |
+| GET | `/auth/check-email` | Verificar disponibilidade de email |
+
+**Payload POST /auth/login:**
+```json
+{
+  "email": "usuario@email.com",
+  "senha": "senha123"
+}
+```
+
+## Notificações
+
+### Templates de Email
+
+| Template | Trigger | Variáveis |
+|----------|---------|-----------|
+| Boas-vindas Funcionário | POST /funcionarios | FUNC_NOME, EMPRESA_NOME, LOGIN_URL |
+| Confirmação Agendamento | POST /agendamentos | CLIENTE_NOME, SERVICO_NOME, DATA_FORMATADA, etc. |
+| Remarcação | PUT /agendamentos (data alterada) | DATA_ANTERIOR, DATA_NOVA, etc. |
+| Cancelamento | DELETE /agendamentos | CLIENTE_NOME, SERVICO_NOME, DATA, MOTIVO |
+
+### Templates de SMS
+
+| Template | Trigger | Conteúdo |
+|----------|---------|----------|
+| Boas-vindas | Novo funcionário | "Olá {nome}! Bem-vindo(a) à equipe {empresa}..." |
+| Confirmação | Novo agendamento | "{nome}, seu agendamento está confirmado!..." |
+| Remarcação | Data alterada | "{nome}, seu agendamento foi REMARCADO!..." |
+| Cancelamento | Agendamento cancelado | "{nome}, seu agendamento foi CANCELADO..." |
+| OTP | Verificação de cliente | "Seu código de verificação: {codigo}..." |
+
+## Banco de Dados
+
+### Schema (PostgreSQL)
+
+```sql
+-- Empresas (tenants)
+empresas (
+  id VARCHAR PRIMARY KEY,
+  nome TEXT NOT NULL,
+  slug TEXT UNIQUE,
+  categoria categoria_empresa NOT NULL,
+  telefone TEXT,
+  email TEXT,
+  endereco TEXT,
+  cidade TEXT,
+  estado TEXT,
+  cep TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  logo TEXT,
+  horario_abertura TEXT DEFAULT '08:00',
+  horario_fechamento TEXT DEFAULT '18:00',
+  dias_funcionamento TEXT[],
+  ativo BOOLEAN DEFAULT true,
+  criado_em TIMESTAMP DEFAULT NOW()
+)
+
+-- Funcionários
+funcionarios (
+  id VARCHAR PRIMARY KEY,
+  empresa_id VARCHAR REFERENCES empresas(id),
+  nome TEXT NOT NULL,
+  telefone TEXT,
+  email TEXT,
+  cargo TEXT,
+  cor TEXT,
+  dias_trabalho TEXT[],
+  horario_trabalho_inicio TEXT,
+  horario_trabalho_fim TEXT,
+  ativo BOOLEAN DEFAULT true,
+  criado_em TIMESTAMP DEFAULT NOW()
+)
+
+-- Clientes
+clientes (
+  id VARCHAR PRIMARY KEY,
+  empresa_id VARCHAR REFERENCES empresas(id),
+  nome TEXT NOT NULL,
+  telefone TEXT,
+  email TEXT,
+  observacoes TEXT,
+  ativo BOOLEAN DEFAULT true,
+  criado_em TIMESTAMP DEFAULT NOW()
+)
+
+-- Serviços
+servicos (
+  id VARCHAR PRIMARY KEY,
+  empresa_id VARCHAR REFERENCES empresas(id),
+  nome TEXT NOT NULL,
+  descricao TEXT,
+  duracao_minutos INTEGER DEFAULT 30,
+  preco DECIMAL(10,2) NOT NULL,
+  ativo BOOLEAN DEFAULT true,
+  criado_em TIMESTAMP DEFAULT NOW()
+)
+
+-- Agendamentos
+agendamentos (
+  id VARCHAR PRIMARY KEY,
+  empresa_id VARCHAR REFERENCES empresas(id),
+  cliente_id VARCHAR REFERENCES clientes(id),
+  funcionario_id VARCHAR REFERENCES funcionarios(id),
+  servico_id VARCHAR REFERENCES servicos(id),
+  data_hora TIMESTAMP NOT NULL,
+  data_hora_fim TIMESTAMP NOT NULL,
+  status status_agendamento DEFAULT 'agendado',
+  observacoes TEXT,
+  preco_final DECIMAL(10,2),
+  criado_em TIMESTAMP DEFAULT NOW()
+)
+
+-- ENUMs
+CREATE TYPE categoria_empresa AS ENUM ('salao_beleza', 'barbearia', 'clinica_estetica');
+CREATE TYPE status_agendamento AS ENUM ('agendado', 'confirmado', 'cancelado');
+```
 
 ## Desenvolvimento
 
+### Comandos
+
 ```bash
 # Instalar dependências
-pnpm install
+npm install
 
-# Rodar aplicação em desenvolvimento
-pnpm run dev
+# Rodar em desenvolvimento
+npm run dev
 
 # Build para produção
-pnpm run build
+npm run build
+
+# Push schema para banco
+npm run db:push
 ```
 
-## Tecnologias
+### Deploy
 
-- React + Vite
-- TailwindCSS
-- Shadcn/ui
-- React Router
-- React Query
+O deploy é automático via Cloudflare Pages:
 
-## Telas Principais (Planejadas/Existentes)
+1. Push no branch `master` do GitHub
+2. Cloudflare Pages detecta e inicia build
+3. Deploy automático para produção
 
-- Autenticação: login, recuperação de senha.
-- Dashboard: visão rápida de hoje/semana, indicadores de ocupação e próximos horários.
-- Agenda/Calendário: visualização por dia/semana, arrastar & soltar (drag‑n‑drop) para remarcação, filtros por profissional, sala/cadeira.
-- Clientes: CRUD de clientes, histórico de atendimentos.
-- Serviços: CRUD de serviços, duração e preço.
-- Profissionais: gerenciamento de equipe, especialidades e comissões (futuro).
-- Disponibilidade/Expediente: configuração de horários, feriados, bloqueios.
-- Agendamentos: criação/edição/cancelamento, confirmação, lembretes.
-- Notificações: e‑mail/SMS/WhatsApp (integrações futuras) para confirmação e lembretes.
-- Relatórios: produtividade por profissional, serviços mais vendidos, taxa de no‑show.
-- Configurações da Empresa: dados do estabelecimento, meios de pagamento (futuro), integrações.
+**URLs de produção:**
+- App: https://app.livegenda.com
+- Landing: https://livegenda.com
 
-## API Esperada (esboço de endpoints do backend)
+## Licença
 
-Base: `https://api.livegenda.com`
-
-Autenticação e sessão:
-- POST `/auth/login` → autentica e retorna token JWT.
-- POST `/auth/refresh` → renova token.
-- POST `/auth/logout` → invalida sessão.
-
-Usuários/Contas/Tenant:
-- GET `/me` → dados do usuário logado.
-- GET `/tenants` | POST `/tenants` → gestão de estabelecimentos.
-- GET `/users` | POST `/users` | PATCH `/users/{id}`
-
-Clientes:
-- GET `/customers` | POST `/customers`
-- GET `/customers/{id}` | PATCH `/customers/{id}` | DELETE `/customers/{id}`
-
-Serviços:
-- GET `/services` | POST `/services`
-- GET `/services/{id}` | PATCH `/services/{id}` | DELETE `/services/{id}`
-
-Profissionais/Recursos:
-- GET `/staff` | POST `/staff` | PATCH `/staff/{id}`
-- GET `/resources` (salas/cadeiras) | POST `/resources`
-
-Disponibilidade e expediente:
-- GET `/availability` → disponibilidade calculada (por serviço/profissional/data)
-- GET `/working-hours` | PATCH `/working-hours` → regras de expediente
-- POST `/blocks` | DELETE `/blocks/{id}` → bloqueios de agenda
-
-Agendamentos:
-- GET `/appointments` (filtros: data, profissional, status)
-- POST `/appointments` → cria horário
-- GET `/appointments/{id}` | PATCH `/appointments/{id}` | DELETE `/appointments/{id}`
-- POST `/appointments/{id}/confirm` | POST `/appointments/{id}/cancel`
-
-Pagamentos (futuro):
-- POST `/payments/intent` | POST `/payments/webhook`
-
-Notificações (futuro):
-- POST `/notifications/test` | POST `/notifications/send`
-
-Relatórios/Analytics:
-- GET `/analytics/summary?from=YYYY-MM-DD&to=YYYY-MM-DD`
-- GET `/analytics/staff-performance`
-
-Configurações:
-- GET `/settings` | PATCH `/settings`
-
-Padrões de resposta:
-- Paginação: `?page=1&pageSize=20`
-- Ordenação: `?sort=createdAt:desc`
-- Erros no padrão RFC7807 (problem+json) ou `{ message, code, details }`.
-
-## Modelos de Dados (resumo sugerido)
-
-Exemplos mínimos de payloads (podem evoluir; abaixo em JSON válido, sem comentários):
-
-```json
-{
-  "id": "cus_123",
-  "name": "Maria Silva",
-  "phone": "+55 11 99999-0000",
-  "email": "maria@exemplo.com",
-  "notes": "Prefere sábados"
-}
-```
-
-```json
-{
-  "id": "srv_123",
-  "name": "Corte Feminino",
-  "durationMin": 60,
-  "price": 120.0
-}
-```
-
-```json
-{
-  "id": "apt_123",
-  "customerId": "cus_123",
-  "serviceId": "srv_123",
-  "staffId": "stf_987",
-  "start": "2025-12-01T14:00:00Z",
-  "end": "2025-12-01T15:00:00Z",
-  "status": "scheduled"
-}
-```
-
-Status possíveis para `status`: `scheduled`, `confirmed`, `completed`, `canceled`.
-
-## Convenções & Boas Práticas
-
-- i18n pronto para pt‑BR inicialmente; preparar chaves para futura tradução.
-- Componentes desacoplados (controlados) e lógica de dados em hooks/serviços.
-- React Query para chamadas HTTP com chaves de cache por recurso e parâmetros.
-- Tratamento de erros com toasts e mensagens amigáveis.
+Proprietário - Livegenda
