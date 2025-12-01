@@ -2,12 +2,10 @@
 // LIVEGENDA - API de Agendamentos
 // ============================================
 // GET e POST para lista de agendamentos
-// Usa módulos compartilhados para paridade com Express
+// Usa SQL direto com @neondatabase/serverless
 
 import type { CloudflareEnv } from '../lib/env';
-import { createDbClient } from '../lib/db';
-import { toEnvConfig } from '../lib/env';
-import { createAgendamentoUseCase } from '../../../shared/lib/use-cases/agendamentos';
+import { createNeonClient, toCamelCase, rowsToCamelCase } from '../lib/db';
 
 // Validação de agendamento
 function validateAgendamento(body: any): { valid: boolean; error?: string } {
@@ -35,7 +33,7 @@ function validateAgendamento(body: any): { valid: boolean; error?: string } {
   return { valid: true };
 }
 
-// GET /api/agendamentos - Listar agendamentos (via shared modules)
+// GET /api/agendamentos - Listar agendamentos com dados relacionados
 export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   const url = new URL(context.request.url);
   
@@ -54,48 +52,89 @@ export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   }
 
   try {
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createAgendamentoUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    // Usar método do use-case para listar com dados relacionados
-    const agendamentos = await useCase.listarCompletosPorEmpresa(empresaId, {
-      funcionarioId: funcionarioId || undefined,
-      clienteId: clienteId || undefined,
-      status: status || undefined,
-      dataInicio: dataInicio ? new Date(dataInicio) : undefined,
-      dataFim: dataFim ? new Date(dataFim) : undefined,
-    });
-
-    // Transformar para formato snake_case esperado pelo frontend
-    const result = agendamentos.map((a: any) => ({
-      id: a.id,
-      empresa_id: a.empresaId,
-      cliente_id: a.clienteId,
-      funcionario_id: a.funcionarioId,
-      servico_id: a.servicoId,
-      data_hora: a.dataHora,
-      data_hora_fim: a.dataHoraFim,
-      status: a.status,
-      observacoes: a.observacoes,
-      preco_final: a.precoFinal,
-      criado_em: a.criadoEm,
-      cliente: a.cliente ? { 
-        id: a.cliente.id, 
-        nome: a.cliente.nome, 
-        telefone: a.cliente.telefone, 
-        email: a.cliente.email 
+    // Build dynamic query with filters
+    let query = `
+      SELECT 
+        a.id, a.empresa_id, a.cliente_id, a.funcionario_id, a.servico_id,
+        a.data_hora, a.data_hora_fim, a.status, a.observacoes, a.preco_final, a.criado_em,
+        c.nome as cliente_nome, c.telefone as cliente_telefone, c.email as cliente_email,
+        f.nome as funcionario_nome, f.cor as funcionario_cor,
+        s.nome as servico_nome, s.duracao_minutos as servico_duracao, s.preco as servico_preco
+      FROM agendamentos a
+      LEFT JOIN clientes c ON a.cliente_id = c.id
+      LEFT JOIN funcionarios f ON a.funcionario_id = f.id
+      LEFT JOIN servicos s ON a.servico_id = s.id
+      WHERE a.empresa_id = $1
+    `;
+    
+    const params: any[] = [empresaId];
+    let paramIndex = 2;
+    
+    if (funcionarioId) {
+      query += ` AND a.funcionario_id = $${paramIndex}`;
+      params.push(funcionarioId);
+      paramIndex++;
+    }
+    
+    if (clienteId) {
+      query += ` AND a.cliente_id = $${paramIndex}`;
+      params.push(clienteId);
+      paramIndex++;
+    }
+    
+    if (status) {
+      query += ` AND a.status = $${paramIndex}`;
+      params.push(status);
+      paramIndex++;
+    }
+    
+    if (dataInicio) {
+      query += ` AND a.data_hora >= $${paramIndex}`;
+      params.push(dataInicio);
+      paramIndex++;
+    }
+    
+    if (dataFim) {
+      query += ` AND a.data_hora <= $${paramIndex}`;
+      params.push(dataFim);
+      paramIndex++;
+    }
+    
+    query += ` ORDER BY a.data_hora ASC`;
+    
+    const rows = await sql(query, params);
+    
+    // Transform to expected format with nested objects
+    const result = rows.map((row: any) => ({
+      id: row.id,
+      empresa_id: row.empresa_id,
+      cliente_id: row.cliente_id,
+      funcionario_id: row.funcionario_id,
+      servico_id: row.servico_id,
+      data_hora: row.data_hora,
+      data_hora_fim: row.data_hora_fim,
+      status: row.status,
+      observacoes: row.observacoes,
+      preco_final: row.preco_final,
+      criado_em: row.criado_em,
+      cliente: row.cliente_nome ? {
+        id: row.cliente_id,
+        nome: row.cliente_nome,
+        telefone: row.cliente_telefone,
+        email: row.cliente_email
       } : null,
-      funcionario: a.funcionario ? { 
-        id: a.funcionario.id, 
-        nome: a.funcionario.nome, 
-        cor: a.funcionario.cor 
+      funcionario: row.funcionario_nome ? {
+        id: row.funcionario_id,
+        nome: row.funcionario_nome,
+        cor: row.funcionario_cor
       } : null,
-      servico: a.servico ? { 
-        id: a.servico.id, 
-        nome: a.servico.nome, 
-        duracao_minutos: a.servico.duracaoMinutos, 
-        preco: a.servico.preco 
+      servico: row.servico_nome ? {
+        id: row.servico_id,
+        nome: row.servico_nome,
+        duracao_minutos: row.servico_duracao,
+        preco: row.servico_preco
       } : null
     }));
 
@@ -111,7 +150,7 @@ export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   }
 };
 
-// POST /api/agendamentos - Criar novo agendamento (via shared modules com notificações)
+// POST /api/agendamentos - Criar novo agendamento
 export const onRequestPost: PagesFunction<CloudflareEnv> = async (context) => {
   try {
     const body = await context.request.json() as any;
@@ -124,59 +163,72 @@ export const onRequestPost: PagesFunction<CloudflareEnv> = async (context) => {
       );
     }
 
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createAgendamentoUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    // Buscar duração do serviço via DbClient
-    const servico = await dbClient.findServicoById(body.servico_id);
-    if (!servico) {
+    // Buscar duração do serviço
+    const servicoRows = await sql`
+      SELECT id, duracao_minutos, preco FROM servicos WHERE id = ${body.servico_id}
+    `;
+    
+    if (servicoRows.length === 0) {
       return new Response(
         JSON.stringify({ error: true, message: 'Serviço não encontrado' }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
+    
+    const servico = servicoRows[0];
     const dataHoraInicio = new Date(body.data_hora);
-    const dataHoraFim = new Date(dataHoraInicio.getTime() + servico.duracaoMinutos * 60000);
+    const dataHoraFim = new Date(dataHoraInicio.getTime() + servico.duracao_minutos * 60000);
 
-    // Usar use-case para criar (inclui validação de conflito e notificações)
-    const result = await useCase.criar({
-      empresaId: body.empresa_id,
-      clienteId: body.cliente_id,
-      funcionarioId: body.funcionario_id,
-      servicoId: body.servico_id,
-      dataHora: dataHoraInicio,
-      dataHoraFim: dataHoraFim,
-      status: body.status || 'agendado',
-      precoFinal: body.preco_final || servico.preco || null,
-      observacoes: body.observacoes || null,
-    });
-
-    if (!result.success) {
+    // Verificar conflitos de horário
+    const conflitos = await sql`
+      SELECT id FROM agendamentos 
+      WHERE funcionario_id = ${body.funcionario_id}
+        AND status NOT IN ('cancelado', 'concluido')
+        AND (
+          (data_hora < ${dataHoraFim.toISOString()} AND data_hora_fim > ${dataHoraInicio.toISOString()})
+        )
+    `;
+    
+    if (conflitos.length > 0) {
       return new Response(
-        JSON.stringify({ error: true, message: result.error }),
+        JSON.stringify({ error: true, message: 'Conflito de horário com outro agendamento' }),
         { status: 409, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Transformar resposta para snake_case
-    const agendamento = result.agendamento;
-    const response = {
-      id: agendamento?.id,
-      empresa_id: agendamento?.empresaId,
-      cliente_id: agendamento?.clienteId,
-      funcionario_id: agendamento?.funcionarioId,
-      servico_id: agendamento?.servicoId,
-      data_hora: agendamento?.dataHora,
-      data_hora_fim: agendamento?.dataHoraFim,
-      status: agendamento?.status,
-      preco_final: agendamento?.precoFinal,
-      criado_em: agendamento?.criadoEm,
-      notificacoes: result.notificacoes
-    };
+    // Criar agendamento
+    const precoFinal = body.preco_final ?? servico.preco ?? null;
+    const statusAgendamento = body.status || 'agendado';
+    
+    const insertResult = await sql`
+      INSERT INTO agendamentos (
+        empresa_id, cliente_id, funcionario_id, servico_id,
+        data_hora, data_hora_fim, status, preco_final, observacoes
+      ) VALUES (
+        ${body.empresa_id}, ${body.cliente_id}, ${body.funcionario_id}, ${body.servico_id},
+        ${dataHoraInicio.toISOString()}, ${dataHoraFim.toISOString()}, 
+        ${statusAgendamento}, ${precoFinal}, ${body.observacoes || null}
+      )
+      RETURNING *
+    `;
+    
+    const agendamento = insertResult[0];
 
-    return new Response(JSON.stringify(response), {
+    return new Response(JSON.stringify({
+      id: agendamento.id,
+      empresa_id: agendamento.empresa_id,
+      cliente_id: agendamento.cliente_id,
+      funcionario_id: agendamento.funcionario_id,
+      servico_id: agendamento.servico_id,
+      data_hora: agendamento.data_hora,
+      data_hora_fim: agendamento.data_hora_fim,
+      status: agendamento.status,
+      preco_final: agendamento.preco_final,
+      observacoes: agendamento.observacoes,
+      criado_em: agendamento.criado_em
+    }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -2,14 +2,22 @@
 // LIVEGENDA - API de Funcionários
 // ============================================
 // GET e POST para funcionários
-// Usa módulos compartilhados para paridade com Express
+// Usa SQL direto com @neondatabase/serverless
 
 import type { CloudflareEnv } from '../lib/env';
-import { createDbClient } from '../lib/db';
-import { toEnvConfig } from '../lib/env';
-import { createFuncionarioUseCase } from '../../../shared/lib/use-cases/funcionarios';
+import { createNeonClient } from '../lib/db';
 
-// GET /api/funcionarios - Listar funcionários (via shared modules)
+// Helper: Converte dias_trabalho para array
+function normalizeDiasTrabalho(input: any): string[] | null {
+  if (!input) return null;
+  if (Array.isArray(input)) return input;
+  if (typeof input === 'string') {
+    return input.split(',').map(d => d.trim()).filter(d => d.length > 0);
+  }
+  return null;
+}
+
+// GET /api/funcionarios - Listar funcionários
 export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   const url = new URL(context.request.url);
   const empresaId = url.searchParams.get("empresa_id");
@@ -22,30 +30,15 @@ export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   }
   
   try {
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createFuncionarioUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    const funcionarios = await useCase.listarPorEmpresa(empresaId, true);
+    const rows = await sql`
+      SELECT * FROM funcionarios 
+      WHERE empresa_id = ${empresaId} AND ativo = true
+      ORDER BY nome ASC
+    `;
     
-    // Transformar para snake_case
-    const result = funcionarios.map((f: any) => ({
-      id: f.id,
-      empresa_id: f.empresaId,
-      nome: f.nome,
-      telefone: f.telefone,
-      email: f.email,
-      cargo: f.cargo,
-      cor: f.cor,
-      foto: f.foto,
-      dias_trabalho: f.diasTrabalho,
-      horario_trabalho_inicio: f.horarioTrabalhoInicio,
-      horario_trabalho_fim: f.horarioTrabalhoFim,
-      ativo: f.ativo,
-      criado_em: f.criadoEm
-    }));
-    
-    return new Response(JSON.stringify(result), { 
+    return new Response(JSON.stringify(rows), { 
       headers: { "Content-Type": "application/json" } 
     });
   } catch (error) {
@@ -57,17 +50,7 @@ export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   }
 };
 
-// Helper: Converte dias_trabalho para array (paridade com Express)
-function normalizeDiasTrabalho(input: any): string[] | null {
-  if (!input) return null;
-  if (Array.isArray(input)) return input;
-  if (typeof input === 'string') {
-    return input.split(',').map(d => d.trim()).filter(d => d.length > 0);
-  }
-  return null;
-}
-
-// POST /api/funcionarios - Criar funcionário (via shared modules com notificações)
+// POST /api/funcionarios - Criar funcionário
 export const onRequestPost: PagesFunction<CloudflareEnv> = async (context) => {
   try {
     const body = await context.request.json() as any;
@@ -80,54 +63,56 @@ export const onRequestPost: PagesFunction<CloudflareEnv> = async (context) => {
       );
     }
 
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createFuncionarioUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    // Normalizar dias_trabalho para array (compatibilidade com Express)
+    // Verificar unicidade global de email
+    if (email) {
+      const emailExists = await sql`
+        SELECT id FROM funcionarios WHERE email = ${email} AND ativo = true
+        UNION
+        SELECT id FROM clientes WHERE email = ${email} AND ativo = true
+      `;
+      if (emailExists.length > 0) {
+        return new Response(
+          JSON.stringify({ error: true, message: "Email já cadastrado no sistema" }), 
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+    
+    // Verificar unicidade global de telefone
+    if (telefone) {
+      const telExists = await sql`
+        SELECT id FROM funcionarios WHERE telefone = ${telefone} AND ativo = true
+        UNION
+        SELECT id FROM clientes WHERE telefone = ${telefone} AND ativo = true
+      `;
+      if (telExists.length > 0) {
+        return new Response(
+          JSON.stringify({ error: true, message: "Telefone já cadastrado no sistema" }), 
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+    
+    // Normalizar dias_trabalho para array
     const diasTrabalhoNormalized = normalizeDiasTrabalho(dias_trabalho);
     
-    const result = await useCase.criar({
-      empresaId: empresa_id,
-      nome,
-      cargo: cargo || null,
-      telefone: telefone || null,
-      email: email || null,
-      cor: cor || null,
-      foto: foto || null,
-      diasTrabalho: diasTrabalhoNormalized,
-      horarioTrabalhoInicio: horario_trabalho_inicio || null,
-      horarioTrabalhoFim: horario_trabalho_fim || null,
-      ativo: true,
-    });
+    const insertResult = await sql`
+      INSERT INTO funcionarios (
+        empresa_id, nome, cargo, telefone, email, cor, foto,
+        dias_trabalho, horario_trabalho_inicio, horario_trabalho_fim, ativo
+      ) VALUES (
+        ${empresa_id}, ${nome}, ${cargo || null}, ${telefone || null}, ${email || null},
+        ${cor || null}, ${foto || null}, ${diasTrabalhoNormalized}, 
+        ${horario_trabalho_inicio || null}, ${horario_trabalho_fim || null}, true
+      )
+      RETURNING *
+    `;
+    
+    const funcionario = insertResult[0];
 
-    if (!result.success) {
-      return new Response(
-        JSON.stringify({ error: true, message: result.error }), 
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // Transformar para snake_case
-    const funcionario = result.funcionario;
-    const response = {
-      id: funcionario?.id,
-      empresa_id: funcionario?.empresaId,
-      nome: funcionario?.nome,
-      telefone: funcionario?.telefone,
-      email: funcionario?.email,
-      cargo: funcionario?.cargo,
-      cor: funcionario?.cor,
-      foto: funcionario?.foto,
-      dias_trabalho: funcionario?.diasTrabalho,
-      horario_trabalho_inicio: funcionario?.horarioTrabalhoInicio,
-      horario_trabalho_fim: funcionario?.horarioTrabalhoFim,
-      ativo: funcionario?.ativo,
-      criado_em: funcionario?.criadoEm,
-      notificacoes: result.notificacoes
-    };
-
-    return new Response(JSON.stringify(response), { 
+    return new Response(JSON.stringify(funcionario), { 
       status: 201, 
       headers: { "Content-Type": "application/json" } 
     });

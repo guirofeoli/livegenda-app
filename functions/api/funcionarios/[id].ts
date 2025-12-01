@@ -2,12 +2,10 @@
 // LIVEGENDA - API de Funcionários (ID)
 // ============================================
 // GET, PUT, DELETE para funcionários individuais
-// Usa módulos compartilhados para paridade com Express
+// Usa SQL direto com @neondatabase/serverless
 
 import type { CloudflareEnv } from '../lib/env';
-import { createDbClient } from '../lib/db';
-import { toEnvConfig } from '../lib/env';
-import { createFuncionarioUseCase } from '../../../shared/lib/use-cases/funcionarios';
+import { createNeonClient } from '../lib/db';
 
 // Validação de UUID
 function isValidUUID(str: string): boolean {
@@ -15,7 +13,7 @@ function isValidUUID(str: string): boolean {
   return uuidRegex.test(str);
 }
 
-// Helper: Converte dias_trabalho para array (paridade com Express)
+// Helper: Converte dias_trabalho para array
 function normalizeDiasTrabalho(input: any): string[] | null {
   if (!input) return null;
   if (Array.isArray(input)) return input;
@@ -37,37 +35,18 @@ export const onRequestGet: PagesFunction<CloudflareEnv> = async (context) => {
   }
 
   try {
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createFuncionarioUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    const funcionario = await useCase.buscarPorId(id);
+    const rows = await sql`SELECT * FROM funcionarios WHERE id = ${id}`;
     
-    if (!funcionario) {
+    if (rows.length === 0) {
       return new Response(
         JSON.stringify({ error: true, message: 'Funcionário não encontrado' }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Transformar para snake_case
-    const result = {
-      id: funcionario.id,
-      empresa_id: funcionario.empresaId,
-      nome: funcionario.nome,
-      telefone: funcionario.telefone,
-      email: funcionario.email,
-      cargo: funcionario.cargo,
-      cor: funcionario.cor,
-      foto: funcionario.foto,
-      dias_trabalho: funcionario.diasTrabalho,
-      horario_trabalho_inicio: funcionario.horarioTrabalhoInicio,
-      horario_trabalho_fim: funcionario.horarioTrabalhoFim,
-      ativo: funcionario.ativo,
-      criado_em: funcionario.criadoEm
-    };
-
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify(rows[0]), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
@@ -92,52 +71,72 @@ export const onRequestPut: PagesFunction<CloudflareEnv> = async (context) => {
 
   try {
     const body = await context.request.json() as any;
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createFuncionarioUseCase({ db: dbClient, env: envConfig });
-    
-    // Converter snake_case para camelCase
-    const updateData: any = {};
-    if (body.nome !== undefined) updateData.nome = body.nome;
-    if (body.cargo !== undefined) updateData.cargo = body.cargo;
-    if (body.telefone !== undefined) updateData.telefone = body.telefone;
-    if (body.email !== undefined) updateData.email = body.email;
-    if (body.cor !== undefined) updateData.cor = body.cor;
-    if (body.foto !== undefined) updateData.foto = body.foto;
-    if (body.dias_trabalho !== undefined) updateData.diasTrabalho = normalizeDiasTrabalho(body.dias_trabalho);
-    if (body.horario_trabalho_inicio !== undefined) updateData.horarioTrabalhoInicio = body.horario_trabalho_inicio;
-    if (body.horario_trabalho_fim !== undefined) updateData.horarioTrabalhoFim = body.horario_trabalho_fim;
-    if (body.ativo !== undefined) updateData.ativo = body.ativo;
-    
-    const result = await useCase.atualizar(id, updateData);
-    
-    if (!result.success) {
+    // Verificar se existe
+    const existing = await sql`SELECT * FROM funcionarios WHERE id = ${id}`;
+    if (existing.length === 0) {
       return new Response(
-        JSON.stringify({ error: true, message: result.error }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: true, message: 'Funcionário não encontrado' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
-    // Transformar para snake_case
-    const funcionario = result.funcionario;
-    const response = {
-      id: funcionario?.id,
-      empresa_id: funcionario?.empresaId,
-      nome: funcionario?.nome,
-      telefone: funcionario?.telefone,
-      email: funcionario?.email,
-      cargo: funcionario?.cargo,
-      cor: funcionario?.cor,
-      foto: funcionario?.foto,
-      dias_trabalho: funcionario?.diasTrabalho,
-      horario_trabalho_inicio: funcionario?.horarioTrabalhoInicio,
-      horario_trabalho_fim: funcionario?.horarioTrabalhoFim,
-      ativo: funcionario?.ativo,
-      criado_em: funcionario?.criadoEm
-    };
-
-    return new Response(JSON.stringify(response), {
+    
+    const func = existing[0];
+    
+    // Verificar unicidade global de email (se mudou)
+    if (body.email && body.email !== func.email) {
+      const emailExists = await sql`
+        SELECT id FROM funcionarios WHERE email = ${body.email} AND id != ${id} AND ativo = true
+        UNION
+        SELECT id FROM clientes WHERE email = ${body.email} AND ativo = true
+      `;
+      if (emailExists.length > 0) {
+        return new Response(
+          JSON.stringify({ error: true, message: 'Email já cadastrado no sistema' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
+    // Verificar unicidade global de telefone (se mudou)
+    if (body.telefone && body.telefone !== func.telefone) {
+      const telExists = await sql`
+        SELECT id FROM funcionarios WHERE telefone = ${body.telefone} AND id != ${id} AND ativo = true
+        UNION
+        SELECT id FROM clientes WHERE telefone = ${body.telefone} AND ativo = true
+      `;
+      if (telExists.length > 0) {
+        return new Response(
+          JSON.stringify({ error: true, message: 'Telefone já cadastrado no sistema' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
+    // Normalizar dias_trabalho se fornecido
+    const diasTrabalho = body.dias_trabalho !== undefined 
+      ? normalizeDiasTrabalho(body.dias_trabalho) 
+      : func.dias_trabalho;
+    
+    // Atualizar
+    const updateResult = await sql`
+      UPDATE funcionarios SET
+        nome = COALESCE(${body.nome}, nome),
+        cargo = COALESCE(${body.cargo}, cargo),
+        telefone = COALESCE(${body.telefone}, telefone),
+        email = COALESCE(${body.email}, email),
+        cor = COALESCE(${body.cor}, cor),
+        foto = COALESCE(${body.foto}, foto),
+        dias_trabalho = ${diasTrabalho},
+        horario_trabalho_inicio = COALESCE(${body.horario_trabalho_inicio}, horario_trabalho_inicio),
+        horario_trabalho_fim = COALESCE(${body.horario_trabalho_fim}, horario_trabalho_fim),
+        ativo = COALESCE(${body.ativo}, ativo)
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    
+    return new Response(JSON.stringify(updateResult[0]), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
@@ -161,18 +160,19 @@ export const onRequestDelete: PagesFunction<CloudflareEnv> = async (context) => 
   }
 
   try {
-    const dbClient = createDbClient(context.env.DATABASE_URL);
-    const envConfig = toEnvConfig(context.env);
-    const useCase = createFuncionarioUseCase({ db: dbClient, env: envConfig });
+    const sql = createNeonClient(context.env.DATABASE_URL);
     
-    const result = await useCase.desativar(id);
-    
-    if (!result.success) {
+    // Verificar se existe
+    const existing = await sql`SELECT id FROM funcionarios WHERE id = ${id}`;
+    if (existing.length === 0) {
       return new Response(
-        JSON.stringify({ error: true, message: result.error }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: true, message: 'Funcionário não encontrado' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
+    
+    // Desativar (soft delete)
+    await sql`UPDATE funcionarios SET ativo = false WHERE id = ${id}`;
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
