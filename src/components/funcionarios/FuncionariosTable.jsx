@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, Power, User, Phone, Briefcase, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Edit2, Trash2, User, Phone, Briefcase, CalendarPlus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -20,7 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-function MobileCard({ funcionario, onEdit, onDelete, onToggleStatus }) {
+function MobileCard({ funcionario, onEdit, onDelete, onCreateAgendamento }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -47,15 +46,6 @@ function MobileCard({ funcionario, onEdit, onDelete, onToggleStatus }) {
             <p className="text-sm text-gray-500 truncate">{funcionario.email}</p>
           )}
           <div className="flex gap-2 mt-2">
-            <Badge
-              className={
-                funcionario.status === "Ativo"
-                  ? "bg-green-100 text-green-700 hover:bg-green-100 border-green-200"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200"
-              }
-            >
-              {funcionario.status}
-            </Badge>
             <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
               {funcionario.cargo}
             </Badge>
@@ -68,36 +58,26 @@ function MobileCard({ funcionario, onEdit, onDelete, onToggleStatus }) {
           <Phone className="w-4 h-4 text-purple-500" />
           <span>{funcionario.telefone}</span>
         </div>
-        {funcionario.data_vinculacao && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="w-4 h-4 text-purple-500" />
-            <span>Vinculado em {format(new Date(funcionario.data_vinculacao), "dd/MM/yyyy")}</span>
-          </div>
-        )}
       </div>
 
       <div className="flex gap-2 pt-3 border-t border-purple-100">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onEdit(funcionario)}
+          onClick={() => onCreateAgendamento(funcionario)}
           className="flex-1 border-purple-200 hover:bg-purple-50 hover:text-purple-700"
+          data-testid={`button-create-agendamento-${funcionario.id}`}
         >
-          <Edit2 className="w-4 h-4 mr-2" />
-          Editar
+          <CalendarPlus className="w-4 h-4 mr-2" />
+          Agendar
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onToggleStatus(funcionario)}
-          className={
-            funcionario.status === "Ativo"
-              ? "border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-              : "border-green-200 hover:bg-green-50 hover:text-green-700"
-          }
+          onClick={() => onEdit(funcionario)}
+          className="border-purple-200 hover:bg-purple-50 hover:text-purple-700"
         >
-          <Power className="w-4 h-4 mr-2" />
-          {funcionario.status === "Ativo" ? "Desativar" : "Ativar"}
+          <Edit2 className="w-4 h-4" />
         </Button>
         <Button
           variant="outline"
@@ -140,7 +120,7 @@ export default function FuncionariosTable({
   isLoading,
   onEdit,
   onDelete,
-  onToggleStatus,
+  onCreateAgendamento,
 }) {
   if (isLoading) {
     return (
@@ -161,8 +141,6 @@ export default function FuncionariosTable({
                   <TableHead>Funcionário</TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>Cargo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data Vinculação</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -176,8 +154,6 @@ export default function FuncionariosTable({
                       </div>
                     </TableCell>
                     <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-28 ml-auto" /></TableCell>
                   </TableRow>
@@ -208,7 +184,7 @@ export default function FuncionariosTable({
             funcionario={funcionario}
             onEdit={onEdit}
             onDelete={onDelete}
-            onToggleStatus={onToggleStatus}
+            onCreateAgendamento={onCreateAgendamento}
           />
         ))}
       </div>
@@ -227,8 +203,6 @@ export default function FuncionariosTable({
                 <TableHead className="font-semibold text-purple-900">Funcionário</TableHead>
                 <TableHead className="font-semibold text-purple-900">Telefone</TableHead>
                 <TableHead className="font-semibold text-purple-900">Cargo</TableHead>
-                <TableHead className="font-semibold text-purple-900">Status</TableHead>
-                <TableHead className="font-semibold text-purple-900">Data Vinculação</TableHead>
                 <TableHead className="text-right font-semibold text-purple-900">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -269,23 +243,24 @@ export default function FuncionariosTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      className={
-                        funcionario.status === "Ativo"
-                          ? "bg-green-100 text-green-700 hover:bg-green-100 border-green-200"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200"
-                      }
-                    >
-                      {funcionario.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-gray-700">
-                    {funcionario.data_vinculacao
-                      ? format(new Date(funcionario.data_vinculacao), "dd/MM/yyyy")
-                      : "-"}
-                  </TableCell>
-                  <TableCell>
                     <div className="flex justify-end gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => onCreateAgendamento(funcionario)}
+                              className="hover:bg-purple-50 hover:text-purple-700"
+                              data-testid={`button-create-agendamento-desktop-${funcionario.id}`}
+                            >
+                              <CalendarPlus className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Criar Agendamento</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -299,28 +274,6 @@ export default function FuncionariosTable({
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Editar</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => onToggleStatus(funcionario)}
-                              className={
-                                funcionario.status === "Ativo"
-                                  ? "hover:bg-orange-50 hover:text-orange-700"
-                                  : "hover:bg-green-50 hover:text-green-700"
-                              }
-                            >
-                              <Power className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {funcionario.status === "Ativo" ? "Desativar" : "Ativar"}
-                          </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
 
