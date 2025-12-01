@@ -1,6 +1,9 @@
-# Configuração para Cloudflare Pages - Landing Page
-name = "livegenda-landing"
+# Configuração para Cloudflare Pages
+name = "livegenda-app"
 compatibility_date = "2025-11-28"
 
+# Output do Vite build
 [site]
-bucket = "./landing"
+bucket = "./dist"
+
+# Cloudflare Pages Functions ficam em /functions automaticamente
