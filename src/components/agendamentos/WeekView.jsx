@@ -1,12 +1,14 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { livegenda } from "@/api/livegendaClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import AgendamentoCard from "./AgendamentoCard";
 
 const DIAS_SEMANA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 const HORARIOS = Array.from({ length: 14 }, (_, i) => i + 9); // 9h às 22h
 const SLOT_HEIGHT = 80; // Altura de cada slot de hora em pixels
+
+// Mapeamento de índice de dia para abreviação
+const DIAS_ABREVIADOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+const DIAS_NOMES = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
 
 export default function WeekView({
   currentDate,
@@ -17,7 +19,8 @@ export default function WeekView({
   onAgendamentoClick,
   onDoubleClickSlot,
   isLoading,
-  selectedFuncionarioId
+  selectedFuncionarioId,
+  empresa
 }) {
   const getWeekDays = () => {
     const days = [];
@@ -43,23 +46,24 @@ export default function WeekView({
 
   const allWeekDays = getWeekDays();
 
-  const { data: configuracoes = [] } = useQuery({
-    queryKey: ['configuracoes'],
-    queryFn: () => livegenda.entities.ConfiguracaoNegocio.list(),
-    initialData: [],
-  });
-
-  const configuracao = configuracoes[0];
-
-  const getDiaChave = (dayIndex) => {
-    const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-    return dias[dayIndex];
-  };
-
+  // Verificar se o estabelecimento está aberto em um dia específico
   const isEstabelecimentoFechado = (date) => {
-    if (!configuracao?.horario_funcionamento) return false;
-    const diaChave = getDiaChave(date.getDay());
-    return configuracao.horario_funcionamento[diaChave]?.ativo === false;
+    const dayIndex = date.getDay();
+    const diaAbrev = DIAS_ABREVIADOS[dayIndex];
+    const diaNome = DIAS_NOMES[dayIndex];
+    
+    // Verificar dias_funcionamento (array de abreviações)
+    if (empresa?.dias_funcionamento && Array.isArray(empresa.dias_funcionamento)) {
+      return !empresa.dias_funcionamento.includes(diaAbrev);
+    }
+    
+    // Fallback: verificar horario_funcionamento estruturado
+    if (empresa?.horario_funcionamento && typeof empresa.horario_funcionamento === 'object') {
+      return empresa.horario_funcionamento[diaNome]?.ativo === false;
+    }
+    
+    // Default: assumir dias úteis abertos (seg-sex)
+    return dayIndex === 0 || dayIndex === 6;
   };
 
   const weekDays = allWeekDays.filter(day => !isEstabelecimentoFechado(day));
