@@ -1,0 +1,20 @@
+Navigated to https://app.livegenda.com/agendamentos
+index-CTHvAclh.js:380 ProtectedRoute - Current authState: {user: null, empresa: null, loading: true}
+index-CTHvAclh.js:380 ProtectedRoute - Raw savedUser: {"id":"eea8b9ba-d8ee-4635-9d81-53c224ac2691","nome":"JESSICA M MACEDO","email":"molho@molho.com","empresa_id":"7e503142-4022-4b68-b822-54af3bc3671e","role":"admin","ativo":true,"criado_em":"2025-11-30T15:50:43.602Z"}
+index-CTHvAclh.js:380 ProtectedRoute - Raw savedEmpresa: {"id":"7e503142-4022-4b68-b822-54af3bc3671e","nome":"Guilherme Rodrigues Feijó De Oliveira","categoria":"makeup","telefone":"61998722011","email":"molho@molho.com","endereco":"QD 10 CJ B 6","logo":null,"ativo":true,"criado_em":"2025-11-30T15:50:43.469Z"}
+index-CTHvAclh.js:380 ProtectedRoute - Parsed user: {id: 'eea8b9ba-d8ee-4635-9d81-53c224ac2691', nome: 'JESSICA M MACEDO', email: 'molho@molho.com', empresa_id: '7e503142-4022-4b68-b822-54af3bc3671e', role: 'admin', …}
+index-CTHvAclh.js:380 ProtectedRoute - user.empresa_id: 7e503142-4022-4b68-b822-54af3bc3671e
+index-CTHvAclh.js:380 ProtectedRoute - Parsed empresa: {id: '7e503142-4022-4b68-b822-54af3bc3671e', nome: 'Guilherme Rodrigues Feijó De Oliveira', categoria: 'makeup', telefone: '61998722011', email: 'molho@molho.com', …}
+index-CTHvAclh.js:380 ProtectedRoute - empresa.id: 7e503142-4022-4b68-b822-54af3bc3671e
+index-CTHvAclh.js:380 ProtectedRoute - hasEmpresa: 7e503142-4022-4b68-b822-54af3bc3671e
+index-CTHvAclh.js:380 ProtectedRoute - Current authState: {user: {…}, empresa: {…}, loading: false}
+index-CTHvAclh.js:380 ProtectedRoute - Renderizando children
+dom.js?token=735818-723102-584652:893 initEternlDomAPI: domId 578346-147926-422680 false
+initEternlDomAPI @ dom.js?token=735818-723102-584652:893
+(anonymous) @ dom.js?token=735818-723102-584652:932
+(anonymous) @ dom.js?token=735818-723102-584652:934Understand this warning
+dom.js?token=735818-723102-584652:894 initEternlDomAPI: href https://app.livegenda.com/onboarding-empresa
+initEternlDomAPI @ dom.js?token=735818-723102-584652:894
+(anonymous) @ dom.js?token=735818-723102-584652:932
+(anonymous) @ dom.js?token=735818-723102-584652:934Understand this warning
+onboarding-empresa:1 [DOM] Input elements should have autocomplete attributes (suggested: "username"): (More info: https://goo.gl/9p2vKq) <input type=​"email" class=​"flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:​border-0 file:​bg-transparent file:​text-sm file:​font-medium file:​text-foreground placeholder:​text-muted-foreground focus-visible:​outline-none focus-visible:​ring-1 focus-visible:​ring-ring disabled:​cursor-not-allowed disabled:​opacity-50 md:​text-sm pl-10" id=​"email" placeholder=​"seu@email.com" data-testid=​"input-email" value>​flex

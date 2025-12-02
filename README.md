@@ -1,4 +1,4 @@
-# Livegenda
+# Livegenda (Atualizado: 2025-12-02 01:30)
 
 Sistema SaaS multi-tenant de agendamento para salões de beleza, barbearias e clínicas de estética.
 

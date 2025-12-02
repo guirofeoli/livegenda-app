@@ -1,0 +1,158 @@
+2025-12-01T23:07:50.319201Z	Cloning repository...
+2025-12-01T23:07:50.929858Z	From https://github.com/guirofeoli/livegenda-app
+2025-12-01T23:07:50.930377Z	 * branch            3fb7e1d6ab03650f2c79310b015decbe7e1d5783 -> FETCH_HEAD
+2025-12-01T23:07:50.930493Z	
+2025-12-01T23:07:50.964344Z	HEAD is now at 3fb7e1d feat: refatorar Functions para usar módulos compartilhados
+2025-12-01T23:07:50.964722Z	
+2025-12-01T23:07:51.039692Z	
+2025-12-01T23:07:51.040365Z	Using v2 root directory strategy
+2025-12-01T23:07:51.061159Z	Success: Finished cloning repository files
+2025-12-01T23:07:53.3756Z	Checking for configuration in a Wrangler configuration file (BETA)
+2025-12-01T23:07:53.376353Z	
+2025-12-01T23:07:53.377394Z	Found wrangler.toml file. Reading build configuration...
+2025-12-01T23:07:54.478889Z	A wrangler.toml file was found but it does not appear to be valid. Did you mean to use wrangler.toml to configure Pages? If so, then make sure the file is valid and contains the `pages_build_output_dir` property. Skipping file and continuing.
+2025-12-01T23:07:54.546557Z	Detected the following tools from environment: npm@10.9.2, nodejs@22.16.0
+2025-12-01T23:07:54.547165Z	Installing project dependencies: npm clean-install --progress=false
+2025-12-01T23:08:02.127955Z	
+2025-12-01T23:08:02.128155Z	added 532 packages, and audited 533 packages in 7s
+2025-12-01T23:08:02.128743Z	
+2025-12-01T23:08:02.128852Z	138 packages are looking for funding
+2025-12-01T23:08:02.128914Z	  run `npm fund` for details
+2025-12-01T23:08:02.129408Z	
+2025-12-01T23:08:02.129506Z	found 0 vulnerabilities
+2025-12-01T23:08:02.160862Z	Executing user command: npm install && npm run build
+2025-12-01T23:08:03.442507Z	
+2025-12-01T23:08:03.443029Z	up to date, audited 533 packages in 959ms
+2025-12-01T23:08:03.443153Z	
+2025-12-01T23:08:03.443224Z	138 packages are looking for funding
+2025-12-01T23:08:03.443571Z	  run `npm fund` for details
+2025-12-01T23:08:03.444865Z	
+2025-12-01T23:08:03.445157Z	found 0 vulnerabilities
+2025-12-01T23:08:03.805663Z	
+2025-12-01T23:08:03.805961Z	> base44-app@0.0.0 build
+2025-12-01T23:08:03.80649Z	> vite build
+2025-12-01T23:08:03.806614Z	
+2025-12-01T23:08:04.08629Z	[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+2025-12-01T23:08:04.433489Z	transforming...
+2025-12-01T23:08:10.207371Z	[32m✓[39m 3639 modules transformed.
+2025-12-01T23:08:10.85302Z	rendering chunks...
+2025-12-01T23:08:10.868374Z	computing gzip size...
+2025-12-01T23:08:10.899146Z	[2mdist/[22m[32mindex.html                 [39m[1m[2m    0.46 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+2025-12-01T23:08:10.899548Z	[2mdist/[22m[2massets/[22m[35mindex-BKnC5AIP.css  [39m[1m[2m   81.82 kB[22m[1m[22m[2m │ gzip:  13.61 kB[22m
+2025-12-01T23:08:10.899727Z	[2mdist/[22m[2massets/[22m[36mindex-CMh6HlnD.js   [39m[1m[33m1,211.40 kB[39m[22m[2m │ gzip: 343.80 kB[22m
+2025-12-01T23:08:10.900022Z	[32m✓ built in 6.79s[39m
+2025-12-01T23:08:10.900986Z	[33m
+2025-12-01T23:08:10.901152Z	(!) Some chunks are larger than 500 kB after minification. Consider:
+2025-12-01T23:08:10.901279Z	- Using dynamic import() to code-split the application
+2025-12-01T23:08:10.901371Z	- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2025-12-01T23:08:10.901595Z	- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+2025-12-01T23:08:10.997454Z	Finished
+2025-12-01T23:08:11.879924Z	Checking for configuration in a Wrangler configuration file (BETA)
+2025-12-01T23:08:11.880704Z	
+2025-12-01T23:08:11.881286Z	Found wrangler.toml file. Reading build configuration...
+2025-12-01T23:08:12.98588Z	A wrangler.toml file was found but it does not appear to be valid. Did you mean to use wrangler.toml to configure Pages? If so, then make sure the file is valid and contains the `pages_build_output_dir` property. Skipping file and continuing.
+2025-12-01T23:08:12.986641Z	Found Functions directory at /functions. Uploading.
+2025-12-01T23:08:12.992878Z	 ⛅️ wrangler 3.101.0
+2025-12-01T23:08:12.993086Z	-------------------
+2025-12-01T23:08:14.040634Z	[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 5 errors:[0m
+2025-12-01T23:08:14.041167Z	
+2025-12-01T23:08:14.041945Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm"[0m
+2025-12-01T23:08:14.04241Z	  
+2025-12-01T23:08:14.04257Z	      ../shared/lib/db/drizzle-client.ts:2:47:
+2025-12-01T23:08:14.043125Z	  [37m      2 │ import { eq, and, or, ne, gte, lte, sql } from [32m'drizzle-orm'[37m;
+2025-12-01T23:08:14.043281Z	          ╵                                                [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.043747Z	  
+2025-12-01T23:08:14.04384Z	    You can mark the path "drizzle-orm" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.044232Z	  
+2025-12-01T23:08:14.044348Z	  
+2025-12-01T23:08:14.04441Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm"[0m
+2025-12-01T23:08:14.04484Z	  
+2025-12-01T23:08:14.044928Z	      ../shared/schema.ts:1:31:
+2025-12-01T23:08:14.045289Z	  [37m      1 │ import { sql, relations } from [32m"drizzle-orm"[37m;
+2025-12-01T23:08:14.045383Z	          ╵                                [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.045746Z	  
+2025-12-01T23:08:14.045836Z	    You can mark the path "drizzle-orm" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.046217Z	  
+2025-12-01T23:08:14.046562Z	  
+2025-12-01T23:08:14.04664Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm/pg-core"[0m
+2025-12-01T23:08:14.046975Z	  
+2025-12-01T23:08:14.047082Z	      ../shared/schema.ts:2:85:
+2025-12-01T23:08:14.047359Z	  [37m      2 │ ...mp, integer, boolean, decimal, pgEnum } from [32m"drizzle-orm/pg-core"[37m;
+2025-12-01T23:08:14.047433Z	          ╵                                                 [32m~~~~~~~~~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.047519Z	  
+2025-12-01T23:08:14.047582Z	    You can mark the path "drizzle-orm/pg-core" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.047642Z	  
+2025-12-01T23:08:14.047698Z	  
+2025-12-01T23:08:14.047754Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-zod"[0m
+2025-12-01T23:08:14.047813Z	  
+2025-12-01T23:08:14.047871Z	      ../shared/schema.ts:3:35:
+2025-12-01T23:08:14.047934Z	  [37m      3 │ import { createInsertSchema } from [32m"drizzle-zod"[37m;
+2025-12-01T23:08:14.048053Z	          ╵                                    [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.048121Z	  
+2025-12-01T23:08:14.048178Z	    You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.04827Z	  
+2025-12-01T23:08:14.049459Z	  
+2025-12-01T23:08:14.049831Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm/neon-http"[0m
+2025-12-01T23:08:14.049911Z	  
+2025-12-01T23:08:14.04997Z	      api/lib/db.ts:2:24:
+2025-12-01T23:08:14.050456Z	  [37m      2 │ import { drizzle } from [32m"drizzle-orm/neon-http"[37m;
+2025-12-01T23:08:14.050546Z	          ╵                         [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.050818Z	  
+2025-12-01T23:08:14.051072Z	    You can mark the path "drizzle-orm/neon-http" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.051175Z	  
+2025-12-01T23:08:14.051404Z	  
+2025-12-01T23:08:14.051555Z	
+2025-12-01T23:08:14.051626Z	
+2025-12-01T23:08:14.051693Z	
+2025-12-01T23:08:14.051751Z	[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 5 errors:[0m
+2025-12-01T23:08:14.051885Z	
+2025-12-01T23:08:14.051947Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm"[0m
+2025-12-01T23:08:14.052044Z	  
+2025-12-01T23:08:14.052204Z	      ../shared/lib/db/drizzle-client.ts:2:47:
+2025-12-01T23:08:14.052398Z	  [37m      2 │ import { eq, and, or, ne, gte, lte, sql } from [32m'drizzle-orm'[37m;
+2025-12-01T23:08:14.052485Z	          ╵                                                [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.052546Z	  
+2025-12-01T23:08:14.052686Z	    You can mark the path "drizzle-orm" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.052821Z	  
+2025-12-01T23:08:14.052969Z	  
+2025-12-01T23:08:14.053082Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm"[0m
+2025-12-01T23:08:14.053215Z	  
+2025-12-01T23:08:14.053346Z	      ../shared/schema.ts:1:31:
+2025-12-01T23:08:14.053485Z	  [37m      1 │ import { sql, relations } from [32m"drizzle-orm"[37m;
+2025-12-01T23:08:14.053593Z	          ╵                                [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.05371Z	  
+2025-12-01T23:08:14.053817Z	    You can mark the path "drizzle-orm" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.053946Z	  
+2025-12-01T23:08:14.054045Z	  
+2025-12-01T23:08:14.054138Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm/pg-core"[0m
+2025-12-01T23:08:14.054249Z	  
+2025-12-01T23:08:14.054383Z	      ../shared/schema.ts:2:85:
+2025-12-01T23:08:14.054484Z	  [37m      2 │ ...mp, integer, boolean, decimal, pgEnum } from [32m"drizzle-orm/pg-core"[37m;
+2025-12-01T23:08:14.054584Z	          ╵                                                 [32m~~~~~~~~~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.054683Z	  
+2025-12-01T23:08:14.054779Z	    You can mark the path "drizzle-orm/pg-core" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.054846Z	  
+2025-12-01T23:08:14.054935Z	  
+2025-12-01T23:08:14.055032Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-zod"[0m
+2025-12-01T23:08:14.055129Z	  
+2025-12-01T23:08:14.055221Z	      ../shared/schema.ts:3:35:
+2025-12-01T23:08:14.055348Z	  [37m      3 │ import { createInsertSchema } from [32m"drizzle-zod"[37m;
+2025-12-01T23:08:14.055455Z	          ╵                                    [32m~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.055556Z	  
+2025-12-01T23:08:14.05577Z	    You can mark the path "drizzle-zod" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.055878Z	  
+2025-12-01T23:08:14.056006Z	  
+2025-12-01T23:08:14.056171Z	  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCould not resolve "drizzle-orm/neon-http"[0m
+2025-12-01T23:08:14.056336Z	  
+2025-12-01T23:08:14.056486Z	      api/lib/db.ts:2:24:
+2025-12-01T23:08:14.056647Z	  [37m      2 │ import { drizzle } from [32m"drizzle-orm/neon-http"[37m;
+2025-12-01T23:08:14.056774Z	          ╵                         [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+2025-12-01T23:08:14.056895Z	  
+2025-12-01T23:08:14.05702Z	    You can mark the path "drizzle-orm/neon-http" as external to exclude it from the bundle, which will remove this error.
+2025-12-01T23:08:14.057101Z	  
+2025-12-01T23:08:14.057198Z	  
+2025-12-01T23:08:14.057314Z	
+2025-12-01T23:08:14.057418Z	
+2025-12-01T23:08:14.077663Z	🪵  Logs were written to "/root/.config/.wrangler/logs/wrangler-2025-12-01_23-08-13_577.log"
+2025-12-01T23:08:14.091004Z	Failed building Pages Functions.
+2025-12-01T23:08:15.333418Z	Failed: generating Pages Functions failed. Check the logs above for more information. If this continues for an unknown reason, contact support: https://cfl.re/3WgEyrH

@@ -1,0 +1,108 @@
+Navigated to https://app.livegenda.com/servicos
+index-CnfW47qN.js:380 ProtectedRoute - Current authState: {user: null, empresa: null, loading: true}
+index-CnfW47qN.js:380 ProtectedRoute - Raw savedUser: {"id":"05bc9f9d-0333-4c4c-b0b3-469db813702a","nome":"JESSICA M MACEDO","email":"saaaa@sa.com","empresa_id":"6270f6a9-6b1d-42c2-9516-7701d087c4f7","role":"admin","ativo":true,"criado_em":"2025-11-30T16:05:50.574Z"}
+index-CnfW47qN.js:380 ProtectedRoute - Raw savedEmpresa: {"id":"6270f6a9-6b1d-42c2-9516-7701d087c4f7","nome":"Guilherme Rodrigues Feijó De Oliveira","categoria":"makeup","telefone":"61998722011","email":"saaaa@sa.com","endereco":"QD 10 CJ B 6","logo":null,"ativo":true,"criado_em":"2025-11-30T16:05:50.548Z"}
+index-CnfW47qN.js:380 ProtectedRoute - Parsed user: {id: '05bc9f9d-0333-4c4c-b0b3-469db813702a', nome: 'JESSICA M MACEDO', email: 'saaaa@sa.com', empresa_id: '6270f6a9-6b1d-42c2-9516-7701d087c4f7', role: 'admin', …}
+index-CnfW47qN.js:380 ProtectedRoute - user.empresa_id: 6270f6a9-6b1d-42c2-9516-7701d087c4f7
+index-CnfW47qN.js:380 ProtectedRoute - Parsed empresa: {id: '6270f6a9-6b1d-42c2-9516-7701d087c4f7', nome: 'Guilherme Rodrigues Feijó De Oliveira', categoria: 'makeup', telefone: '61998722011', email: 'saaaa@sa.com', …}
+index-CnfW47qN.js:380 ProtectedRoute - empresa.id: 6270f6a9-6b1d-42c2-9516-7701d087c4f7
+index-CnfW47qN.js:380 ProtectedRoute - hasEmpresa: 6270f6a9-6b1d-42c2-9516-7701d087c4f7
+index-CnfW47qN.js:380 ProtectedRoute - Current authState: {user: {…}, empresa: {…}, loading: false}
+index-CnfW47qN.js:380 ProtectedRoute - Renderizando children
+dom.js?token=411951-698569-624483:893 initEternlDomAPI: domId 61984-946796-81532 false
+initEternlDomAPI @ dom.js?token=411951-698569-624483:893
+(anonymous) @ dom.js?token=411951-698569-624483:932
+(anonymous) @ dom.js?token=411951-698569-624483:934Understand this warning
+dom.js?token=411951-698569-624483:894 initEternlDomAPI: href https://app.livegenda.com/servicos
+initEternlDomAPI @ dom.js?token=411951-698569-624483:894
+(anonymous) @ dom.js?token=411951-698569-624483:932
+(anonymous) @ dom.js?token=411951-698569-624483:934Understand this warning
+index-CnfW47qN.js:40 TypeError: o.toFixed is not a function
+    at index-CnfW47qN.js:460:48344
+    at Array.map (<anonymous>)
+    at FNe (index-CnfW47qN.js:460:47828)
+    at F0 (index-CnfW47qN.js:38:17509)
+    at yT (index-CnfW47qN.js:40:44734)
+    at pT (index-CnfW47qN.js:40:40329)
+    at a7 (index-CnfW47qN.js:40:40257)
+    at Lp (index-CnfW47qN.js:40:40110)
+    at dx (index-CnfW47qN.js:40:36397)
+    at dT (index-CnfW47qN.js:40:37209)
+G0 @ index-CnfW47qN.js:40
+RE.m.callback @ index-CnfW47qN.js:40
+lE @ index-CnfW47qN.js:38
+sT @ index-CnfW47qN.js:40
+oT @ index-CnfW47qN.js:40
+r7 @ index-CnfW47qN.js:40
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+(anonymous) @ index-CnfW47qN.js:40
+setTimeout
+pre @ index-CnfW47qN.js:380
+o @ index-CnfW47qN.js:380
+batch @ index-CnfW47qN.js:380
+va @ index-CnfW47qN.js:380
+setData @ index-CnfW47qN.js:380
+fetch @ index-CnfW47qN.js:380
+await in fetch
+Dd @ index-CnfW47qN.js:380
+onSubscribe @ index-CnfW47qN.js:380
+subscribe @ index-CnfW47qN.js:380
+(anonymous) @ index-CnfW47qN.js:380
+pE @ index-CnfW47qN.js:38
+Ep @ index-CnfW47qN.js:40
+Wl @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+uT @ index-CnfW47qN.js:40
+N @ index-CnfW47qN.js:25
+F @ index-CnfW47qN.js:25Understand this error
+index-CnfW47qN.js:460 Uncaught TypeError: o.toFixed is not a function
+    at index-CnfW47qN.js:460:48344
+    at Array.map (<anonymous>)
+    at FNe (index-CnfW47qN.js:460:47828)
+    at F0 (index-CnfW47qN.js:38:17509)
+    at yT (index-CnfW47qN.js:40:44734)
+    at pT (index-CnfW47qN.js:40:40329)
+    at a7 (index-CnfW47qN.js:40:40257)
+    at Lp (index-CnfW47qN.js:40:40110)
+    at dx (index-CnfW47qN.js:40:36397)
+    at dT (index-CnfW47qN.js:40:37209)
+(anonymous) @ index-CnfW47qN.js:460
+FNe @ index-CnfW47qN.js:460
+F0 @ index-CnfW47qN.js:38
+yT @ index-CnfW47qN.js:40
+pT @ index-CnfW47qN.js:40
+a7 @ index-CnfW47qN.js:40
+Lp @ index-CnfW47qN.js:40
+dx @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+(anonymous) @ index-CnfW47qN.js:40
+setTimeout
+pre @ index-CnfW47qN.js:380
+o @ index-CnfW47qN.js:380
+batch @ index-CnfW47qN.js:380
+va @ index-CnfW47qN.js:380
+setData @ index-CnfW47qN.js:380
+fetch @ index-CnfW47qN.js:380
+await in fetch
+Dd @ index-CnfW47qN.js:380
+onSubscribe @ index-CnfW47qN.js:380
+subscribe @ index-CnfW47qN.js:380
+(anonymous) @ index-CnfW47qN.js:380
+pE @ index-CnfW47qN.js:38
+Ep @ index-CnfW47qN.js:40
+Wl @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+uT @ index-CnfW47qN.js:40
+N @ index-CnfW47qN.js:25
+F @ index-CnfW47qN.js:25Understand this error
+index-CnfW47qN.js:40 [Violation] 'setTimeout' handler took 148ms

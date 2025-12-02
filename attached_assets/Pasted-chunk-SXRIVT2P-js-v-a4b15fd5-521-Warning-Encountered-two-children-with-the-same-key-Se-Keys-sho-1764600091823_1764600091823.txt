@@ -1,0 +1,121 @@
+chunk-SXRIVT2P.js?v=a4b15fd5:521 Warning: Encountered two children with the same key, `Se`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at div
+    at div
+    at div
+    at DateTimePicker (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/agendamento/DateTimePicker.jsx:60:3)
+    at div
+    at MotionDOMComponent (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/framer-motion.js?v=a4b15fd5:5395:40)
+    at form
+    at div
+    at NovoAgendamento (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/NovoAgendamento.jsx:33:20)
+    at div
+    at main
+    at div
+    at div
+    at Provider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/chunk-XUVJRN25.js?v=a4b15fd5:47:15)
+    at TooltipProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a4b15fd5:156:5)
+    at https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ui/sidebar.jsx:52:3
+    at Layout (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/Layout.jsx:106:34)
+    at ProtectedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ProtectedRoute.jsx:20:42)
+    at RenderedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6021:26)
+    at Routes (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6815:3)
+    at PagesContent
+    at Router (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6758:13)
+    at BrowserRouter (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:9878:3)
+    at Pages
+    at QueryClientProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=a4b15fd5:3093:3)
+    at App
+printWarning @ chunk-SXRIVT2P.js?v=a4b15fd5:521
+error @ chunk-SXRIVT2P.js?v=a4b15fd5:505
+warnOnInvalidKey @ chunk-SXRIVT2P.js?v=a4b15fd5:10266
+reconcileChildrenArray @ chunk-SXRIVT2P.js?v=a4b15fd5:10282
+reconcileChildFibers2 @ chunk-SXRIVT2P.js?v=a4b15fd5:10606
+reconcileChildren @ chunk-SXRIVT2P.js?v=a4b15fd5:14338
+updateHostComponent @ chunk-SXRIVT2P.js?v=a4b15fd5:14855
+beginWork @ chunk-SXRIVT2P.js?v=a4b15fd5:15983
+beginWork$1 @ chunk-SXRIVT2P.js?v=a4b15fd5:19806
+performUnitOfWork @ chunk-SXRIVT2P.js?v=a4b15fd5:19251
+workLoopConcurrent @ chunk-SXRIVT2P.js?v=a4b15fd5:19242
+renderRootConcurrent @ chunk-SXRIVT2P.js?v=a4b15fd5:19217
+performConcurrentWorkOnRoot @ chunk-SXRIVT2P.js?v=a4b15fd5:18728
+workLoop @ chunk-SXRIVT2P.js?v=a4b15fd5:197
+flushWork @ chunk-SXRIVT2P.js?v=a4b15fd5:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=a4b15fd5:384Understand this error
+chunk-SXRIVT2P.js?v=a4b15fd5:521 Warning: Encountered two children with the same key, `Se`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at div
+    at div
+    at div
+    at DateTimePicker (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/agendamento/DateTimePicker.jsx:60:3)
+    at div
+    at MotionDOMComponent (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/framer-motion.js?v=a4b15fd5:5395:40)
+    at form
+    at div
+    at NovoAgendamento (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/NovoAgendamento.jsx:33:20)
+    at div
+    at main
+    at div
+    at div
+    at Provider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/chunk-XUVJRN25.js?v=a4b15fd5:47:15)
+    at TooltipProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a4b15fd5:156:5)
+    at https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ui/sidebar.jsx:52:3
+    at Layout (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/Layout.jsx:106:34)
+    at ProtectedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ProtectedRoute.jsx:20:42)
+    at RenderedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6021:26)
+    at Routes (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6815:3)
+    at PagesContent
+    at Router (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6758:13)
+    at BrowserRouter (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:9878:3)
+    at Pages
+    at QueryClientProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=a4b15fd5:3093:3)
+    at App
+printWarning @ chunk-SXRIVT2P.js?v=a4b15fd5:521
+error @ chunk-SXRIVT2P.js?v=a4b15fd5:505
+warnOnInvalidKey @ chunk-SXRIVT2P.js?v=a4b15fd5:10266
+reconcileChildrenArray @ chunk-SXRIVT2P.js?v=a4b15fd5:10282
+reconcileChildFibers2 @ chunk-SXRIVT2P.js?v=a4b15fd5:10606
+reconcileChildren @ chunk-SXRIVT2P.js?v=a4b15fd5:14340
+updateHostComponent @ chunk-SXRIVT2P.js?v=a4b15fd5:14855
+beginWork @ chunk-SXRIVT2P.js?v=a4b15fd5:15983
+beginWork$1 @ chunk-SXRIVT2P.js?v=a4b15fd5:19806
+performUnitOfWork @ chunk-SXRIVT2P.js?v=a4b15fd5:19251
+workLoopSync @ chunk-SXRIVT2P.js?v=a4b15fd5:19190
+renderRootSync @ chunk-SXRIVT2P.js?v=a4b15fd5:19169
+performSyncWorkOnRoot @ chunk-SXRIVT2P.js?v=a4b15fd5:18927
+flushSyncCallbacks @ chunk-SXRIVT2P.js?v=a4b15fd5:9166
+commitRootImpl @ chunk-SXRIVT2P.js?v=a4b15fd5:19485
+commitRoot @ chunk-SXRIVT2P.js?v=a4b15fd5:19330
+finishConcurrentRender @ chunk-SXRIVT2P.js?v=a4b15fd5:18858
+performConcurrentWorkOnRoot @ chunk-SXRIVT2P.js?v=a4b15fd5:18768
+workLoop @ chunk-SXRIVT2P.js?v=a4b15fd5:197
+flushWork @ chunk-SXRIVT2P.js?v=a4b15fd5:176
+performWorkUntilDeadline @ chunk-SXRIVT2P.js?v=a4b15fd5:384Understand this error
+chunk-SXRIVT2P.js?v=a4b15fd5:521 Warning: Encountered two children with the same key, `Se`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at div
+    at div
+    at div
+    at div
+    at DateTimePicker (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/agendamento/DateTimePicker.jsx:60:3)
+    at div
+    at MotionDOMComponent (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/framer-motion.js?v=a4b15fd5:5395:40)
+    at form
+    at div
+    at NovoAgendamento (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/NovoAgendamento.jsx:33:20)
+    at div
+    at main
+    at div
+    at div
+    at Provider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/chunk-XUVJRN25.js?v=a4b15fd5:47:15)
+    at TooltipProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a4b15fd5:156:5)
+    at https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ui/sidebar.jsx:52:3
+    at Layout (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/pages/Layout.jsx:106:34)
+    at ProtectedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/src/components/ProtectedRoute.jsx:20:42)
+    at RenderedRoute (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6021:26)
+    at Routes (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6815:3)
+    at PagesContent
+    at Router (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:6758:13)
+    at BrowserRouter (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=a4b15fd5:9878:3)
+    at Pages
+    at QueryClientProvider (https://27832716-f8f5-4bdb-b53c-0e66b7d8b90b-00-38y0ee2fjniad.picard.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=a4b15fd5:3093:3)
+    at App

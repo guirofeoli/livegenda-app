@@ -1,0 +1,245 @@
+16:57:29.431	Cloning repository...
+16:57:30.053	From https://github.com/guirofeoli/livegenda-app
+16:57:30.054	 * branch            29a521ee615df7e8a5ed80a03cab0f252986a1e8 -> FETCH_HEAD
+16:57:30.054	
+16:57:30.089	HEAD is now at 29a521e feat: adiciona meta tag verificacao Facebook/Meta Ads na landing page
+16:57:30.090	
+16:57:30.175	
+16:57:30.176	Using v2 root directory strategy
+16:57:30.199	Success: Finished cloning repository files
+16:57:31.972	Checking for configuration in a Wrangler configuration file (BETA)
+16:57:31.973	
+16:57:31.975	Found wrangler.toml file. Reading build configuration...
+16:57:33.066	A wrangler.toml file was found but it does not appear to be valid. Did you mean to use wrangler.toml to configure Pages? If so, then make sure the file is valid and contains the `pages_build_output_dir` property. Skipping file and continuing.
+16:57:33.067	No build command specified. Skipping build step.
+16:57:33.068	Found Functions directory at /functions. Uploading.
+16:57:33.074	 ⛅️ wrangler 3.101.0
+16:57:33.074	-------------------
+16:57:34.153	✘ [ERROR] Build failed with 12 errors:
+16:57:34.153	
+16:57:34.153	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.154	  
+16:57:34.154	      api/_middleware.ts:7:40:
+16:57:34.154	        7 │ import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+16:57:34.154	          ╵                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.154	  
+16:57:34.154	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.154	  
+16:57:34.154	  
+16:57:34.155	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.155	  
+16:57:34.155	      api/auth/register.ts:1:21:
+16:57:34.155	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.155	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.155	  
+16:57:34.155	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.155	  
+16:57:34.155	  
+16:57:34.155	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.156	  
+16:57:34.156	      api/auth/vincular-empresa.ts:1:21:
+16:57:34.156	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.156	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.156	  
+16:57:34.156	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.156	  
+16:57:34.156	  
+16:57:34.157	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.157	  
+16:57:34.157	      api/clientes/[id].ts:1:21:
+16:57:34.157	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.157	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.157	  
+16:57:34.157	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.157	  
+16:57:34.157	  
+16:57:34.158	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.158	  
+16:57:34.158	      api/clientes/index.ts:1:21:
+16:57:34.158	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.158	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.158	  
+16:57:34.159	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.159	  
+16:57:34.159	  
+16:57:34.159	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.159	  
+16:57:34.159	      api/empresas/[id].ts:1:21:
+16:57:34.159	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.159	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.159	  
+16:57:34.159	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.159	  
+16:57:34.160	  
+16:57:34.160	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.160	  
+16:57:34.160	      api/empresas/index.ts:1:21:
+16:57:34.160	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.160	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.160	  
+16:57:34.160	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.160	  
+16:57:34.161	  
+16:57:34.161	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.161	  
+16:57:34.161	      api/funcionarios/[id].ts:1:21:
+16:57:34.161	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.161	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.161	  
+16:57:34.161	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.162	  
+16:57:34.162	  
+16:57:34.162	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.162	  
+16:57:34.162	      api/funcionarios/index.ts:1:21:
+16:57:34.162	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.162	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.162	  
+16:57:34.162	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.163	  
+16:57:34.163	  
+16:57:34.163	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.163	  
+16:57:34.163	      api/servicos/[id].ts:1:21:
+16:57:34.163	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.163	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.163	  
+16:57:34.163	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.164	  
+16:57:34.164	  
+16:57:34.164	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.164	  
+16:57:34.164	      api/servicos/index.ts:1:21:
+16:57:34.164	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.164	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.164	  
+16:57:34.165	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.165	  
+16:57:34.165	  
+16:57:34.165	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.165	  
+16:57:34.165	      api/usuarios/[id].ts:1:21:
+16:57:34.165	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.165	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.165	  
+16:57:34.165	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.166	  
+16:57:34.166	  
+16:57:34.166	
+16:57:34.166	
+16:57:34.166	
+16:57:34.166	✘ [ERROR] Build failed with 12 errors:
+16:57:34.166	
+16:57:34.166	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.166	  
+16:57:34.167	      api/_middleware.ts:7:40:
+16:57:34.167	        7 │ import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+16:57:34.167	          ╵                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.167	  
+16:57:34.167	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.167	  
+16:57:34.167	  
+16:57:34.167	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.167	  
+16:57:34.167	      api/auth/register.ts:1:21:
+16:57:34.168	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.168	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.168	  
+16:57:34.168	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.168	  
+16:57:34.168	  
+16:57:34.168	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.168	  
+16:57:34.168	      api/auth/vincular-empresa.ts:1:21:
+16:57:34.168	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.169	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.169	  
+16:57:34.169	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.169	  
+16:57:34.169	  
+16:57:34.169	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.169	  
+16:57:34.169	      api/clientes/[id].ts:1:21:
+16:57:34.169	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.169	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.170	  
+16:57:34.170	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.170	  
+16:57:34.170	  
+16:57:34.170	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.170	  
+16:57:34.170	      api/clientes/index.ts:1:21:
+16:57:34.170	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.170	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.170	  
+16:57:34.171	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.171	  
+16:57:34.171	  
+16:57:34.171	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.171	  
+16:57:34.171	      api/empresas/[id].ts:1:21:
+16:57:34.171	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.171	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.171	  
+16:57:34.171	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.172	  
+16:57:34.172	  
+16:57:34.172	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.172	  
+16:57:34.172	      api/empresas/index.ts:1:21:
+16:57:34.172	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.172	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.172	  
+16:57:34.172	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.172	  
+16:57:34.172	  
+16:57:34.173	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.173	  
+16:57:34.173	      api/funcionarios/[id].ts:1:21:
+16:57:34.173	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.173	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.173	  
+16:57:34.173	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.173	  
+16:57:34.173	  
+16:57:34.174	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.174	  
+16:57:34.174	      api/funcionarios/index.ts:1:21:
+16:57:34.174	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.174	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.174	  
+16:57:34.174	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.174	  
+16:57:34.175	  
+16:57:34.175	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.175	  
+16:57:34.175	      api/servicos/[id].ts:1:21:
+16:57:34.175	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.175	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.175	  
+16:57:34.175	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.175	  
+16:57:34.176	  
+16:57:34.176	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.176	  
+16:57:34.176	      api/servicos/index.ts:1:21:
+16:57:34.176	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.176	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.176	  
+16:57:34.176	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.177	  
+16:57:34.177	  
+16:57:34.177	  ✘ [ERROR] Could not resolve "@neondatabase/serverless"
+16:57:34.177	  
+16:57:34.177	      api/usuarios/[id].ts:1:21:
+16:57:34.177	        1 │ import { neon } from "@neondatabase/serverless";
+16:57:34.177	          ╵                      ~~~~~~~~~~~~~~~~~~~~~~~~~~
+16:57:34.178	  
+16:57:34.178	    You can mark the path "@neondatabase/serverless" as external to exclude it from the bundle, which will remove this error.
+16:57:34.178	  
+16:57:34.178	  
+16:57:34.178	
+16:57:34.178	
+16:57:34.192	🪵  Logs were written to "/root/.config/.wrangler/logs/wrangler-2025-11-30_19-57-33_692.log"
+16:57:34.204	Failed building Pages Functions.
+16:57:35.408	Failed: generating Pages Functions failed. Check the logs above for more information. If this continues for an unknown reason, contact support: https://cfl.re/3WgEyrH

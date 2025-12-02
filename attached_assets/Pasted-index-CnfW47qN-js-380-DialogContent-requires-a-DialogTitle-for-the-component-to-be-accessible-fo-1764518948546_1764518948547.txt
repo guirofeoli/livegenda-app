@@ -1,0 +1,59 @@
+index-CnfW47qN.js:380 `DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.
+
+If you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/dialog
+(anonymous) @ index-CnfW47qN.js:380
+Ep @ index-CnfW47qN.js:40
+Wl @ index-CnfW47qN.js:40
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+(anonymous) @ index-CnfW47qN.js:40Understand this error
+index-CnfW47qN.js:380 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ index-CnfW47qN.js:380
+Ep @ index-CnfW47qN.js:40
+Wl @ index-CnfW47qN.js:40
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+dT @ index-CnfW47qN.js:40
+io @ index-CnfW47qN.js:38
+(anonymous) @ index-CnfW47qN.js:40Understand this warning
+index-CnfW47qN.js:380 ProtectedRoute - Current authState: {user: {…}, empresa: {…}, loading: false}
+index-CnfW47qN.js:380 ProtectedRoute - Renderizando children
+index-CnfW47qN.js:380 ProtectedRoute - Current authState: {user: {…}, empresa: {…}, loading: false}
+index-CnfW47qN.js:380 ProtectedRoute - Renderizando children
+index-CnfW47qN.js:40 TypeError: o.toFixed is not a function
+    at index-CnfW47qN.js:460:48344
+    at Array.map (<anonymous>)
+    at FNe (index-CnfW47qN.js:460:47828)
+    at F0 (index-CnfW47qN.js:38:17509)
+    at yT (index-CnfW47qN.js:40:44734)
+    at pT (index-CnfW47qN.js:40:40329)
+    at a7 (index-CnfW47qN.js:40:40257)
+    at Lp (index-CnfW47qN.js:40:40110)
+    at dx (index-CnfW47qN.js:40:36397)
+    at uT (index-CnfW47qN.js:40:35345)
+G0 @ index-CnfW47qN.js:40
+RE.m.callback @ index-CnfW47qN.js:40
+lE @ index-CnfW47qN.js:38
+sT @ index-CnfW47qN.js:40
+oT @ index-CnfW47qN.js:40
+r7 @ index-CnfW47qN.js:40
+s7 @ index-CnfW47qN.js:40
+ms @ index-CnfW47qN.js:40
+uT @ index-CnfW47qN.js:40
+N @ index-CnfW47qN.js:25
+F @ index-CnfW47qN.js:25Understand this error
+index-CnfW47qN.js:460 Uncaught TypeError: o.toFixed is not a function
+    at index-CnfW47qN.js:460:48344
+    at Array.map (<anonymous>)
+    at FNe (index-CnfW47qN.js:460:47828)
+    at F0 (index-CnfW47qN.js:38:17509)
+    at yT (index-CnfW47qN.js:40:44734)
+    at pT (index-CnfW47qN.js:40:40329)
+    at a7 (index-CnfW47qN.js:40:40257)
+    at Lp (index-CnfW47qN.js:40:40110)
+    at dx (index-CnfW47qN.js:40:36397)
+    at uT (index-CnfW47qN.js:40:35345)

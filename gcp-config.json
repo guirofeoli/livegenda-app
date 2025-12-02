@@ -1,0 +1,160 @@
+{
+  "_comment": "============================================",
+  "_comment2": "LIVEGENDA - Configuração GCP (Futuro)",
+  "_comment3": "============================================",
+  "_comment4": "Este arquivo documenta a configuração necessária",
+  "_comment5": "para migrar para GCP quando o projeto escalar.",
+  "_comment6": "NÃO é utilizado no deploy Cloudflare atual.",
+  "_comment7": "============================================",
+  
+  "project": {
+    "id": "metabase-242822",
+    "name": "livegenda-prod",
+    "region": "southamerica-east1",
+    "zone": "southamerica-east1-a"
+  },
+
+  "services": {
+    "cloud_run": {
+      "enabled": true,
+      "service_name": "livegenda-api",
+      "image": "gcr.io/metabase-242822/livegenda-api",
+      "memory": "512Mi",
+      "cpu": "1",
+      "min_instances": 0,
+      "max_instances": 10,
+      "concurrency": 80,
+      "timeout_seconds": 300,
+      "env_vars": [
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "WHATSAPP_TOKEN",
+        "CORS_ORIGIN"
+      ]
+    },
+
+    "cloud_sql": {
+      "enabled": false,
+      "_comment": "Usar apenas se Neon não for suficiente",
+      "instance_name": "livegenda-db",
+      "database_version": "POSTGRES_15",
+      "tier": "db-f1-micro",
+      "storage_gb": 10,
+      "backup_enabled": true
+    },
+
+    "cloud_storage": {
+      "enabled": true,
+      "bucket_name": "livegenda-assets",
+      "location": "SOUTHAMERICA-EAST1",
+      "storage_class": "STANDARD",
+      "public": true,
+      "cors": {
+        "origin": ["https://app.livegenda.com", "https://livegenda.com"],
+        "method": ["GET"],
+        "max_age_seconds": 3600
+      }
+    },
+
+    "pub_sub": {
+      "enabled": true,
+      "topics": [
+        {
+          "name": "whatsapp-messages",
+          "description": "Mensagens recebidas do WhatsApp"
+        },
+        {
+          "name": "notifications",
+          "description": "Notificações para usuários"
+        },
+        {
+          "name": "reminders",
+          "description": "Lembretes de agendamentos"
+        }
+      ]
+    },
+
+    "cloud_scheduler": {
+      "enabled": true,
+      "jobs": [
+        {
+          "name": "send-reminders",
+          "schedule": "0 * * * *",
+          "description": "Enviar lembretes de agendamentos (a cada hora)"
+        },
+        {
+          "name": "cleanup-old-data",
+          "schedule": "0 3 * * 0",
+          "description": "Limpar dados antigos (domingo às 3h)"
+        }
+      ]
+    }
+  },
+
+  "iam": {
+    "service_account": {
+      "email": "livegenda-prod@metabase-242822.iam.gserviceaccount.com",
+      "roles": [
+        "roles/run.invoker",
+        "roles/cloudsql.client",
+        "roles/storage.objectAdmin",
+        "roles/pubsub.publisher",
+        "roles/pubsub.subscriber",
+        "roles/cloudscheduler.admin"
+      ]
+    }
+  },
+
+  "networking": {
+    "load_balancer": {
+      "enabled": false,
+      "_comment": "Cloud Run já inclui load balancer"
+    },
+    "cdn": {
+      "enabled": false,
+      "_comment": "Usar Cloudflare como CDN"
+    },
+    "vpc": {
+      "enabled": false,
+      "_comment": "Não necessário para arquitetura serverless"
+    }
+  },
+
+  "monitoring": {
+    "cloud_monitoring": true,
+    "cloud_logging": true,
+    "error_reporting": true,
+    "uptime_checks": [
+      {
+        "name": "api-health",
+        "host": "api.livegenda.com",
+        "path": "/api/health",
+        "period": "60s"
+      }
+    ]
+  },
+
+  "cost_estimate": {
+    "monthly_usd": {
+      "cloud_run": "5-20",
+      "cloud_sql": "10-25",
+      "cloud_storage": "1-5",
+      "pub_sub": "0-2",
+      "cloud_scheduler": "0",
+      "networking": "2-5",
+      "total": "18-57"
+    },
+    "note": "Estimativa para 50-200 empresas ativas"
+  },
+
+  "migration_triggers": {
+    "from_cloudflare_to_gcp": [
+      "Mais de 50 empresas ativas",
+      "Mais de 0.5GB de dados no Neon",
+      "Necessidade de WebSockets persistentes",
+      "Processamento pesado (relatórios, IA)",
+      "Requisitos de latência < 10ms",
+      "Volume de WhatsApp > 10k mensagens/dia"
+    ]
+  }
+}
