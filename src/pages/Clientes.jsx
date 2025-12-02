@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter } from "lucide-react";
@@ -35,6 +36,7 @@ export default function Clientes() {
   const [frequenciaFilter, setFrequenciaFilter] = useState("todos");
   const [showFilters, setShowFilters] = useState(false);
 
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -111,16 +113,9 @@ export default function Clientes() {
     },
   });
 
-  const toggleStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => livegenda.entities.Cliente.update(id, { status }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clientes'] });
-      toast({
-        title: "Status atualizado",
-        description: "O status do cliente foi alterado.",
-      });
-    },
-  });
+  const handleCreateAgendamento = (cliente) => {
+    navigate(`/novo-agendamento?clienteId=${cliente.id}`);
+  };
 
   const handleSave = (data) => {
     if (editingCliente) {
@@ -137,11 +132,6 @@ export default function Clientes() {
 
   const handleDelete = (cliente) => {
     setDeletingCliente(cliente);
-  };
-
-  const handleToggleStatus = (cliente) => {
-    const newStatus = cliente.status === "Ativo" ? "Inativo" : "Ativo";
-    toggleStatusMutation.mutate({ id: cliente.id, status: newStatus });
   };
 
   const handleAddNew = () => {
@@ -286,7 +276,7 @@ export default function Clientes() {
             clientes={filteredClientes}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onToggleStatus={handleToggleStatus}
+            onCreateAgendamento={handleCreateAgendamento}
           />
         )}
       </motion.div>
