@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, Power, User, Phone, Calendar, TrendingUp } from "lucide-react";
+import { Edit2, Trash2, User, Phone, Calendar, TrendingUp, CalendarPlus, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-function MobileCard({ cliente, onEdit, onDelete, onToggleStatus }) {
+function MobileCard({ cliente, onEdit, onDelete, onCreateAgendamento }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -83,30 +83,32 @@ function MobileCard({ cliente, onEdit, onDelete, onToggleStatus }) {
             <span>Último agendamento: {format(new Date(cliente.ultimo_agendamento), "dd/MM/yyyy")}</span>
           </div>
         )}
+        {cliente.observacoes && (
+          <div className="flex items-start gap-2 text-sm text-gray-600 bg-purple-50 p-2 rounded-lg">
+            <MessageSquare className="w-4 h-4 text-purple-500 mt-0.5 flex-shrink-0" />
+            <span className="line-clamp-2">{cliente.observacoes}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-2 pt-3 border-t border-purple-100">
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onEdit(cliente)}
+          onClick={() => onCreateAgendamento(cliente)}
           className="flex-1 border-purple-200 hover:bg-purple-50 hover:text-purple-700"
+          data-testid={`button-create-agendamento-${cliente.id}`}
         >
-          <Edit2 className="w-4 h-4 mr-2" />
-          Editar
+          <CalendarPlus className="w-4 h-4 mr-2" />
+          Agendar
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onToggleStatus(cliente)}
-          className={
-            cliente.status === "Ativa"
-              ? "border-orange-200 hover:bg-orange-50 hover:text-orange-700"
-              : "border-green-200 hover:bg-green-50 hover:text-green-700"
-          }
+          onClick={() => onEdit(cliente)}
+          className="border-purple-200 hover:bg-purple-50 hover:text-purple-700"
         >
-          <Power className="w-4 h-4 mr-2" />
-          {cliente.status === "Ativa" ? "Desativar" : "Ativar"}
+          <Edit2 className="w-4 h-4" />
         </Button>
         <Button
           variant="outline"
@@ -149,7 +151,7 @@ export default function ClientesTable({
   isLoading,
   onEdit,
   onDelete,
-  onToggleStatus,
+  onCreateAgendamento,
 }) {
   if (isLoading) {
     return (
@@ -219,7 +221,7 @@ export default function ClientesTable({
             cliente={cliente}
             onEdit={onEdit}
             onDelete={onDelete}
-            onToggleStatus={onToggleStatus}
+            onCreateAgendamento={onCreateAgendamento}
           />
         ))}
       </div>
@@ -267,7 +269,21 @@ export default function ClientesTable({
                         </div>
                       )}
                       <div>
-                        <p className="font-medium text-gray-900">{cliente.nome}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-medium text-gray-900">{cliente.nome}</p>
+                          {cliente.observacoes && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <MessageSquare className="w-4 h-4 text-purple-400" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p className="text-sm">{cliente.observacoes}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                         {cliente.ultimo_agendamento && new Date(cliente.ultimo_agendamento).getTime() && (
                           <p className="text-xs text-gray-500">
                             Último agendamento: {format(new Date(cliente.ultimo_agendamento), "dd/MM/yyyy")}
@@ -312,13 +328,14 @@ export default function ClientesTable({
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => onEdit(cliente)}
+                              onClick={() => onCreateAgendamento(cliente)}
                               className="hover:bg-purple-50 hover:text-purple-700"
+                              data-testid={`button-create-agendamento-desktop-${cliente.id}`}
                             >
-                              <Edit2 className="w-4 h-4" />
+                              <CalendarPlus className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Editar</TooltipContent>
+                          <TooltipContent>Criar Agendamento</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
 
@@ -328,19 +345,13 @@ export default function ClientesTable({
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => onToggleStatus(cliente)}
-                              className={
-                                cliente.status === "Ativa"
-                                  ? "hover:bg-orange-50 hover:text-orange-700"
-                                  : "hover:bg-green-50 hover:text-green-700"
-                              }
+                              onClick={() => onEdit(cliente)}
+                              className="hover:bg-purple-50 hover:text-purple-700"
                             >
-                              <Power className="w-4 h-4" />
+                              <Edit2 className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>
-                            {cliente.status === "Ativa" ? "Desativar" : "Ativar"}
-                          </TooltipContent>
+                          <TooltipContent>Editar</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
 
