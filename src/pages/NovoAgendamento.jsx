@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { livegenda } from "@/api/livegendaClient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 import ClienteSearch from "../components/agendamento/ClienteSearch";
@@ -15,11 +15,15 @@ import ClienteModal from "../components/clientes/ClienteModal";
 
 export default function NovoAgendamento() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
   const currentUser = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
   const empresaId = currentUser.empresa_id;
+
+  const clienteIdFromUrl = searchParams.get('clienteId');
+  const funcionarioIdFromUrl = searchParams.get('funcionarioId');
 
   const [selectedCliente, setSelectedCliente] = useState(null);
   const [selectedServico, setSelectedServico] = useState(null);
@@ -35,6 +39,42 @@ export default function NovoAgendamento() {
     enviar_whatsapp: true,
     sincronizar_google: true,
   });
+
+  const { data: clientesDataRaw = [] } = useQuery({
+    queryKey: ['clientes'],
+    queryFn: () => livegenda.entities.Cliente.list(),
+    enabled: !!clienteIdFromUrl,
+  });
+  const clientesData = Array.isArray(clientesDataRaw) 
+    ? clientesDataRaw.filter(c => c.empresa_id === empresaId) 
+    : [];
+
+  const { data: funcionariosDataRaw = [] } = useQuery({
+    queryKey: ['funcionarios'],
+    queryFn: () => livegenda.entities.Funcionario.list(),
+    enabled: !!funcionarioIdFromUrl,
+  });
+  const funcionariosData = Array.isArray(funcionariosDataRaw) 
+    ? funcionariosDataRaw.filter(f => f.empresa_id === empresaId) 
+    : [];
+
+  useEffect(() => {
+    if (clienteIdFromUrl && clientesData.length > 0) {
+      const cliente = clientesData.find(c => c.id === clienteIdFromUrl);
+      if (cliente && !selectedCliente) {
+        setSelectedCliente(cliente);
+      }
+    }
+  }, [clienteIdFromUrl, clientesData, selectedCliente]);
+
+  useEffect(() => {
+    if (funcionarioIdFromUrl && funcionariosData.length > 0) {
+      const funcionario = funcionariosData.find(f => f.id === funcionarioIdFromUrl);
+      if (funcionario && !selectedProfissional) {
+        setSelectedProfissional(funcionario);
+      }
+    }
+  }, [funcionarioIdFromUrl, funcionariosData, selectedProfissional]);
 
   const createClienteMutation = useMutation({
     mutationFn: (data) => livegenda.entities.Cliente.create(data),
