@@ -17,9 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Loader2, Scissors, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-export default function FuncionarioModal({ funcionario, onSave, onClose, isLoading }) {
+export default function FuncionarioModal({ funcionario, onSave, onClose, isLoading, servicos = [] }) {
   const [formData, setFormData] = useState({
     nome_completo: "",
     telefone: "",
@@ -35,6 +36,8 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
       visualizar_relatorios: false,
     },
   });
+  
+  const [servicoIdsSelecionados, setServicoIdsSelecionados] = useState([]);
 
   useEffect(() => {
     if (funcionario) {
@@ -53,12 +56,35 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
           visualizar_relatorios: false,
         },
       });
+      setServicoIdsSelecionados(funcionario.servico_ids || []);
+    } else {
+      setServicoIdsSelecionados([]);
     }
   }, [funcionario]);
+  
+  const handleServicoToggle = (servicoId, checked) => {
+    if (checked) {
+      setServicoIdsSelecionados(prev => [...prev, servicoId]);
+    } else {
+      setServicoIdsSelecionados(prev => prev.filter(id => id !== servicoId));
+    }
+  };
+  
+  const selecionarTodosServicos = () => {
+    setServicoIdsSelecionados(servicos.map(s => s.id));
+  };
+  
+  const limparSelecaoServicos = () => {
+    setServicoIdsSelecionados([]);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...formData, nome: formData.nome_completo });
+    onSave({ 
+      ...formData, 
+      nome: formData.nome_completo,
+      servico_ids: servicoIdsSelecionados
+    });
   };
 
   const handlePermissionChange = (permission, checked) => {
@@ -154,6 +180,77 @@ export default function FuncionarioModal({ funcionario, onSave, onClose, isLoadi
                   </Select>
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide flex items-center gap-2">
+                  <Scissors className="w-4 h-4" />
+                  Serviços que atende
+                </h3>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={selecionarTodosServicos}
+                    className="text-xs text-purple-600 hover:text-purple-700"
+                    data-testid="button-selecionar-todos-servicos"
+                  >
+                    Selecionar todos
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={limparSelecaoServicos}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                    data-testid="button-limpar-servicos"
+                  >
+                    Limpar
+                  </Button>
+                </div>
+              </div>
+              
+              {servicos.length === 0 ? (
+                <div className="flex items-center gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-amber-600" />
+                  <p className="text-sm text-amber-800">
+                    Nenhum serviço cadastrado. Cadastre serviços primeiro para vincular ao funcionário.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-2 border border-purple-100 rounded-lg bg-purple-50/30">
+                  {servicos.map((servico) => (
+                    <div 
+                      key={servico.id} 
+                      className="flex items-center space-x-2 p-2 rounded-md hover:bg-purple-100/50 transition-colors"
+                    >
+                      <Checkbox
+                        id={`servico-${servico.id}`}
+                        checked={servicoIdsSelecionados.includes(servico.id)}
+                        onCheckedChange={(checked) => handleServicoToggle(servico.id, checked)}
+                        data-testid={`checkbox-servico-${servico.id}`}
+                      />
+                      <label 
+                        htmlFor={`servico-${servico.id}`} 
+                        className="text-sm font-medium text-gray-700 cursor-pointer flex-1 flex items-center justify-between"
+                      >
+                        <span>{servico.nome}</span>
+                        <Badge variant="outline" className="text-xs bg-white">
+                          {servico.duracao_minutos}min
+                        </Badge>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {servicoIdsSelecionados.length > 0 && (
+                <p className="text-xs text-gray-500">
+                  {servicoIdsSelecionados.length} serviço(s) selecionado(s)
+                </p>
+              )}
             </div>
 
             <div className="space-y-4">
