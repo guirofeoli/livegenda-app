@@ -1,13 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { apiServerPlugin } from './vite-api-plugin.js'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
-  plugins: [react()],
+  plugins: [react(), apiServerPlugin()],
   server: {
-    allowedHosts: true
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
   },
   resolve: {
     alias: {
