@@ -28,11 +28,22 @@ import {
 import { Calendar, Clock, User, Scissors, FileText, Loader2, MoreVertical, CheckCircle, Edit, XCircle, Save, X } from "lucide-react";
 
 const STATUS_COLORS = {
-  Agendado: "bg-blue-100 text-blue-800",
-  Confirmado: "bg-green-100 text-green-800",
-  Cancelado: "bg-red-100 text-red-800",
-  Concluído: "bg-purple-100 text-purple-800",
+  pendente: "bg-blue-100 text-blue-800",
+  agendado: "bg-blue-100 text-blue-800",
+  confirmado: "bg-green-100 text-green-800",
+  cancelado: "bg-red-100 text-red-800",
 };
+
+const STATUS_LABELS = {
+  pendente: "Pendente",
+  agendado: "Agendado",
+  confirmado: "Confirmado",
+  cancelado: "Cancelado",
+};
+
+// Mapeamento de índice de dia para abreviação
+const DIAS_ABREVIADOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+const DIAS_NOMES = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
 
 export default function AgendamentoDetailModal({
   agendamento,
@@ -41,6 +52,7 @@ export default function AgendamentoDetailModal({
   servicos = [],
   funcionario,
   funcionarios = [],
+  empresa,
   onClose,
   onEdit,
   onConfirm,
@@ -50,6 +62,7 @@ export default function AgendamentoDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [isOpen, setIsOpen] = useState(true);
+  const [dataError, setDataError] = useState('');
 
   useEffect(() => {
     if (agendamento) {
@@ -87,12 +100,65 @@ export default function AgendamentoDetailModal({
     });
   };
 
+  // Verificar se uma data é um dia de funcionamento da empresa
+  const isDataPermitida = (dateString) => {
+    if (!dateString) return true;
+    
+    const date = new Date(dateString + 'T00:00:00');
+    const dayIndex = date.getDay();
+    const diaAbrev = DIAS_ABREVIADOS[dayIndex];
+    const diaNome = DIAS_NOMES[dayIndex];
+    
+    // Verificar dias_funcionamento (array de abreviações)
+    if (empresa?.dias_funcionamento && Array.isArray(empresa.dias_funcionamento)) {
+      return empresa.dias_funcionamento.includes(diaAbrev);
+    }
+    
+    // Fallback: verificar horario_funcionamento estruturado
+    if (empresa?.horario_funcionamento && typeof empresa.horario_funcionamento === 'object') {
+      return empresa.horario_funcionamento[diaNome]?.ativo !== false;
+    }
+    
+    // Default: assumir dias úteis abertos (seg-sex)
+    return dayIndex >= 1 && dayIndex <= 5;
+  };
+
+  // Handler para mudança de data com validação
+  const handleDataChange = (newDate) => {
+    if (!isDataPermitida(newDate)) {
+      setDataError('Estabelecimento não funciona neste dia');
+    } else {
+      setDataError('');
+    }
+    setEditedData({...editedData, data: newDate});
+  };
+
   const handleEdit = () => {
     setIsEditing(true);
+    setDataError('');
   };
 
   const handleSave = () => {
-    onEdit(editedData);
+    // Validar data antes de salvar
+    if (!isDataPermitida(editedData.data)) {
+      setDataError('Estabelecimento não funciona neste dia');
+      return;
+    }
+    // Construir data_hora e data_hora_fim no formato ISO para o backend
+    const dataToSend = { ...editedData };
+    
+    if (editedData.data && editedData.hora_inicio) {
+      // Criar data_hora como ISO string
+      dataToSend.data_hora = `${editedData.data}T${editedData.hora_inicio}:00`;
+      
+      // Calcular hora_fim e criar data_hora_fim
+      const horaFimStr = calcularHoraFim(editedData.hora_inicio, editedData.duracao_minutos);
+      if (horaFimStr) {
+        dataToSend.data_hora_fim = `${editedData.data}T${horaFimStr}:00`;
+      }
+    }
+    
+    onEdit(dataToSend);
     setIsEditing(false);
   };
 
@@ -171,8 +237,8 @@ export default function AgendamentoDetailModal({
                 />
               )}
             </div>
-            <Badge className={`${STATUS_COLORS[agendamento.status]} pointer-events-none`}>
-              {agendamento.status}
+            <Badge className={`${STATUS_COLORS[agendamento.status] || STATUS_COLORS.pendente} pointer-events-none`}>
+              {STATUS_LABELS[agendamento.status] || agendamento.status}
             </Badge>
           </DialogTitle>
         </DialogHeader>
@@ -296,12 +362,18 @@ export default function AgendamentoDetailModal({
               <div className="flex-1">
                 <p className="text-sm text-gray-500">Data</p>
                 {isEditing ? (
-                  <Input
-                    type="date"
-                    value={editedData.data}
-                    onChange={(e) => setEditedData({...editedData, data: e.target.value})}
-                    className="h-9 border-purple-200 focus:border-purple-500"
-                  />
+                  <div className="space-y-1">
+                    <Input
+                      type="date"
+                      value={editedData.data}
+                      onChange={(e) => handleDataChange(e.target.value)}
+                      className={`h-9 border-purple-200 focus:border-purple-500 ${dataError ? 'border-red-500' : ''}`}
+                      data-testid="input-data-agendamento"
+                    />
+                    {dataError && (
+                      <p className="text-xs text-red-500">{dataError}</p>
+                    )}
+                  </div>
                 ) : (
                   <p className="font-semibold text-gray-900 text-sm">
                     {formatDate(agendamento.data)}
@@ -392,51 +464,62 @@ export default function AgendamentoDetailModal({
                 onClick={() => handleOpenChange(false)}
                 disabled={isLoading}
                 className="border-gray-300 hover:bg-gray-50"
+                data-testid="button-close-modal"
               >
                 Fechar
               </Button>
               
-              {agendamento.status !== "Cancelado" && agendamento.status !== "Concluído" && (
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
+              {agendamento.status !== "cancelado" && (
+                <div className="flex gap-2">
+                  {/* Botão de Confirmar - Visível para status "agendado" ou "pendente" */}
+                  {(agendamento.status === "agendado" || agendamento.status === "pendente") && (
                     <Button
+                      onClick={handleConfirmClick}
                       disabled={isLoading}
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg shadow-purple-500/30"
+                      className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg shadow-green-500/30"
+                      data-testid="button-confirm-agendamento"
                     >
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Processando...
+                          Confirmando...
                         </>
                       ) : (
                         <>
-                          Ações
-                          <MoreVertical className="w-4 h-4 ml-2" />
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Confirmar
                         </>
                       )}
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={handleEdit}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editar Agendamento
-                    </DropdownMenuItem>
-                    
-                    {agendamento.status === "Agendado" && (
-                      <DropdownMenuItem onClick={handleConfirmClick} className="text-green-600">
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Confirmar Agendamento
+                  )}
+                  
+                  {/* Menu de ações secundárias */}
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        disabled={isLoading}
+                        className="border-purple-200 hover:bg-purple-50"
+                        data-testid="button-actions-dropdown"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={handleEdit} data-testid="menu-edit">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar Agendamento
                       </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem onClick={handleCancelClick} className="text-red-600">
-                      <XCircle className="w-4 h-4 mr-2" />
-                      Cancelar Agendamento
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuItem onClick={handleCancelClick} className="text-red-600" data-testid="menu-cancel">
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Cancelar Agendamento
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               )}
             </>
           )}
