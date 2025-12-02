@@ -3,10 +3,10 @@ import { Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLORS = {
-  Agendado: "bg-blue-100 border-blue-300 text-blue-900",
-  Confirmado: "bg-green-100 border-green-300 text-green-900",
-  Cancelado: "bg-red-100 border-red-300 text-red-900",
-  Concluído: "bg-purple-100 border-purple-300 text-purple-900"
+  pendente: "bg-blue-100 border-blue-300 text-blue-900",
+  agendado: "bg-blue-100 border-blue-300 text-blue-900",
+  confirmado: "bg-green-100 border-green-300 text-green-900",
+  cancelado: "bg-red-100 border-red-300 text-red-900",
 };
 
 export default function AgendamentoCard({
@@ -29,7 +29,7 @@ export default function AgendamentoCard({
   };
 
   const horaFim = calcularHoraFim();
-  const colorClass = STATUS_COLORS[agendamento.status] || STATUS_COLORS.Agendado;
+  const colorClass = STATUS_COLORS[agendamento.status] || STATUS_COLORS.agendado;
 
   // Modo compacto: apenas mostra uma barra colorida indicando continuação
   if (compact) {
