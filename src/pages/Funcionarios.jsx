@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Filter } from "lucide-react";
@@ -35,6 +36,7 @@ export default function Funcionarios() {
   const [cargoFilter, setCargoFilter] = useState("todos");
   const [showFilters, setShowFilters] = useState(false);
 
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -44,17 +46,29 @@ export default function Funcionarios() {
   const { data: funcionariosData = [], isLoading } = useQuery({
     queryKey: ['funcionarios'],
     queryFn: () => livegenda.entities.Funcionario.list("-created_date"),
-    initialData: [],
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+  
+  const { data: servicosData = [] } = useQuery({
+    queryKey: ['servicos'],
+    queryFn: () => livegenda.entities.Servico.list(),
+    staleTime: 0,
   });
   
   const funcionarios = Array.isArray(funcionariosData) 
     ? funcionariosData.filter(f => f.empresa_id === empresaId)
     : [];
+  
+  const servicos = Array.isArray(servicosData) 
+    ? servicosData.filter(s => s.empresa_id === empresaId)
+    : [];
 
   const createMutation = useMutation({
     mutationFn: (data) => livegenda.entities.Funcionario.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['funcionarios'] });
+      await queryClient.refetchQueries({ queryKey: ['funcionarios'] });
       setShowModal(false);
       setEditingFuncionario(null);
       toast({
@@ -136,6 +150,10 @@ export default function Funcionarios() {
 
   const handleDelete = (funcionario) => {
     setDeletingFuncionario(funcionario);
+  };
+
+  const handleCreateAgendamento = (funcionario) => {
+    navigate(`/novo-agendamento?funcionarioId=${funcionario.id}`);
   };
 
   const handleToggleStatus = (funcionario) => {
@@ -287,7 +305,7 @@ export default function Funcionarios() {
             funcionarios={filteredFuncionarios}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onToggleStatus={handleToggleStatus}
+            onCreateAgendamento={handleCreateAgendamento}
           />
         )}
       </motion.div>
@@ -302,6 +320,7 @@ export default function Funcionarios() {
               setEditingFuncionario(null);
             }}
             isLoading={createMutation.isPending || updateMutation.isPending}
+            servicos={servicos}
           />
         )}
       </AnimatePresence>
