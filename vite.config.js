@@ -1,16 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig(async ({ command }) => {
   const plugins = [react()]
   
   // Only load API plugin in dev mode
   if (command === 'serve') {
-    import('./vite-api-plugin.js').then(({ apiServerPlugin }) => {
-      // Plugin will be loaded dynamically in dev
-    }).catch(() => {})
+    try {
+      const { apiServerPlugin } = await import('./vite-api-plugin.js')
+      plugins.push(apiServerPlugin())
+    } catch (e) {
+      console.log('API plugin not loaded')
+    }
   }
   
   return {
@@ -29,7 +35,7 @@ export default defineConfig(({ command }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(import.meta.dirname || process.cwd(), './src'),
+        '@': path.resolve(__dirname, './src'),
       },
       extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json']
     },
