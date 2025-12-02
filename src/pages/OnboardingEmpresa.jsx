@@ -14,9 +14,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Building2, Phone, Mail, MapPin, Clock, Loader2, User, Lock, ArrowLeft } from "lucide-react";
+import { Building2, Phone, Mail, MapPin, Clock, Loader2, User, Lock, ArrowLeft, Home } from "lucide-react";
 
 const API_BASE = "";
+
+const ESTADOS_BRASIL = [
+  { value: "AC", label: "Acre" },
+  { value: "AL", label: "Alagoas" },
+  { value: "AP", label: "Amapá" },
+  { value: "AM", label: "Amazonas" },
+  { value: "BA", label: "Bahia" },
+  { value: "CE", label: "Ceará" },
+  { value: "DF", label: "Distrito Federal" },
+  { value: "ES", label: "Espírito Santo" },
+  { value: "GO", label: "Goiás" },
+  { value: "MA", label: "Maranhão" },
+  { value: "MT", label: "Mato Grosso" },
+  { value: "MS", label: "Mato Grosso do Sul" },
+  { value: "MG", label: "Minas Gerais" },
+  { value: "PA", label: "Pará" },
+  { value: "PB", label: "Paraíba" },
+  { value: "PR", label: "Paraná" },
+  { value: "PE", label: "Pernambuco" },
+  { value: "PI", label: "Piauí" },
+  { value: "RJ", label: "Rio de Janeiro" },
+  { value: "RN", label: "Rio Grande do Norte" },
+  { value: "RS", label: "Rio Grande do Sul" },
+  { value: "RO", label: "Rondônia" },
+  { value: "RR", label: "Roraima" },
+  { value: "SC", label: "Santa Catarina" },
+  { value: "SP", label: "São Paulo" },
+  { value: "SE", label: "Sergipe" },
+  { value: "TO", label: "Tocantins" }
+];
 
 const CATEGORIAS_EMPRESA = [
   { value: "salao_beleza", label: "Salão de Beleza" },
@@ -50,7 +80,12 @@ export default function OnboardingEmpresa() {
     emailNegocio: onboardingData.email || "",
     categoria: "",
     telefone: "",
-    endereco: "",
+    // Endereço estruturado
+    logradouro: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    cep: "",
     horarioFuncionamento: {
       segunda: { inicio: "09:00", fim: "18:00", ativo: true },
       terca: { inicio: "09:00", fim: "18:00", ativo: true },
@@ -121,7 +156,12 @@ export default function OnboardingEmpresa() {
           emailNegocio: formData.emailNegocio || formData.email,
           categoria: formData.categoria,
           telefone: formData.telefone,
-          endereco: formData.endereco || null
+          // Endereço estruturado
+          logradouro: formData.logradouro || null,
+          bairro: formData.bairro || null,
+          cidade: formData.cidade || null,
+          estado: formData.estado || null,
+          cep: formData.cep || null
         })
       });
       
@@ -342,19 +382,89 @@ export default function OnboardingEmpresa() {
                   </div>
                 </div>
 
+              </div>
+
+              {/* Seção: Endereço */}
+              <div className="space-y-3 pb-4 border-b">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-medium text-sm text-muted-foreground">Localização do negócio</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Preencha o endereço para aparecer nos resultados de busca por localização
+                </p>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="endereco">Endereço</Label>
+                  <Label htmlFor="logradouro">Endereço (Rua, Número)</Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Home className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="endereco"
-                      placeholder="Rua, número, bairro, cidade"
-                      value={formData.endereco}
-                      onChange={(e) => handleInputChange("endereco", e.target.value)}
+                      id="logradouro"
+                      placeholder="Ex: Rua das Flores, 123"
+                      value={formData.logradouro}
+                      onChange={(e) => handleInputChange("logradouro", e.target.value)}
                       className="pl-10"
                       disabled={loading}
-                      data-testid="input-endereco"
+                      data-testid="input-logradouro"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="bairro">Bairro</Label>
+                    <Input
+                      id="bairro"
+                      placeholder="Ex: Centro"
+                      value={formData.bairro}
+                      onChange={(e) => handleInputChange("bairro", e.target.value)}
+                      disabled={loading}
+                      data-testid="input-bairro"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      placeholder="00000-000"
+                      value={formData.cep}
+                      onChange={(e) => handleInputChange("cep", e.target.value)}
+                      disabled={loading}
+                      data-testid="input-cep"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="cidade">Cidade</Label>
+                    <Input
+                      id="cidade"
+                      placeholder="Ex: São Paulo"
+                      value={formData.cidade}
+                      onChange={(e) => handleInputChange("cidade", e.target.value)}
+                      disabled={loading}
+                      data-testid="input-cidade"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="estado">Estado</Label>
+                    <Select 
+                      value={formData.estado} 
+                      onValueChange={(value) => handleInputChange("estado", value)}
+                      disabled={loading}
+                    >
+                      <SelectTrigger data-testid="select-estado">
+                        <SelectValue placeholder="UF" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ESTADOS_BRASIL.map((estado) => (
+                          <SelectItem key={estado.value} value={estado.value}>
+                            {estado.value} - {estado.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
