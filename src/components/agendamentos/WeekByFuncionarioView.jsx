@@ -1,10 +1,16 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { livegenda } from "@/api/livegendaClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import AgendamentoCard from "./AgendamentoCard";
 
 const DIAS_SEMANA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+
+// Cores por status do agendamento
+const STATUS_COLORS = {
+  pendente: "bg-blue-100 text-blue-900 border-blue-300",
+  agendado: "bg-blue-100 text-blue-900 border-blue-300",
+  confirmado: "bg-green-100 text-green-900 border-green-300",
+  cancelado: "bg-red-100 text-red-900 border-red-300",
+};
 
 // Paleta de cores pasteis da identidade visual
 const COLOR_PALETTE = [
@@ -20,6 +26,10 @@ const COLOR_PALETTE = [
   { bg: "from-fuchsia-500 to-fuchsia-600", border: "border-fuchsia-500", shadow: "shadow-fuchsia-500/30" },
 ];
 
+// Mapeamento de índice de dia para abreviação
+const DIAS_ABREVIADOS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+const DIAS_NOMES = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+
 export default function WeekByFuncionarioView({
   currentDate,
   agendamentos,
@@ -29,7 +39,8 @@ export default function WeekByFuncionarioView({
   onAgendamentoClick,
   onDoubleClickSlot,
   isLoading,
-  selectedFuncionarioId
+  selectedFuncionarioId,
+  empresa
 }) {
   const getWeekDays = () => {
     const days = [];
@@ -56,26 +67,26 @@ export default function WeekByFuncionarioView({
 
   const allWeekDays = getWeekDays();
 
-  // Buscar configuração de horário de funcionamento
-  const { data: configuracoes = [] } = useQuery({
-    queryKey: ['configuracoes'],
-    queryFn: () => livegenda.entities.ConfiguracaoNegocio.list(),
-    initialData: [],
-  });
-
-  const configuracao = configuracoes[0];
-
-  // Mapear dia da semana para chave do horário
-  const getDiaChave = (dayIndex) => {
-    const dias = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
-    return dias[dayIndex];
-  };
-
   // Verificar se o estabelecimento está aberto em um dia específico
+  // Usa dias_funcionamento da empresa (ex: ['seg', 'ter', 'qua', 'qui', 'sex'])
+  // ou horario_funcionamento estruturado (ex: { segunda: { ativo: true, ... } })
   const isEstabelecimentoFechado = (date) => {
-    if (!configuracao?.horario_funcionamento) return false;
-    const diaChave = getDiaChave(date.getDay());
-    return configuracao.horario_funcionamento[diaChave]?.ativo === false;
+    const dayIndex = date.getDay();
+    const diaAbrev = DIAS_ABREVIADOS[dayIndex];
+    const diaNome = DIAS_NOMES[dayIndex];
+    
+    // Verificar dias_funcionamento (array de abreviações)
+    if (empresa?.dias_funcionamento && Array.isArray(empresa.dias_funcionamento)) {
+      return !empresa.dias_funcionamento.includes(diaAbrev);
+    }
+    
+    // Fallback: verificar horario_funcionamento estruturado
+    if (empresa?.horario_funcionamento && typeof empresa.horario_funcionamento === 'object') {
+      return empresa.horario_funcionamento[diaNome]?.ativo === false;
+    }
+    
+    // Default: assumir dias úteis abertos (seg-sex)
+    return dayIndex === 0 || dayIndex === 6; // dom e sab fechados por default
   };
 
   // Filtrar apenas dias abertos
@@ -188,6 +199,8 @@ export default function WeekByFuncionarioView({
                   const servico = servicos.find(s => s.id === agendamento.servico_id);
                   const horaFim = calcularHoraFim(agendamento);
 
+                  const statusColors = STATUS_COLORS[agendamento.status] || STATUS_COLORS.agendado;
+
                   return (
                     <div key={agendamento.id} className="space-y-1">
                       <div className="text-xs text-gray-500 font-medium">
@@ -195,7 +208,7 @@ export default function WeekByFuncionarioView({
                       </div>
                       <button
                         onClick={() => onAgendamentoClick(agendamento)}
-                        className="bg-green-100 text-green-900 p-2.5 text-left rounded-lg w-full border-l-4 border-green-300 transition-all hover:shadow-md"
+                        className={`${statusColors} p-2.5 text-left rounded-lg w-full border-l-4 transition-all hover:shadow-md`}
                       >
                         <div className="space-y-0.5">
                           <p className="font-semibold text-xs">
@@ -302,26 +315,28 @@ export default function WeekByFuncionarioView({
                       return (
                         <div
                           key={dayIdx}
-                          className={`border-l border-purple-100 ${horaIdx < horariosComAgendamentos.length - 1 ? 'border-b border-purple-50' : ''} p-1 lg:p-2 relative overflow-hidden`}
-                          style={{ minHeight: '60px' }}
+                          className={`border-l border-purple-100 ${horaIdx < horariosComAgendamentos.length - 1 ? 'border-b border-purple-50' : ''} p-1 lg:p-2 relative`}
+                          style={{ minHeight: slotAgendamentos.length > 1 ? `${slotAgendamentos.length * 80}px` : '60px' }}
                           onDoubleClick={() => onDoubleClickSlot(day, `${String(hora).padStart(2, '0')}:00`)}
                         >
-                          {slotAgendamentos.map((agendamento) => {
-                            const cliente = clientes.find(c => c.id === agendamento.cliente_id);
-                            const servico = servicos.find(s => s.id === agendamento.servico_id);
-                            const funcionarioData = funcionarios.find(f => f.id === agendamento.funcionario_id);
+                          <div className="flex flex-col gap-1">
+                            {slotAgendamentos.map((agendamento) => {
+                              const cliente = clientes.find(c => c.id === agendamento.cliente_id);
+                              const servico = servicos.find(s => s.id === agendamento.servico_id);
+                              const funcionarioData = funcionarios.find(f => f.id === agendamento.funcionario_id);
 
-                            return (
-                              <AgendamentoCard
-                                key={agendamento.id}
-                                agendamento={agendamento}
-                                cliente={cliente}
-                                servico={servico}
-                                funcionario={funcionarioData}
-                                onClick={() => onAgendamentoClick(agendamento)}
-                              />
-                            );
-                          })}
+                              return (
+                                <AgendamentoCard
+                                  key={agendamento.id}
+                                  agendamento={agendamento}
+                                  cliente={cliente}
+                                  servico={servico}
+                                  funcionario={funcionarioData}
+                                  onClick={() => onAgendamentoClick(agendamento)}
+                                />
+                              );
+                            })}
+                          </div>
                         </div>
                       );
                     })}
