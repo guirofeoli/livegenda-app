@@ -15,8 +15,8 @@ import {
   ChevronRight,
   Wrench,
   LayoutDashboard,
-  Building2,
 } from "lucide-react";
+import { EmpresaLogo } from "@/components/LogoUploader";
 import {
   Sidebar,
   SidebarContent,
@@ -96,7 +96,7 @@ export default function Layout({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [empresa, setEmpresa] = useState(null);
 
-  React.useEffect(() => {
+  const loadEmpresaData = React.useCallback(() => {
     const user = JSON.parse(localStorage.getItem('livegenda_user') || '{}');
     
     if (user.tipo === 'funcionario' && user.funcionario_id) {
@@ -107,7 +107,6 @@ export default function Layout({ children }) {
       }
     } else if (user.tipo === 'gestor' || !user.tipo) {
       user.nome = user.email?.split('@')[0] || 'Gestor';
-      // Garantir que tipo seja 'gestor' se não for funcionario
       if (!user.tipo) {
         user.tipo = 'gestor';
       }
@@ -116,10 +115,8 @@ export default function Layout({ children }) {
     setCurrentUser(user);
     
     if (user.empresa_id) {
-      // Verificar em livegenda_empresa (onboarding) OU empresas (lista completa)
       let empresaEncontrada = null;
       
-      // Primeiro, tentar livegenda_empresa (salvo no onboarding)
       const savedEmpresa = localStorage.getItem('livegenda_empresa');
       if (savedEmpresa) {
         const parsedEmpresa = JSON.parse(savedEmpresa);
@@ -128,7 +125,6 @@ export default function Layout({ children }) {
         }
       }
       
-      // Se não encontrou, tentar na lista de empresas
       if (!empresaEncontrada) {
         const empresas = JSON.parse(localStorage.getItem('empresas') || '[]');
         empresaEncontrada = empresas.find(e => e.id === user.empresa_id);
@@ -136,7 +132,6 @@ export default function Layout({ children }) {
       
       setEmpresa(empresaEncontrada);
       
-      // Só redireciona se realmente não encontrou a empresa em nenhum lugar
       if ((user.tipo === 'gestor' || !user.tipo) && !empresaEncontrada && location.pathname !== '/onboarding') {
         navigate('/onboarding');
       }
@@ -144,6 +139,21 @@ export default function Layout({ children }) {
       navigate('/onboarding');
     }
   }, [location.pathname, navigate]);
+
+  React.useEffect(() => {
+    loadEmpresaData();
+    
+    const handleStorageChange = () => {
+      loadEmpresaData();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('empresaUpdated', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('empresaUpdated', handleStorageChange);
+    };
+  }, [loadEmpresaData]);
 
   const getMenuItems = () => {
     if (!currentUser || !currentUser.tipo) return navigationItems.filter(item => !item.funcionarioOnly);
@@ -329,9 +339,12 @@ export default function Layout({ children }) {
                 </SidebarTrigger>
                 
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-purple-600" />
-                  </div>
+                  <EmpresaLogo 
+                    logo={empresa?.logo} 
+                    nome={empresa?.nome} 
+                    size="md"
+                    className="border-2 border-purple-200"
+                  />
                   <div>
                     <h1 className="font-bold text-gray-900 text-lg leading-tight" data-testid="text-empresa-nome">
                       {empresa?.nome || 'Meu Estabelecimento'}
