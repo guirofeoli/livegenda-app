@@ -231,8 +231,8 @@ export default function DateTimePicker({
           </div>
 
           <div className="grid grid-cols-7 gap-1 mb-2">
-            {DIAS_SEMANA.map((dia) => (
-              <div key={dia} className="text-center text-xs font-medium text-gray-500 py-2">
+            {DIAS_SEMANA.map((dia, index) => (
+              <div key={`dia-${index}`} className="text-center text-xs font-medium text-gray-500 py-2">
                 {dia}
               </div>
             ))}
