@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { livegenda } from "@/api/livegendaClient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Plus, Filter, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Filter, Calendar as CalendarIcon, CheckCircle, XCircle } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -33,6 +34,7 @@ const MESES = [
 export default function Agendamentos() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("weekByFuncionario");
   const [selectedAgendamento, setSelectedAgendamento] = useState(null);
@@ -43,6 +45,13 @@ export default function Agendamentos() {
   const empresaId = currentUser.empresa_id;
   const isFuncionario = currentUser.tipo === 'funcionario';
   const funcionarioId = currentUser.funcionario_id;
+
+  // Buscar dados da empresa para horários de funcionamento
+  const { data: empresaData } = useQuery({
+    queryKey: ['empresa', empresaId],
+    queryFn: () => livegenda.entities.ConfiguracaoNegocio.get(),
+    enabled: !!empresaId,
+  });
 
   const { data: agendamentosData = [], isLoading } = useQuery({
     queryKey: ['agendamentos'],
@@ -87,13 +96,39 @@ export default function Agendamentos() {
     mutationFn: ({ id, data }) => livegenda.entities.Agendamento.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['agendamentos'] });
-      const statusMessages = {
-        "Confirmado": "Agendamento confirmado com sucesso",
-        "Cancelado": "Agendamento cancelado com sucesso"
-      };
+      const status = variables.data?.status?.toLowerCase();
+      
+      if (status === "confirmado") {
+        toast({
+          title: "Agendamento confirmado!",
+          description: "O cliente receberá um email de confirmação.",
+          duration: 5000,
+        });
+      } else if (status === "cancelado") {
+        toast({
+          title: "Agendamento cancelado",
+          description: "O agendamento foi cancelado com sucesso.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      } else {
+        // Edição normal (data, hora, serviço, etc.)
+        toast({
+          title: "Agendamento atualizado!",
+          description: "As alterações foram salvas com sucesso.",
+          duration: 3000,
+        });
+      }
+      
       setSelectedAgendamento(null);
     },
-    onError: () => {
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar agendamento",
+        description: "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+        duration: 5000,
+      });
     }
   });
 
@@ -306,6 +341,7 @@ export default function Agendamentos() {
             onDoubleClickSlot={handleDoubleClickSlot}
             isLoading={isLoading}
             selectedFuncionarioId={selectedFuncionarioId}
+            empresa={empresaData}
           />
         ) : viewMode === "day" ? (
           <DayView
@@ -318,6 +354,7 @@ export default function Agendamentos() {
             onDoubleClickSlot={handleDoubleClickSlot}
             isLoading={isLoading}
             selectedFuncionarioId={selectedFuncionarioId}
+            empresa={empresaData}
           />
         ) : (
           <WeekView
@@ -330,6 +367,7 @@ export default function Agendamentos() {
             onDoubleClickSlot={handleDoubleClickSlot}
             isLoading={isLoading}
             selectedFuncionarioId={selectedFuncionarioId}
+            empresa={empresaData}
             />
             )}
       </motion.div>
@@ -343,6 +381,7 @@ export default function Agendamentos() {
             servicos={servicos}
             funcionario={funcionarios.find(f => f.id === selectedAgendamento.funcionario_id)}
             funcionarios={funcionarios}
+            empresa={empresaData}
             onClose={handleCloseModal}
             onEdit={handleEditAgendamento}
             onConfirm={handleConfirmAgendamento}
