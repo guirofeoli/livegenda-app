@@ -2,6 +2,9 @@ import Layout from "./Layout.jsx";
 import Login from "./Login";
 import OnboardingEmpresa from "./OnboardingEmpresa";
 import OnboardingFuncionario from "./OnboardingFuncionario";
+import EmpresaPublica from "./EmpresaPublica";
+import BuscarServicos from "./BuscarServicos";
+import LandingPage from "./LandingPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -21,17 +24,34 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 function PagesContent() {
     return (
         <Routes>
-            {/* Public routes */}
+            {/* =====================================================
+                ÁREA PÚBLICA (livegenda.com)
+                Rotas acessíveis sem login
+               ===================================================== */}
+            
+            {/* Landing page principal */}
+            <Route path="/" element={<LandingPage />} />
+            
+            {/* Busca pública de serviços próximos */}
+            <Route path="/buscar" element={<BuscarServicos />} />
+            
+            {/* Página pública do estabelecimento */}
+            <Route path="/empresa/:slug" element={<EmpresaPublica />} />
+            
+            {/* =====================================================
+                ÁREA DE AUTENTICAÇÃO (app.livegenda.com)
+                Login, cadastro e onboarding
+               ===================================================== */}
+            
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding-empresa" element={<OnboardingEmpresa />} />
             <Route path="/onboarding-funcionario" element={<OnboardingFuncionario />} />
+            <Route path="/onboarding" element={<Navigate to="/onboarding-empresa" replace />} />
             
-            {/* Rota raiz redireciona para agendamentos */}
-            <Route path="/" element={
-                <ProtectedRoute>
-                    <Navigate to="/agendamentos" replace />
-                </ProtectedRoute>
-            } />
+            {/* =====================================================
+                ÁREA LOGADA (app.livegenda.com)
+                Rotas protegidas - requerem autenticação
+               ===================================================== */}
             
             <Route path="/funcionarios" element={
                 <ProtectedRoute>
@@ -112,11 +132,11 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-        {/* Fallback: /onboarding redireciona para /onboarding-empresa */}
-            <Route path="/onboarding" element={<Navigate to="/onboarding-empresa" replace />} />
             
-            {/* Catch-all: rotas não encontradas vão para login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* =====================================================
+                FALLBACK - Página não encontrada
+               ===================================================== */}
+            <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
 }
