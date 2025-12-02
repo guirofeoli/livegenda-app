@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean, decimal, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean, decimal, pgEnum, doublePrecision } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -11,11 +11,9 @@ export const categoriasEmpresaEnum = pgEnum("categoria_empresa", [
 ]);
 
 export const statusAgendamentoEnum = pgEnum("status_agendamento", [
-  "pendente",
+  "agendado",
   "confirmado",
-  "cancelado",
-  "concluido",
-  "nao_compareceu"
+  "cancelado"
 ]);
 
 export const roleUsuarioEnum = pgEnum("role_usuario", [
@@ -28,11 +26,23 @@ export const roleUsuarioEnum = pgEnum("role_usuario", [
 export const empresas = pgTable("empresas", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   nome: text("nome").notNull(),
+  slug: text("slug").unique(),
   categoria: categoriasEmpresaEnum("categoria").notNull(),
   telefone: text("telefone"),
   email: text("email"),
-  endereco: text("endereco"),
+  endereco: text("endereco"), // mantido para compatibilidade
+  // Campos estruturados de endereço
+  logradouro: text("logradouro"), // rua/avenida + número
+  bairro: text("bairro"),
+  cidade: text("cidade"),
+  estado: text("estado"), // UF (2 letras)
+  cep: text("cep"),
+  // Coordenadas para busca por proximidade
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  enderecoCompleto: boolean("endereco_completo").default(false), // flag se endereço está preenchido
   logo: text("logo"),
+  descricao: text("descricao"),
   horarioAbertura: text("horario_abertura").default("08:00"),
   horarioFechamento: text("horario_fechamento").default("18:00"),
   diasFuncionamento: text("dias_funcionamento").array().default(sql`ARRAY['seg', 'ter', 'qua', 'qui', 'sex']`),
@@ -78,6 +88,9 @@ export const funcionarios = pgTable("funcionarios", {
   cargo: text("cargo"),
   foto: text("foto"),
   cor: text("cor"), // cor para exibição no calendário
+  diasTrabalho: text("dias_trabalho").array(), // ex: ["seg", "ter", "qua", "qui", "sex"]
+  horarioTrabalhoInicio: text("horario_trabalho_inicio"), // ex: "09:00"
+  horarioTrabalhoFim: text("horario_trabalho_fim"), // ex: "18:00"
   ativo: boolean("ativo").default(true),
   criadoEm: timestamp("criado_em").defaultNow(),
 });
@@ -159,7 +172,7 @@ export const agendamentos = pgTable("agendamentos", {
   servicoId: varchar("servico_id").references(() => servicos.id).notNull(),
   dataHora: timestamp("data_hora").notNull(),
   dataHoraFim: timestamp("data_hora_fim").notNull(),
-  status: statusAgendamentoEnum("status").default("pendente"),
+  status: statusAgendamentoEnum("status").default("agendado"),
   observacoes: text("observacoes"),
   precoFinal: decimal("preco_final", { precision: 10, scale: 2 }),
   criadoEm: timestamp("criado_em").defaultNow(),
